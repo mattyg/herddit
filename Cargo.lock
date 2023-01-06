@@ -412,6 +412,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "directory"
+version = "0.0.1"
+dependencies = [
+ "directory_integrity",
+ "hdk",
+ "serde",
+]
+
+[[package]]
+name = "directory_integrity"
+version = "0.0.1"
+dependencies = [
+ "hdi",
+ "serde",
+]
+
+[[package]]
 name = "either"
 version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -595,6 +612,23 @@ name = "heck"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2540771e65fc8cb83cd6e8a237f70c319bd5c29f78ed1084ba5d50eeac86f7f9"
+
+[[package]]
+name = "herd"
+version = "0.0.1"
+dependencies = [
+ "hdk",
+ "herd_integrity",
+ "serde",
+]
+
+[[package]]
+name = "herd_integrity"
+version = "0.0.1"
+dependencies = [
+ "hdi",
+ "serde",
+]
 
 [[package]]
 name = "hermit-abi"

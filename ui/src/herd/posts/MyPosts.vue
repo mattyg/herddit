@@ -3,17 +3,17 @@
     <mwc-circular-progress indeterminate></mwc-circular-progress>
   </div>
 
-  <div v-else class="flex justify-center">
-    <div class="max-w-screen-md">
-      <div v-if="error">Error fetching the posts: {{error.data.data}}.</div>
-      <div v-else-if="hashes && hashes.length > 0" class="flex-row space-y-8">
-        <PostListItem 
-          v-for="hash in hashes" 
-          :post-hash="hash">
-        </PostListItem>
-      </div>
-      <span v-else>No posts found.</span>
+  <div v-else style="display: flex; flex-direction: column">
+    <span v-if="error">Error fetching the posts: {{error.data.data}}.</span>
+    <div v-else-if="hashes && hashes.length > 0">
+      <PostDetail 
+        v-for="hash in hashes" 
+        :post-hash="hash"
+        @post-deleted="fetchPost()"
+        style="margin-bottom: 8px">
+      </PostDetail>
     </div>
+    <span v-else>No posts found for this author.</span>
   </div>
 
 </template>
@@ -23,11 +23,17 @@ import { defineComponent, inject, ComputedRef } from 'vue';
 import { decode } from '@msgpack/msgpack';
 import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash } from '@holochain/client';
 import '@material/mwc-circular-progress';
-import PostListItem from './PostListItem.vue';
+import PostDetail from './PostDetail.vue';
 
 export default defineComponent({
   components: {
-    PostListItem
+    PostDetail
+  },
+  props: { 
+    author: {
+      type: Object,
+      required: true
+    } 
   },
   data(): { hashes: Array<ActionHash> | undefined; loading: boolean; error: any } {
     return {
@@ -44,10 +50,10 @@ export default defineComponent({
       try {
         this.hashes = await this.client.callZome({
           cap_secret: null,
-          role_name: 'posts',
+          role_name: 'herd',
           zome_name: 'posts',
-          fn_name: 'get_all_posts',
-          payload: null,
+          fn_name: 'get_my_posts',
+          payload: this.author,
         });
       } catch (e) {
         this.error = e;

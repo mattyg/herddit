@@ -87,7 +87,7 @@ export default defineComponent({
       try {
         const updateRecord: Record = await this.client.callZome({
           cap_secret: null,
-          role_name: 'posts',
+          role_name: 'herd',
           zome_name: 'posts',
           fn_name: 'update_post',
           payload: {

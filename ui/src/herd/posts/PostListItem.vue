@@ -1,7 +1,7 @@
 <template>
   <div v-if="!loading">
-    <RouterLink v-if="record" :to="`/posts/${postHashString}`">
-      <div class="w-full flex flex-col bg-neutral-1">
+    <RouterLink v-if="record" :to="`/herds/${dnaHashString}/posts/${postHashString}`">
+      <div class="w-full flex flex-col bg-neutral-1 hover:bg-neutral-2">
         <div class="w-full text-2xl">{{ post?.title }}</div>
         <div class="text-xs">Submitted {{dateRelative}} by {{authorHash}}</div>
       </div>
@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, ComputedRef } from 'vue';
+import { defineComponent, inject, ComputedRef, PropType } from 'vue';
 import { decode } from '@msgpack/msgpack';
 import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash } from '@holochain/client';
 import { Post } from './types';
@@ -27,7 +27,7 @@ import '@material/mwc-circular-progress';
 import '@material/mwc-icon-button';
 import '@material/mwc-snackbar';
 import { Snackbar } from '@material/mwc-snackbar';
-import { serializeHash } from '@holochain-open-dev/utils';
+import { deserializeHash, serializeHash } from '@holochain-open-dev/utils';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
@@ -36,8 +36,12 @@ export default defineComponent({
   components: {
   },
   props: {
+    dnaHash: {
+      type: Object as PropType<Uint8Array>,
+      required: true
+    },
     postHash: {
-      type: Uint8Array,
+      type: Object as PropType<Uint8Array>,
       required: true
     }
   },
@@ -65,6 +69,17 @@ export default defineComponent({
     },
     postHashString() {      
       return serializeHash(this.postHash);
+    },
+    dnaHashString() {
+      return serializeHash(this.dnaHash);
+    }
+  },
+  watch: {
+    dnaHash() {
+      this.fetchPost();
+    },
+    postHash() {
+      this.fetchPost();
     }
   },
   async mounted() {
@@ -76,8 +91,8 @@ export default defineComponent({
       this.record = undefined;
 
       this.record = await this.client.callZome({
+        cell_id: [this.dnaHash, this.client.myPubKey],
         cap_secret: null,
-        role_name: 'posts',
         zome_name: 'posts',
         fn_name: 'get_post',
         payload: this.postHash,

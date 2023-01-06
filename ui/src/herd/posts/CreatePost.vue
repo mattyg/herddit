@@ -3,14 +3,14 @@
 
   <div class="flex h-full justify-center item-center">
     <div class="w-full md:max-w-md bg-white-200">
-      <span class="text-xl mb-4">Create Post</span>
+      <span class="text-2xl mb-8">Create Post</span>
     
-      <div style="margin-bottom: 16px" class="w-full">
-        <mwc-textfield outlined label="Title" @input="title = $event.target.value" required></mwc-textfield>
+      <div class="mb-4">
+        <mwc-textfield class="w-full" outlined label="Title" @input="title = $event.target.value" required></mwc-textfield>
       </div>
 
-      <div style="margin-bottom: 16px" class="w-full">
-        <mwc-textarea outlined label="Content" @input="content = $event.target.value" required></mwc-textarea>
+      <div  class="mb-4">
+        <mwc-textarea class="w-full" outlined label="Content" @input="content = $event.target.value" required></mwc-textarea>
       </div>
     
       <button class="btn bn-primary"
@@ -21,7 +21,7 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, inject, ComputedRef } from 'vue';
+import { defineComponent, inject, ComputedRef, PropType } from 'vue';
 import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash } from '@holochain/client';
 import { Post } from './types';
 import '@material/mwc-button';
@@ -30,20 +30,32 @@ import '@material/mwc-snackbar';
 import { Snackbar } from '@material/mwc-snackbar';
 import '@material/mwc-textfield';
 import '@vaadin/date-time-picker/theme/material/vaadin-date-time-picker.js';
-import { serializeHash } from '@holochain-open-dev/utils';
+import { deserializeHash, serializeHash } from '@holochain-open-dev/utils';
 import '@material/mwc-textarea';
+import { decode } from '@msgpack/msgpack';
 export default defineComponent({
+  
+  props: {
+    dnaHash: {
+      type: Object as PropType<Uint8Array>,
+      required: true
+    },
+  },
   data(): {
     title: string | undefined;
-    reason: string | undefined;
+    content: string | undefined;
+    record: Record | undefined;
+    loading: boolean;
   } {
     return { 
       title: undefined,
-      reason: undefined,
+      content: undefined,
+      record: undefined,
+      loading: false,
     }
   },
   computed: {
-    isHerdValid() {
+    isPostValid() {
       return true && this.title !== undefined && this.content !== undefined;
     },
   },
@@ -51,20 +63,20 @@ export default defineComponent({
     async createPost() {
       const post: Post = { 
         title: this.title!,
-
-        reason: this.reason!,
+        content: this.content!,
       };
 
       try {
         const record: Record = await this.client.callZome({
+          cell_id: [this.dnaHash, this.client.myPubKey],
           cap_secret: null,
-          role_name: 'posts',
           zome_name: 'posts',
-          fn_name: 'fork_herd',
+          fn_name: 'create_post',
           payload: post,
         });
+      
         this.$emit('post-created', record.signed_action.hashed.hash);
-        this.$router.push(`/posts/${serializeHash(record.signed_action.hashed.hash)}`);
+        this.$router.push(`/herds/${this.$route.params.listingHashString}/posts/${serializeHash(record.signed_action.hashed.hash)}`);
       } catch (e: any) {
         const errorSnackbar = this.$refs['create-error'] as Snackbar;
         errorSnackbar.labelText = `Error creating the post: ${e.data.data}`;

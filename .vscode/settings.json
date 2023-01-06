@@ -1,0 +1,5 @@
+{
+    "nixEnvSelector.suggestion": false,
+    "nixEnvSelector.nixFile": "${workspaceRoot}/default.nix",
+    "editor.tabSize": 2
+}

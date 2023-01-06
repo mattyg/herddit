@@ -3,37 +3,39 @@
     <mwc-circular-progress indeterminate></mwc-circular-progress>
   </div>
 
-  <div v-else style="display: flex; flex-direction: column">
-    <span v-if="error">Error fetching the posts: {{error.data.data}}.</span>
-    <div v-else-if="hashes && hashes.length > 0">
-      <PostDetail 
-        v-for="hash in hashes" 
-        :post-hash="hash"
-        @post-deleted="fetchPost()"
-        style="margin-bottom: 8px">
-      </PostDetail>
+  <div v-else class="flex justify-center">
+    <div class="max-w-screen-md">
+      <div v-if="error">Error fetching the posts: {{error.data.data}}.</div>
+      <div v-else-if="hashes && hashes.length > 0" class="flex-row space-y-8">
+        <PostListItem 
+          v-for="hash in hashes" 
+          :dnaHash="dnaHash"
+          :postHash="hash">
+        </PostListItem>
+      </div>
+      <span v-else>No posts found.</span>
     </div>
-    <span v-else>No posts found for this author.</span>
   </div>
 
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, ComputedRef } from 'vue';
+import { defineComponent, inject, ComputedRef, PropType } from 'vue';
 import { decode } from '@msgpack/msgpack';
 import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash } from '@holochain/client';
 import '@material/mwc-circular-progress';
-import PostDetail from './PostDetail.vue';
+import PostListItem from './PostListItem.vue';
+import { deserializeHash } from '@holochain-open-dev/utils';
 
 export default defineComponent({
   components: {
-    PostDetail
+    PostListItem
   },
-  props: { 
-    author: {
-      type: Object,
+  props: {
+    dnaHash: {
+      type: Object as PropType<Uint8Array>,
       required: true
-    } 
+    },
   },
   data(): { hashes: Array<ActionHash> | undefined; loading: boolean; error: any } {
     return {
@@ -43,18 +45,21 @@ export default defineComponent({
     }
   },
   async mounted() {
-    await this.fetchPost();
+    await this.fetchAllPosts();
   },
   methods: {
-    async fetchPost() {
+    async fetchAllPosts() {
       try {
-        this.hashes = await this.client.callZome({
+        const response = await this.client.callZome({
+          cell_id: [this.dnaHash, this.client.myPubKey],
           cap_secret: null,
-          role_name: 'posts',
           zome_name: 'posts',
-          fn_name: 'get_my_posts',
-          payload: this.author,
+          fn_name: 'get_all_posts',
+          payload: null,
         });
+        console.log('post hashes received is',response);
+
+        this.hashes = response;
       } catch (e) {
         this.error = e;
       }

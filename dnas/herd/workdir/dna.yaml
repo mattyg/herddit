@@ -1,0 +1,38 @@
+---
+manifest_version: "1"
+name: herd
+integrity:
+  network_seed: ~
+  properties:
+    title: 'herd'
+  origin_time: 1672608938336518
+  zomes:
+    - name: posts_integrity
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/posts_integrity.wasm"
+      dependencies: ~
+    - name: directory_integrity
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/directory_integrity.wasm"
+      dependencies: ~
+    - name: herd_integrity
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/herd_integrity.wasm"
+      dependencies: ~
+coordinator:
+  zomes:
+    - name: posts
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/posts.wasm"
+      dependencies:
+        - name: posts_integrity
+    - name: directory
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/directory.wasm"
+      dependencies:
+        - name: directory_integrity
+    - name: herd
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/herd.wasm"
+      dependencies:
+        - name: herd_integrity

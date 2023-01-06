@@ -1,7 +1,7 @@
 <template>
   <div class="w-full flex justify-center">
     <div class="w-full md:max-w-screen-lg">
-      <a class="fixed top-48 left-8" @click="$router.back()">Back</a>
+      <a class="fixed top-48 left-8 btn btn-ghost btn-xs" @click="$router.push(`/herds/${$route.params.listingHashString}`)">Back to Herd</a>
       <div v-if="!loading">
         <div v-if="record && postContent" class="flex flex-col justify-center items-center space-y-4 my-4">
           <div class="flex flex-col justify-start items-center space-y-4">
@@ -17,7 +17,7 @@
           </div>
 
           <div class="w-full md:max-w-screen-md bg-base-200 p-8 shadow-sm prose md:prose-lg" v-html="postContent"></div>
-          <button class="btn btn-primary btn-lg" @click="editPost()">Share to your Neighbors</button>
+          <button class="btn btn-primary btn-lg">Share to your Neighbors</button>
         </div>
         
         <span v-else>The requested post was not found.</span>
@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, ComputedRef } from 'vue';
+import { defineComponent, inject, ComputedRef, PropType } from 'vue';
 import { decode } from '@msgpack/msgpack';
 import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash, AppInfo } from '@holochain/client';
 import { Post } from './types';
@@ -52,8 +52,8 @@ export default defineComponent({
     PostListItem
   },
   props: {
-    postHashString: {
-      type: String,
+    dnaHash: {
+      type: Object as PropType<Uint8Array>,
       required: true
     }
   },
@@ -71,7 +71,7 @@ export default defineComponent({
       return decode((this.record.entry as any).Present.entry) as Post;
     },
     postHash() {
-      return deserializeHash(this.postHashString);
+      return deserializeHash(this.$route.params.postHashString as string);
     },
     postContent() {
       if(!this.post?.content) return undefined;
@@ -80,10 +80,7 @@ export default defineComponent({
     },
     myPost() {
       if(!this.record || !this.appInfo) return false;
-
-      console.log('author', this.record.signed_action.hashed.content.author);
-      console.log('cell_id[1]',  (this.appInfo?.cell_info['posts'][0] as any).Provisioned?.cell_id[1]);
-      return serializeHash(this.record.signed_action.hashed.content.author) === serializeHash((this.appInfo?.cell_info['posts'][0] as any).Provisioned?.cell_id[1])
+      return this.record.signed_action.hashed.content.author === this.client.myPubKey;
     },
     authorHashString() {
       if (!this.record) return undefined;
@@ -106,8 +103,8 @@ export default defineComponent({
       this.record = undefined;
 
       this.record = await this.client.callZome({
+        cell_id: [this.dnaHash, this.client.myPubKey],
         cap_secret: null,
-        role_name: 'posts',
         zome_name: 'posts',
         fn_name: 'get_post',
         payload: this.postHash,
@@ -118,8 +115,8 @@ export default defineComponent({
     async deletePost() {
       try {
         await this.client.callZome({
+          cell_id: [this.dnaHash, this.client.myPubKey],
           cap_secret: null,
-          role_name: 'posts',
           zome_name: 'posts',
           fn_name: 'delete_post',
           payload: this.postHash,
@@ -133,7 +130,7 @@ export default defineComponent({
       }
     },
     editPost() {
-      this.$router.push(`/post/${this.postHashString}/edit`);
+      this.$router.push(`/herds/${this.$route.params.listingHashString}/posts/${this.$route.params.postHashString}/edit`);
     }
   },
   setup() {
