@@ -13,12 +13,8 @@ import '@material/mwc-circular-progress';
 import '@material/mwc-icon-button';
 import '@material/mwc-snackbar';
 import { Snackbar } from '@material/mwc-snackbar';
-import EditListing from './EditListing.vue';
 
 export default defineComponent({
-  components: {
-    EditListing
-  },
   props: {
     listingHash: {
       type: Object as PropType<Uint8Array>,

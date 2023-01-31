@@ -17,7 +17,6 @@
           </div>
 
           <div class="w-full md:max-w-screen-md bg-base-200 p-8 shadow-sm prose md:prose-lg" v-html="postContent"></div>
-          <button class="btn btn-primary btn-lg">Share to your Neighbors</button>
         </div>
         
         <span v-else>The requested post was not found.</span>

@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts">
-import { ActionHash, AppAgentClient, CellId, CellInfo, InstalledCell, Record, encodeHashToBase64, decodeHashFromBase64, ClonedCell} from '@holochain/client';
+import { AppAgentClient, CellId, Record, encodeHashToBase64, decodeHashFromBase64, ClonedCell, ClonedCellInfo} from '@holochain/client';
 import { Snackbar } from '@material/mwc-snackbar';
 import { decode } from '@msgpack/msgpack';
 import { ComputedRef, defineComponent, inject, PropType } from 'vue'
@@ -89,17 +89,17 @@ export default defineComponent({
         async installHerdCell() {            
             const appInfo = await this.client.appInfo();
             console.log('cell info', appInfo.cell_info.herd);
-            let cellInfo = appInfo.cell_info.herd.find((cell: CellInfo) => {
+            let cellInfo = appInfo.cell_info.herd.find((cell) => {    
                 return cell.cloned && isEqual(cell.cloned.cell_id[0], this.listing?.dna)
             });
 
             if(cellInfo) {
-                console.log('already have dna with cell_id:', cellInfo?.cloned.cell_id);
+                console.log('already have dna with cell_id:', cellInfo.cloned.cell_id);
                 const appInfo = await this.client.appInfo();
                 console.log('new app info', appInfo);
 
                 this.cellInstalled = true;
-                return cellInfo?.cloned.cell_id;
+                return cellInfo.cloned.cell_id;
             } else {
                 const cloneCell: ClonedCell = await this.client.createCloneCell({
                     role_name: 'herd',
