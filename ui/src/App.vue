@@ -5,9 +5,9 @@
     <div v-else class="h-screen">
       <div class="navbar bg-base-300">
         <div class="flex-1">
-          <div class="mx-4 btn btn-ghost normal-case text-xl">
-            <RouterLink to="/" >herddit</RouterLink>
-          </div>
+          <RouterLink to="/" class="mx-4 btn btn-ghost normal-case text-xl">
+            herddit
+          </RouterLink>
         </div>
         <div>
           <ul class="menu menu-horizontal px-1 flex items-center">

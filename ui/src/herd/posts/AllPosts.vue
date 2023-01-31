@@ -25,7 +25,6 @@ import { decode } from '@msgpack/msgpack';
 import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash } from '@holochain/client';
 import '@material/mwc-circular-progress';
 import PostListItem from './PostListItem.vue';
-import { deserializeHash } from '@holochain-open-dev/utils';
 
 export default defineComponent({
   components: {

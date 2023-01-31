@@ -31,7 +31,7 @@
 </template>
 <script lang="ts">
 import { defineComponent, inject, ComputedRef } from 'vue';
-import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash } from '@holochain/client';
+import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash, decodeHashFromBase64} from '@holochain/client';
 import { Post } from './types';
 import '@material/mwc-button';
 import '@material/mwc-snackbar';
@@ -40,7 +40,6 @@ import { Snackbar } from '@material/mwc-snackbar';
 import '@vaadin/date-time-picker/theme/material/vaadin-date-time-picker.js';
 import '@material/mwc-textfield';
 import '@material/mwc-textarea';
-import { deserializeHash } from '@holochain-open-dev/utils';
 
 export default defineComponent({
   data(): {
@@ -73,7 +72,7 @@ export default defineComponent({
     originalPostHash() {
       if(!this.postHashString) return undefined;
 
-      return deserializeHash(this.postHashString);
+      return decodeHashFromBase64(this.postHashString);
     }
   },
   methods: {

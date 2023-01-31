@@ -7,14 +7,13 @@
 <script lang="ts">
 import { defineComponent, inject, ComputedRef, PropType } from 'vue';
 import { decode } from '@msgpack/msgpack';
-import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash } from '@holochain/client';
+import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash, encodeHashToBase64, decodeHashFromBase64 } from '@holochain/client';
 import { Listing } from './types';
 import '@material/mwc-circular-progress';
 import '@material/mwc-icon-button';
 import '@material/mwc-snackbar';
 import { Snackbar } from '@material/mwc-snackbar';
 import EditListing from './EditListing.vue';
-import { deserializeHash, serializeHash } from '@holochain-open-dev/utils';
 
 export default defineComponent({
   components: {
@@ -41,7 +40,7 @@ export default defineComponent({
     listingHashString() {
       if (!this.listing) return undefined;
 
-      return serializeHash(this.listingHash);
+      return encodeHashToBase64(this.listingHash);
     }
   },
   async mounted() {

@@ -49,10 +49,9 @@ export default defineComponent({
       try {
         this.hashes = await this.client.callZome({
           ...cellArgs,
-          cap_secret: null,
           zome_name: 'directory',
           fn_name: 'get_all_listings',
-          payload: null,
+          payload: undefined
         });
       } catch (e) {
         this.error = e;

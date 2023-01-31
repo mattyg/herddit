@@ -3,9 +3,8 @@
 
   <div class="w-full flex justify-center">
     <div class="w-full md:max-w-screen-lg mx-4">
-      <span class="text-2xl mb-8">Create Herd</span>
-    
-      <div class="mb-4">
+      <div class="text-2xl mb-4">Create Herd</div>
+      <div class="mb-8">
         <mwc-textfield class="w-full" outlined label="Title" @input="title = $event.target.value" required></mwc-textfield>
       </div>
     
@@ -19,8 +18,8 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, inject, ComputedRef } from 'vue';
-import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash, InstalledCell } from '@holochain/client';
+import { defineComponent, inject, ComputedRef, PropType } from 'vue';
+import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash, InstalledCell, encodeHashToBase64, ClonedCell } from '@holochain/client';
 import { Listing } from '../directory/types';
 import '@material/mwc-button';
 import '@material/mwc-icon-button';
@@ -29,7 +28,9 @@ import { Snackbar } from '@material/mwc-snackbar';
 import { generateSlug } from "random-word-slugs";
 
 import '@material/mwc-textarea';
-import { deserializeHash, serializeHash, timestampToMillis } from '@holochain-open-dev/utils';
+import { error } from 'console';
+import { create } from 'domain';
+import { title } from 'process';
 export default defineComponent({
   data(): {
     title: string | undefined;
@@ -40,8 +41,6 @@ export default defineComponent({
       description: '',
     }
   },
-  props: {
-  },
   computed: {
     isHerdValid() {
       return true && this.title !== undefined
@@ -50,10 +49,9 @@ export default defineComponent({
   methods: {
     async createHerd() {
       try {
-        const timestamp = Math.floor(new Date() / 1000);
         const network_seed = generateSlug(5);
 
-        const cloneCell: InstalledCell = await this.client.createCloneCell({
+        const cloneCell: ClonedCell = await this.client.createCloneCell({
           role_name: 'herd',
           modifiers: {
             network_seed,
@@ -80,7 +78,7 @@ export default defineComponent({
         });
 
         this.$emit('listing-created', record.signed_action.hashed.hash);
-        this.$router.push(`/herds/${serializeHash(record.signed_action.hashed.hash)}`);
+        this.$router.push(`/herds/${encodeHashToBase64(record.signed_action.hashed.hash)}`);
       } catch (e: any) {
         const errorSnackbar = this.$refs['create-error'] as Snackbar;
         errorSnackbar.labelText = `Error creating the herd: ${e.data.data}`;

@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
-import {createRouter, createWebHashHistory} from 'vue-router';
+import {createRouter, createWebHashHistory, createWebHistory} from 'vue-router';
 import './style.css'
-import App from './App.vue'
+import App from './App.vue';
 import AllPosts from './herd/posts/AllPosts.vue';
 import CreatePost from './herd/posts/CreatePost.vue';
 import PostDetail from './herd/posts/PostDetail.vue';
@@ -18,14 +18,19 @@ const routes = [
             { path: '', component: AllPosts },
             { path: 'posts/create', component: CreatePost },
             { path: 'posts/:postHashString', component: PostDetail },
-            { path: 'posts/:postHashString/edit', component: EditPost }
+            { path: 'posts/:postHashString/edit', component: EditPost },
         ]
     },
 ];
 
 const router = createRouter({
     history: createWebHashHistory(),
-    routes, // short for `routes: routes`
+    routes, // short for `routes: routes`,
+});
+
+router.beforeEach((to, from ,next) => {
+    console.log('ROUTER BEFORE EACH', to, from);
+    next();
 });
 
 const app = createApp(App);

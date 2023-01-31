@@ -3,7 +3,7 @@
 
   <div class="flex h-full justify-center item-center">
     <div class="w-full md:max-w-md bg-white-200">
-      <span class="text-2xl mb-8">Create Post</span>
+      <div class="text-2xl mb-8">Create Post</div>
     
       <div class="mb-4">
         <mwc-textfield class="w-full" outlined label="Title" @input="title = $event.target.value" required></mwc-textfield>
@@ -22,7 +22,7 @@
 </template>
 <script lang="ts">
 import { defineComponent, inject, ComputedRef, PropType } from 'vue';
-import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash } from '@holochain/client';
+import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash, encodeHashToBase64 } from '@holochain/client';
 import { Post } from './types';
 import '@material/mwc-button';
 import '@material/mwc-icon-button';
@@ -30,7 +30,6 @@ import '@material/mwc-snackbar';
 import { Snackbar } from '@material/mwc-snackbar';
 import '@material/mwc-textfield';
 import '@vaadin/date-time-picker/theme/material/vaadin-date-time-picker.js';
-import { deserializeHash, serializeHash } from '@holochain-open-dev/utils';
 import '@material/mwc-textarea';
 import { decode } from '@msgpack/msgpack';
 export default defineComponent({
@@ -76,7 +75,7 @@ export default defineComponent({
         });
       
         this.$emit('post-created', record.signed_action.hashed.hash);
-        this.$router.push(`/herds/${this.$route.params.listingHashString}/posts/${serializeHash(record.signed_action.hashed.hash)}`);
+        this.$router.push(`/herds/${this.$route.params.listingHashString}/posts/${encodeHashToBase64(record.signed_action.hashed.hash)}`);
       } catch (e: any) {
         const errorSnackbar = this.$refs['create-error'] as Snackbar;
         errorSnackbar.labelText = `Error creating the post: ${e.data.data}`;

@@ -36,14 +36,13 @@
 <script lang="ts">
 import { defineComponent, inject, ComputedRef, PropType } from 'vue';
 import { decode } from '@msgpack/msgpack';
-import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash, AppInfo } from '@holochain/client';
+import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash, AppInfo, encodeHashToBase64, decodeHashFromBase64 } from '@holochain/client';
 import { Post } from './types';
 import '@material/mwc-circular-progress';
 import '@material/mwc-icon-button';
 import '@material/mwc-snackbar';
 import { Snackbar } from '@material/mwc-snackbar';
 import PostListItem from './PostListItem.vue';
-import { deserializeHash, serializeHash,  } from '@holochain-open-dev/utils';
 import {marked} from 'marked';
 import dayjs from 'dayjs';
 
@@ -71,7 +70,7 @@ export default defineComponent({
       return decode((this.record.entry as any).Present.entry) as Post;
     },
     postHash() {
-      return deserializeHash(this.$route.params.postHashString as string);
+      return decodeHashFromBase64(this.$route.params.postHashString as string);
     },
     postContent() {
       if(!this.post?.content) return undefined;
@@ -85,7 +84,7 @@ export default defineComponent({
     authorHashString() {
       if (!this.record) return undefined;
 
-      return serializeHash(this.record.signed_action.hashed.content.author);
+      return encodeHashToBase64(this.record.signed_action.hashed.content.author);
     },
     dateRelative() {
       if(!this.record?.signed_action.hashed.content.timestamp) return;

@@ -17,7 +17,6 @@
 </template>
 
 <script lang="ts">
-import { deserializeHash, serializeHash } from '@holochain-open-dev/utils';
 import { ActionHash, AppAgentClient, CellInfo, InstalledCell, Record} from '@holochain/client';
 import { Snackbar } from '@material/mwc-snackbar';
 import { decode } from '@msgpack/msgpack';
