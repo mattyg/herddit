@@ -1,6 +1,5 @@
 use hdi::prelude::*;
 use crate::*;
-
 pub fn validate_create_post(
     _action: EntryCreationAction,
     _post: Post,

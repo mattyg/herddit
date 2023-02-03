@@ -1,3 +1,5 @@
+pub mod comment;
+pub use comment::*;
 pub mod post;
 pub use post::*;
 pub mod votes;
@@ -12,18 +14,16 @@ pub struct Post {
     pub title: String,
     pub content: String,
 }
-
 #[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
 pub struct PostVoteTag {
     pub value: i8,
 }
-
 #[hdk_entry_defs]
 #[unit_enum(UnitEntryTypes)]
 pub enum EntryTypes {
     Post(Post),
+    Comment(Comment),
 }
-
 #[hdk_link_types]
 pub enum LinkTypes {
     PostUpdates,
@@ -31,10 +31,9 @@ pub enum LinkTypes {
     MyPosts,
     MyUpvotedPosts,
     PostVoteByAgent,
+    PostToComments,
+    CommentUpdates,
 }
-
-// Validation you perform during the genesis process. Nobody else on the network performs it, only you.
-// There *is no* access to network calls in this callback
 #[hdk_extern]
 pub fn genesis_self_check(
     _data: GenesisSelfCheckData,

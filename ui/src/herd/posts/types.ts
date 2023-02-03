@@ -6,3 +6,11 @@ export interface Post {
   content: string;
 }
 
+
+
+export interface Comment { 
+  content: string;
+
+  post_ah: ActionHash;
+}
+

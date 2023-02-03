@@ -24,6 +24,8 @@
           </div>
 
           <div class="w-full md:max-w-screen-md bg-base-200 p-8 shadow-sm prose md:prose-lg" v-html="postContent"></div>
+          
+          <CommentsForPost :dnaHash="dnaHash" :postHash="postHash" />
         </div>
       </div>
         
@@ -51,6 +53,8 @@ import '@material/mwc-snackbar';
 import { Snackbar } from '@material/mwc-snackbar';
 import PostListItem from './PostListItem.vue';
 import PostVotes from './PostVotes.vue';
+import CommentsForPost from './CommentsForPost.vue';
+import CreateComment from './CreateComment.vue';
 import {marked} from 'marked';
 import dayjs from 'dayjs';
 import { error } from 'console';
@@ -59,7 +63,9 @@ import { Listing } from '../directory/types';
 export default defineComponent({
   components: {
     PostListItem,
-    PostVotes
+    PostVotes,
+    CommentsForPost,
+    CreateComment,
   },
   props: {
     dnaHash: {
@@ -122,7 +128,6 @@ export default defineComponent({
       try {
         const post_metadata = await this.client.callZome({
           cell_id: [this.dnaHash, this.client.myPubKey],
-          cap_secret: null,
           zome_name: 'posts',
           fn_name: 'get_post_metadata',
           payload: this.postHash,
