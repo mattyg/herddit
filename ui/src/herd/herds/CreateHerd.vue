@@ -11,7 +11,7 @@
       <mwc-button 
         raised
         label="Create Herd"
-        :disabled="!isHerdValid"
+        :disabled="!isHerdValid || creatingHerd"
         @click="createHerd"
       ></mwc-button>
     </div>
@@ -35,10 +35,12 @@ export default defineComponent({
   data(): {
     title: string | undefined;
     description: string | undefined;
+    creatingHerd: boolean;
   } {
     return { 
       title: undefined,
       description: '',
+      creatingHerd: false,
     }
   },
   computed: {
@@ -48,6 +50,7 @@ export default defineComponent({
   },
   methods: {
     async createHerd() {
+      this.creatingHerd = true;
       try {
         const network_seed = generateSlug(5);
 
@@ -84,6 +87,8 @@ export default defineComponent({
         errorSnackbar.labelText = `Error creating the herd: ${e.data.data}`;
         errorSnackbar.show();
       }
+
+      this.creatingHerd = false;
     },
   },
   emits: ['listing-created'],

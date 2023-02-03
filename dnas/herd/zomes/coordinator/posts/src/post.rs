@@ -43,7 +43,6 @@ pub fn get_post_metadata(original_post_hash: ActionHash) -> ExternResult<Option<
 
     if let Some(post) = maybe_post {
         let mut post_vote_links = get_links(original_post_hash, LinkTypes::PostVoteByAgent, None)?;
-        warn!("{}", post_vote_links.len());
 
         // Sort by voting agent, then by link timestamp descending
         post_vote_links.sort_by(|a, b| -> Ordering {
@@ -53,13 +52,10 @@ pub fn get_post_metadata(original_post_hash: ActionHash) -> ExternResult<Option<
                 return a.target.cmp(&b.target);
             }
         });
-        warn!("{}", post_vote_links.len());
 
 
         // Take first link by each agent in list 
         post_vote_links.dedup_by_key(|a| a.target.clone());
-
-        warn!("{}", post_vote_links.len());
 
         // Get PostVoteTags for each link
         let latest_post_vote_tags: Vec<PostVoteTag> = post_vote_links

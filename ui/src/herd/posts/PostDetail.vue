@@ -4,11 +4,13 @@
       <a class="fixed top-48 left-8 btn btn-ghost btn-xs" @click="$router.push(`/herds/${$route.params.listingHashString}`)">Back to Herd</a>
       <div v-if="!loading">
         <div  v-if="record && postContent"  class="flex flex-row justify-center items-start space-x-4">
-          <div>
-            <button class="text-2xl font-bold" @click="upvotePost">⇧</button>
-            <div class="text-2xl font-bold">{{  upvotes - downvotes }}</div>
-            <button class="text-2xl font-bold" @click="downvotePost">⇩</button>
-          </div>
+          <PostVotes 
+            :votes="votesCount" 
+            :dnaHash="dnaHash" 
+            :postHash="postHash"
+            @upvote="() => { if(my_vote !== 1) { my_vote = 1; upvotes += 1; fetchPost();} }"
+            @downvote="() => { if(my_vote !== -1) { my_vote = -1; upvotes -= 1; fetchPost();} }"
+            @error="votingError" />
           <div class="flex flex-col justify-center items-center space-y-4 my-4">
             <div class="flex flex-col justify-start items-center space-y-4">
               <div class="w-full text-4xl">{{ post?.title }}</div>
@@ -48,12 +50,16 @@ import '@material/mwc-icon-button';
 import '@material/mwc-snackbar';
 import { Snackbar } from '@material/mwc-snackbar';
 import PostListItem from './PostListItem.vue';
+import PostVotes from './PostVotes.vue';
 import {marked} from 'marked';
 import dayjs from 'dayjs';
+import { error } from 'console';
+import { Listing } from '../directory/types';
 
 export default defineComponent({
   components: {
-    PostListItem
+    PostListItem,
+    PostVotes
   },
   props: {
     dnaHash: {
@@ -61,12 +67,12 @@ export default defineComponent({
       required: true
     }
   },
-  data(): { record: Record | undefined; upvotes: number; downvotes: number; myVote: number; loading: boolean; editing: boolean; appInfo?: AppInfo} {
+  data(): { record: Record | undefined; upvotes: number; downvotes: number; my_vote?: number; loading: boolean; editing: boolean; appInfo?: AppInfo} {
     return {
       record: undefined,
       upvotes: 0,
       downvotes: 0,
-      myVote: undefined,
+      my_vote: undefined,
       loading: true,
       editing: false,
       appInfo: undefined
@@ -99,6 +105,9 @@ export default defineComponent({
 
       return dayjs(this.record.signed_action.hashed.content.timestamp/1000).fromNow();
     },
+    votesCount() {
+      return this.upvotes - this.downvotes;
+    }
   },
   async mounted() {
     await this.fetchPost();
@@ -106,6 +115,7 @@ export default defineComponent({
   },
   methods: {
     async fetchPost() {
+      console.log('fetching post');
       this.loading = true;
       this.record = undefined;
 
@@ -151,44 +161,11 @@ export default defineComponent({
     editPost() {
       this.$router.push(`/herds/${this.$route.params.listingHashString}/posts/${this.$route.params.postHashString}/edit`);
     },
-    async upvotePost() {
-      if(this.myVote === 1) return;
-
-      try {
-        await this.client.callZome({
-          cell_id: [this.dnaHash, this.client.myPubKey],
-          cap_secret: null,
-          zome_name: 'posts',
-          fn_name: 'upvote_post',
-          payload: this.postHash,
-        });
-        this.$emit('post-upvoted', this.postHash);
-        this.fetchPost();
-      } catch (e: any) {
-        const errorSnackbar = this.$refs['error'] as Snackbar;
-        errorSnackbar.labelText = `Error upvoting the post: ${e.data.data}`;
+    votingError(msg: string) {
+      const errorSnackbar = this.$refs['error'] as Snackbar;
+        errorSnackbar.labelText = `Error voting on post ${msg}`;
         errorSnackbar.show();
-      }
-    },
-    async downvotePost() {
-      if(this.myVote === -1) return;
-
-      try {
-        await this.client.callZome({
-          cell_id: [this.dnaHash, this.client.myPubKey],
-          cap_secret: null,
-          zome_name: 'posts',
-          fn_name: 'downvote_post',
-          payload: this.postHash,
-        });
-        this.$emit('post-downvoted', this.postHash);
-        this.fetchPost();
-      } catch (e: any) {
-        const errorSnackbar = this.$refs['error'] as Snackbar;
-        errorSnackbar.labelText = `Error downvoting the post: ${e.data.data}`;
-        errorSnackbar.show();
-      }
-    },
+    }
   },
   setup() {
     const client = (inject('client') as ComputedRef<AppAgentClient>).value;

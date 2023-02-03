@@ -28,11 +28,6 @@ const router = createRouter({
     routes, // short for `routes: routes`,
 });
 
-router.beforeEach((to, from ,next) => {
-    console.log('ROUTER BEFORE EACH', to, from);
-    next();
-});
-
 const app = createApp(App);
 app.use(router);
 app.mount('#app');
