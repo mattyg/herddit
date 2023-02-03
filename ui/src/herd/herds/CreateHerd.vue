@@ -1,7 +1,7 @@
 <template>
   <mwc-snackbar ref="create-error"></mwc-snackbar>
 
-  <div class="w-full flex justify-center">
+  <div class="w-full flex justify-center my-12">
     <div class="w-full md:max-w-screen-lg mx-4">
       <div class="text-2xl mb-4">Create Herd</div>
       <div class="mb-8">

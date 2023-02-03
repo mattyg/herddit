@@ -1,26 +1,11 @@
-pub mod listing;
-pub use listing::*;
 use hdi::prelude::*;
+use crate::LinkTypes;
+use crate::EntryTypes;
+use crate::Post;
+use crate::votes::*;
+use crate::post::*;
 
-#[hdk_entry_defs]
-#[unit_enum(UnitEntryTypes)]
-pub enum EntryTypes {
-    Listing(Listing),
-}
-#[hdk_link_types]
-pub enum LinkTypes {
-    ListingUpdates,
-    AllListings,
-    HomeListing,
-}
-// Validation you perform during the genesis process. Nobody else on the network performs it, only you.
-// There *is no* access to network calls in this callback
-#[hdk_extern]
-pub fn genesis_self_check(
-    _data: GenesisSelfCheckData,
-) -> ExternResult<ValidateCallbackResult> {
-    Ok(ValidateCallbackResult::Valid)
-}
+
 // Validation the network performs when you try to join, you can't perform this validation yourself as you are not a member yet.
 // There *is* access to network calls in this function
 pub fn validate_agent_joining(
@@ -29,6 +14,7 @@ pub fn validate_agent_joining(
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }
+
 // This is the unified validation callback for all entries and link types in this integrity zome
 // Below is a match template for all of the variants of `DHT Ops` and entry and link types
 //
@@ -49,27 +35,26 @@ pub fn validate_agent_joining(
 // - Countersigned entries include an action from each required signer
 //
 #[hdk_extern]
-#[allow(dead_code)]
 pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
     match op.to_type::<EntryTypes, LinkTypes>()? {
         OpType::StoreEntry(store_entry) => {
             match store_entry {
                 OpEntry::CreateEntry { app_entry, action } => {
                     match app_entry {
-                        EntryTypes::Listing(listing) => {
-                            validate_create_listing(
+                        EntryTypes::Post(post) => {
+                            validate_create_post(
                                 EntryCreationAction::Create(action),
-                                listing,
+                                post,
                             )
                         }
                     }
                 }
                 OpEntry::UpdateEntry { app_entry, action, .. } => {
                     match app_entry {
-                        EntryTypes::Listing(listing) => {
-                            validate_create_listing(
+                        EntryTypes::Post(post) => {
+                            validate_create_post(
                                 EntryCreationAction::Update(action),
-                                listing,
+                                post,
                             )
                         }
                     }
@@ -86,15 +71,12 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                     action,
                 } => {
                     match (app_entry, original_app_entry) {
-                        (
-                            EntryTypes::Listing(listing),
-                            EntryTypes::Listing(original_listing),
-                        ) => {
-                            validate_update_listing(
+                        (EntryTypes::Post(post), EntryTypes::Post(original_post)) => {
+                            validate_update_post(
                                 action,
-                                listing,
+                                post,
                                 original_action,
-                                original_listing,
+                                original_post,
                             )
                         }
                     }
@@ -106,8 +88,8 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             match delete_entry {
                 OpDelete::Entry { original_action, original_app_entry, action } => {
                     match original_app_entry {
-                        EntryTypes::Listing(listing) => {
-                            validate_delete_listing(action, original_action, listing)
+                        EntryTypes::Post(post) => {
+                            validate_delete_post(action, original_action, post)
                         }
                     }
                 }
@@ -122,30 +104,46 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             action,
         } => {
             match link_type {
-                LinkTypes::ListingUpdates => {
-                    validate_create_link_listing_updates(
+                LinkTypes::PostUpdates => {
+                    validate_create_link_post_updates(
                         action,
                         base_address,
                         target_address,
                         tag,
                     )
                 }
-                LinkTypes::AllListings => {
-                    validate_create_link_all_listings(
+                LinkTypes::AllPosts => {
+                    validate_create_link_all_posts(
                         action,
                         base_address,
                         target_address,
                         tag,
                     )
-                },
-                LinkTypes::HomeListing => {
-                    validate_create_link_home_listing(
+                }
+                LinkTypes::MyPosts => {
+                    validate_create_link_my_posts(
                         action,
                         base_address,
                         target_address,
                         tag,
                     )
-                },
+                }
+                LinkTypes::PostVoteByAgent => {
+                    validate_create_link_vote_post_by_agent(
+                        action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
+                LinkTypes::MyUpvotedPosts => {
+                    validate_create_link_my_upvoted_posts(
+                        action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
             }
         }
         OpType::RegisterDeleteLink {
@@ -157,8 +155,8 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             action,
         } => {
             match link_type {
-                LinkTypes::ListingUpdates => {
-                    validate_delete_link_listing_updates(
+                LinkTypes::PostUpdates => {
+                    validate_delete_link_post_updates(
                         action,
                         original_action,
                         base_address,
@@ -166,17 +164,35 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         tag,
                     )
                 }
-                LinkTypes::AllListings => {
-                    validate_delete_link_all_listings(
+                LinkTypes::AllPosts => {
+                    validate_delete_link_all_posts(
                         action,
                         original_action,
                         base_address,
                         target_address,
                         tag,
                     )
-                },
-                LinkTypes::HomeListing => {
-                    validate_delete_link_home_listing(
+                }
+                LinkTypes::MyPosts => {
+                    validate_delete_link_my_posts(
+                        action,
+                        original_action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
+                LinkTypes::PostVoteByAgent => {
+                    validate_delete_link_vote_post_by_agent(
+                        action,
+                        original_action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
+                LinkTypes::MyUpvotedPosts => {
+                    validate_delete_link_my_upvoted_posts(
                         action,
                         original_action,
                         base_address,
@@ -193,10 +209,10 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 // Notice that doing so will cause `must_get_valid_record` for this record to return a valid record even if the `StoreEntry` validation failed
                 OpRecord::CreateEntry { app_entry, action } => {
                     match app_entry {
-                        EntryTypes::Listing(listing) => {
-                            validate_create_listing(
+                        EntryTypes::Post(post) => {
+                            validate_create_post(
                                 EntryCreationAction::Create(action),
-                                listing,
+                                post,
                             )
                         }
                     }
@@ -233,18 +249,18 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                     };
                     match app_entry {
-                        EntryTypes::Listing(listing) => {
-                            let result = validate_create_listing(
+                        EntryTypes::Post(post) => {
+                            let result = validate_create_post(
                                 EntryCreationAction::Update(action.clone()),
-                                listing.clone(),
+                                post.clone(),
                             )?;
                             if let ValidateCallbackResult::Valid = result {
-                                let original_listing: Option<Listing> = original_record
+                                let original_post: Option<Post> = original_record
                                     .entry()
                                     .to_app_option()
                                     .map_err(|e| wasm_error!(e))?;
-                                let original_listing = match original_listing {
-                                    Some(listing) => listing,
+                                let original_post = match original_post {
+                                    Some(post) => post,
                                     None => {
                                         return Ok(
                                             ValidateCallbackResult::Invalid(
@@ -254,11 +270,11 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                         );
                                     }
                                 };
-                                validate_update_listing(
+                                validate_update_post(
                                     action,
-                                    listing,
+                                    post,
                                     original_action,
-                                    original_listing,
+                                    original_post,
                                 )
                             } else {
                                 Ok(result)
@@ -297,12 +313,8 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                     };
                     match original_app_entry {
-                        EntryTypes::Listing(original_listing) => {
-                            validate_delete_listing(
-                                action,
-                                original_action,
-                                original_listing,
-                            )
+                        EntryTypes::Post(original_post) => {
+                            validate_delete_post(action, original_action, original_post)
                         }
                     }
                 }
@@ -317,30 +329,15 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                     action,
                 } => {
                     match link_type {
-                        LinkTypes::ListingUpdates => {
-                            validate_create_link_listing_updates(
+                        LinkTypes::PostUpdates => {
+                            validate_create_link_post_updates(
                                 action,
                                 base_address,
                                 target_address,
                                 tag,
                             )
                         }
-                        LinkTypes::AllListings => {
-                            validate_create_link_all_listings(
-                                action,
-                                base_address,
-                                target_address,
-                                tag,
-                            )
-                        },
-                        LinkTypes::HomeListing => {
-                            validate_create_link_home_listing(
-                                action,
-                                base_address,
-                                target_address,
-                                tag,
-                            )
-                        }
+                        _ => Ok(ValidateCallbackResult::Valid)
                     }
                 }
                 // Complementary validation to the `RegisterDeleteLink` Op, in which the record itself is validated
@@ -369,8 +366,8 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                     };
                     match link_type {
-                        LinkTypes::ListingUpdates => {
-                            validate_delete_link_listing_updates(
+                        LinkTypes::PostUpdates => {
+                            validate_delete_link_post_updates(
                                 action,
                                 create_link.clone(),
                                 base_address,
@@ -378,17 +375,8 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 create_link.tag,
                             )
                         }
-                        LinkTypes::AllListings => {
-                            validate_delete_link_all_listings(
-                                action,
-                                create_link.clone(),
-                                base_address,
-                                create_link.target_address,
-                                create_link.tag,
-                            )
-                        },
-                        LinkTypes::HomeListing => {
-                            validate_delete_link_home_listing(
+                        LinkTypes::AllPosts => {
+                            validate_delete_link_all_posts(
                                 action,
                                 create_link.clone(),
                                 base_address,
@@ -396,6 +384,16 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 create_link.tag,
                             )
                         }
+                        LinkTypes::MyPosts => {
+                            validate_delete_link_my_posts(
+                                action,
+                                create_link.clone(),
+                                base_address,
+                                create_link.target_address,
+                                create_link.tag,
+                            )
+                        }
+                        _ => Ok(ValidateCallbackResult::Valid)
                     }
                 }
                 OpRecord::CreatePrivateEntry { app_entry_type: _, action: _ } => {
@@ -455,6 +453,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
         }
     }
 }
+
 fn record_to_app_entry(record: &Record) -> ExternResult<Option<EntryTypes>> {
     if let Record { signed_action, entry: RecordEntry::Present(entry) } = record {
         if let Some(EntryType::App(AppEntryDef { entry_index, zome_index, .. }))

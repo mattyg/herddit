@@ -8,40 +8,40 @@ pub struct Listing {
     pub dna: DnaHash
 }
 pub fn validate_create_listing(
-    action: EntryCreationAction,
-    listing: Listing,
+    _action: EntryCreationAction,
+    _listing: Listing,
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_update_listing(
-    action: Update,
-    listing: Listing,
-    original_action: EntryCreationAction,
-    original_listing: Listing,
+    _action: Update,
+    _listing: Listing,
+    _original_action: EntryCreationAction,
+    _original_listing: Listing,
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_listing(
-    action: Delete,
-    original_action: EntryCreationAction,
-    original_listing: Listing,
+    _action: Delete,
+    _original_action: EntryCreationAction,
+    _original_listing: Listing,
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_create_link_listing_updates(
-    action: CreateLink,
-    base_address: AnyLinkableHash,
-    target_address: AnyLinkableHash,
-    tag: LinkTag,
+    _action: CreateLink,
+    _base_address: AnyLinkableHash,
+    _target_address: AnyLinkableHash,
+    _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_link_listing_updates(
-    action: DeleteLink,
-    original_action: CreateLink,
-    base: AnyLinkableHash,
-    target: AnyLinkableHash,
-    tag: LinkTag,
+    _action: DeleteLink,
+    _original_action: CreateLink,
+    _base: AnyLinkableHash,
+    _target: AnyLinkableHash,
+    _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(
         ValidateCallbackResult::Invalid(
@@ -50,19 +50,19 @@ pub fn validate_delete_link_listing_updates(
     )
 }
 pub fn validate_create_link_all_listings(
-    action: CreateLink,
-    base_address: AnyLinkableHash,
-    target_address: AnyLinkableHash,
-    tag: LinkTag,
+    _action: CreateLink,
+    _base_address: AnyLinkableHash,
+    _target_address: AnyLinkableHash,
+    _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_link_all_listings(
-    action: DeleteLink,
-    original_action: CreateLink,
-    base: AnyLinkableHash,
-    target: AnyLinkableHash,
-    tag: LinkTag,
+    _action: DeleteLink,
+    _original_action: CreateLink,
+    _base: AnyLinkableHash,
+    _target: AnyLinkableHash,
+    _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(
         ValidateCallbackResult::Invalid(
@@ -72,21 +72,21 @@ pub fn validate_delete_link_all_listings(
 }
 
 pub fn validate_create_link_home_listing(
-    action: CreateLink,
-    base_address: AnyLinkableHash,
-    target_address: AnyLinkableHash,
-    tag: LinkTag,
+    _action: CreateLink,
+    _base_address: AnyLinkableHash,
+    _target_address: AnyLinkableHash,
+    _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
     // TODO:  only DNA progenitor can define home listing
     // TODO:  only one link of this type should exist (not possible?)
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_link_home_listing(
-    action: DeleteLink,
-    original_action: CreateLink,
-    base: AnyLinkableHash,
-    target: AnyLinkableHash,
-    tag: LinkTag,
+    _action: DeleteLink,
+    _original_action: CreateLink,
+    _base: AnyLinkableHash,
+    _target: AnyLinkableHash,
+    _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(
         ValidateCallbackResult::Invalid(

@@ -7,51 +7,51 @@ pub struct HerdInfo {
     pub title: String,
 }
 
-/// Validation you perform during the genesis process. Nobody else on the network performs it, only you.
-/// There *is no* access to network calls in this callback
+// Validation you perform during the genesis process. Nobody else on the network performs it, only you.
+// There *is no* access to network calls in this callback
 #[hdk_extern]
-pub fn genesis_self_check(data: GenesisSelfCheckData) -> ExternResult<ValidateCallbackResult> {
+pub fn genesis_self_check(_data: GenesisSelfCheckData) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }
 
-/// Validation the network performs when you try to join, you can't perform this validation yourself as you are not a member yet.
-/// There *is* access to network calls in this function
-pub fn validate_agent_joining(agent_pub_key: AgentPubKey, membrane_proof: &Option<MembraneProof>) -> ExternResult<ValidateCallbackResult> {
+// Validation the network performs when you try to join, you can't perform this validation yourself as you are not a member yet.
+// There *is* access to network calls in this function
+pub fn validate_agent_joining(_agent_pub_key: AgentPubKey, _membrane_proof: &Option<MembraneProof>) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }
 
-/// This is the unified validation callback for all entries and link types in this integrity zome
-/// Below is a match template for all of the variants of `DHT Ops` and entry and link types
-///
-/// Holochain has already performed the following validation for you:
-/// - The action signature matches on the hash of its content and is signed by its author
-/// - The previous action exists, has a lower timestamp than the new action, and incremented sequence number
-/// - The previous action author is the same as the new action author
-/// - The timestamp of each action is after the DNA's origin time
-/// - AgentActivity authorities check that the agent hasn't forked their chain
-/// - The entry hash in the action matches the entry content
-/// - The entry type in the action matches the entry content
-/// - The entry size doesn't exceed the maximum entry size (currently 4MB)
-/// - Private entry types are not included in the Op content, and public entry types are
-/// - If the `Op` is an update or a delete, the original action exists and is a `Create` or `Update` action
-/// - If the `Op` is an update, the original entry exists and is of the same type as the new one
-/// - If the `Op` is a delete link, the original action exists and is a `CreateLink` action
-/// - Link tags don't exceed the maximum tag size (currently 1KB)
-/// - Countersigned entries include an action from each required signer
-///
+// This is the unified validation callback for all entries and link types in this integrity zome
+// Below is a match template for all of the variants of `DHT Ops` and entry and link types
+//
+// Holochain has already performed the following validation for you:
+// - The action signature matches on the hash of its content and is signed by its author
+// - The previous action exists, has a lower timestamp than the new action, and incremented sequence number
+// - The previous action author is the same as the new action author
+// - The timestamp of each action is after the DNA's origin time
+// - AgentActivity authorities check that the agent hasn't forked their chain
+// - The entry hash in the action matches the entry content
+// - The entry type in the action matches the entry content
+// - The entry size doesn't exceed the maximum entry size (currently 4MB)
+// - Private entry types are not included in the Op content, and public entry types are
+// - If the `Op` is an update or a delete, the original action exists and is a `Create` or `Update` action
+// - If the `Op` is an update, the original entry exists and is of the same type as the new one
+// - If the `Op` is a delete link, the original action exists and is a `CreateLink` action
+// - Link tags don't exceed the maximum tag size (currently 1KB)
+// - Countersigned entries include an action from each required signer
+//
 #[hdk_extern]
 pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
     match op.to_type::<(), ()>()? {
         OpType::StoreEntry(store_entry) => match store_entry {
             OpEntry::CreateEntry {
-                app_entry,
-                action,
+                app_entry: _,
+                action: _,
             } => Ok(ValidateCallbackResult::Invalid(
                 "There are no entry types in this integrity zome".to_string(),
             )),
             OpEntry::UpdateEntry {
-                app_entry,
-                action,
+                app_entry: _,
+                action: _,
                 ..
             } => Ok(ValidateCallbackResult::Invalid(
                 "There are no entry types in this integrity zome".to_string(),
@@ -60,10 +60,10 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
         },
         OpType::RegisterUpdate(update_entry) => match update_entry {
             OpUpdate::Entry {
-                original_action,
-                original_app_entry,
-                app_entry,
-                action
+                original_action: _,
+                original_app_entry: _,
+                app_entry: _,
+                action: _
             } => Ok(ValidateCallbackResult::Invalid(
                 "There are no entry types in this integrity zome".to_string(),
             )),
@@ -71,116 +71,116 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
         },
         OpType::RegisterDelete(delete_entry) => match delete_entry {
             OpDelete::Entry {
-                original_action,
-                original_app_entry,
-                action
+                original_action: _,
+                original_app_entry: _,
+                action: _
             } => Ok(ValidateCallbackResult::Invalid(
                 "There are no entry types in this integrity zome".to_string(),
             )),
             _ => Ok(ValidateCallbackResult::Valid),
         },
         OpType::RegisterCreateLink {
-            link_type,
-            base_address,
-            target_address,
-            tag,
-            action
+            link_type: _,
+            base_address: _,
+            target_address: _,
+            tag: _,
+            action: _
         } => Ok(ValidateCallbackResult::Invalid(String::from(
             "There are no link types in this integrity zome",
         ))),
         OpType::RegisterDeleteLink {
-            link_type,
-            base_address,
-            target_address,
-            tag,
-            original_action,
-            action
+            link_type: _,
+            base_address: _,
+            target_address: _,
+            tag: _,
+            original_action: _,
+            action: _
         } => Ok(ValidateCallbackResult::Invalid(String::from(
             "There are no link types in this integrity zome",
         ))),
         OpType::StoreRecord(store_record) => match store_record {
-            /// Complementary validation to the `StoreEntry` Op, in which the record itself is validated
-            /// If you want to optimize performance, you can remove the validation for an entry type here and keep it in `StoreEntry`
-            /// Notice that doing so will cause `must_get_valid_record` for this record to return a valid record even if the `StoreEntry` validation failed
+            // Complementary validation to the `StoreEntry` Op, in which the record itself is validated
+            // If you want to optimize performance, you can remove the validation for an entry type here and keep it in `StoreEntry`
+            // Notice that doing so will cause `must_get_valid_record` for this record to return a valid record even if the `StoreEntry` validation failed
             OpRecord::CreateEntry {
-                app_entry,
-                action
+                app_entry: _,
+                action: _
             } => Ok(ValidateCallbackResult::Invalid("There are no entry types in this integrity zome".to_string())),
-            /// Complementary validation to the `RegisterUpdate` Op, in which the record itself is validated
-            /// If you want to optimize performance, you can remove the validation for an entry type here and keep it in `StoreEntry` and in `RegisterUpdate`
-            /// Notice that doing so will cause `must_get_valid_record` for this record to return a valid record even if the other validations failed
+            // Complementary validation to the `RegisterUpdate` Op, in which the record itself is validated
+            // If you want to optimize performance, you can remove the validation for an entry type here and keep it in `StoreEntry` and in `RegisterUpdate`
+            // Notice that doing so will cause `must_get_valid_record` for this record to return a valid record even if the other validations failed
             OpRecord::UpdateEntry {
-                original_action_hash,
-                original_entry_hash,
-                app_entry,
-                action
+                original_action_hash: _,
+                original_entry_hash: _,
+                app_entry: _,
+                action: _
             } => Ok(ValidateCallbackResult::Invalid("There are no entry types in this integrity zome".to_string())),
-            /// Complementary validation to the `RegisterDelete` Op, in which the record itself is validated
-            /// If you want to optimize performance, you can remove the validation for an entry type here and keep it in `RegisterDelete`
-            /// Notice that doing so will cause `must_get_valid_record` for this record to return a valid record even if the `RegisterDelete` validation failed
+            // Complementary validation to the `RegisterDelete` Op, in which the record itself is validated
+            // If you want to optimize performance, you can remove the validation for an entry type here and keep it in `RegisterDelete`
+            // Notice that doing so will cause `must_get_valid_record` for this record to return a valid record even if the `RegisterDelete` validation failed
             OpRecord::DeleteEntry {
-                original_action_hash,
-                original_entry_hash,
-                action
+                original_action_hash: _,
+                original_entry_hash: _,
+                action: _
             } => Ok(ValidateCallbackResult::Invalid("There are no entry types in this integrity zome".to_string())),
-            /// Complementary validation to the `RegisterCreateLink` Op, in which the record itself is validated
-            /// If you want to optimize performance, you can remove the validation for an entry type here and keep it in `RegisterCreateLink`
-            /// Notice that doing so will cause `must_get_valid_record` for this record to return a valid record even if the `RegisterCreateLink` validation failed
+            // Complementary validation to the `RegisterCreateLink` Op, in which the record itself is validated
+            // If you want to optimize performance, you can remove the validation for an entry type here and keep it in `RegisterCreateLink`
+            // Notice that doing so will cause `must_get_valid_record` for this record to return a valid record even if the `RegisterCreateLink` validation failed
             OpRecord::CreateLink {
-                base_address,
-                target_address,
-                tag,
-                link_type,
-                action
+                base_address: _,
+                target_address: _,
+                tag: _,
+                link_type: _,
+                action: _
             } => Ok(ValidateCallbackResult::Invalid("There are no link types in this integrity zome".to_string())),
-            /// Complementary validation to the `RegisterDeleteLink` Op, in which the record itself is validated
-            /// If you want to optimize performance, you can remove the validation for an entry type here and keep it in `RegisterDeleteLink`
-            /// Notice that doing so will cause `must_get_valid_record` for this record to return a valid record even if the `RegisterDeleteLink` validation failed
+            // Complementary validation to the `RegisterDeleteLink` Op, in which the record itself is validated
+            // If you want to optimize performance, you can remove the validation for an entry type here and keep it in `RegisterDeleteLink`
+            // Notice that doing so will cause `must_get_valid_record` for this record to return a valid record even if the `RegisterDeleteLink` validation failed
             OpRecord::DeleteLink {
-                original_action_hash,
-                base_address,
-                action
+                original_action_hash: _,
+                base_address: _,
+                action: _
             } => Ok(ValidateCallbackResult::Invalid("There are no link types in this integrity zome".to_string())),
             OpRecord::CreatePrivateEntry {
-                app_entry_type,
-                action
+                app_entry_type: _,
+                action: _
             }=> Ok(ValidateCallbackResult::Valid),
             OpRecord::UpdatePrivateEntry {
-                original_action_hash,
-                original_entry_hash,
-                app_entry_type,
-                action
+                original_action_hash: _,
+                original_entry_hash: _,
+                app_entry_type: _,
+                action: _
             }=> Ok(ValidateCallbackResult::Valid),
             OpRecord::CreateCapClaim {
-                action
+                action: _
             } => Ok(ValidateCallbackResult::Valid),
             OpRecord::CreateCapGrant {
-                action
+                action: _
             } => Ok(ValidateCallbackResult::Valid),
             OpRecord::UpdateCapClaim {
-                original_action_hash,
-                original_entry_hash,
-                action
+                original_action_hash: _,
+                original_entry_hash: _,
+                action: _
             } => Ok(ValidateCallbackResult::Valid),
             OpRecord::UpdateCapGrant {
-                original_action_hash,
-                original_entry_hash,
-                action
+                original_action_hash: _,
+                original_entry_hash: _,
+                action: _
             } => Ok(ValidateCallbackResult::Valid),
             OpRecord::Dna {
-                dna_hash,
-                action
+                dna_hash: _,
+                action: _
             } => Ok(ValidateCallbackResult::Valid),
             OpRecord::OpenChain {
-                previous_dna_hash,
-                action
+                previous_dna_hash: _,
+                action: _
             } => Ok(ValidateCallbackResult::Valid),
             OpRecord::CloseChain {
-                new_dna_hash,
-                action
+                new_dna_hash: _,
+                action: _
             } => Ok(ValidateCallbackResult::Valid),
             OpRecord::InitZomesComplete {
-                action
+                action: _
             } => Ok(ValidateCallbackResult::Valid),
             _ => Ok(ValidateCallbackResult::Valid)
         },

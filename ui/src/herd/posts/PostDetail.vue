@@ -1,23 +1,29 @@
-<template>
+ <template>
   <div class="w-full flex justify-center">
     <div class="w-full md:max-w-screen-lg">
       <a class="fixed top-48 left-8 btn btn-ghost btn-xs" @click="$router.push(`/herds/${$route.params.listingHashString}`)">Back to Herd</a>
       <div v-if="!loading">
-        <div v-if="record && postContent" class="flex flex-col justify-center items-center space-y-4 my-4">
-          <div class="flex flex-col justify-start items-center space-y-4">
-            <div class="w-full text-4xl">{{ post?.title }}</div>
-            <div class="text-lg color-neutral">Submitted {{dateRelative}} by {{authorHashString}}</div>
+        <div  v-if="record && postContent"  class="flex flex-row justify-center items-start space-x-4">
+          <div>
+            <button class="text-2xl font-bold" @click="upvotePost">⇧</button>
+            <div class="text-2xl font-bold">{{  upvotes - downvotes }}</div>
+            <button class="text-2xl font-bold" @click="downvotePost">⇩</button>
           </div>
-          <div class="flex flex-row justify-between items-center space-x-4">
-            <div class="flex flex-row justify-center items-center space-x-2">
-              <button v-if="myPost" class="btn btn-primary btn-xs" @click="editPost()">Edit</button>
-              <button v-if="myPost" class="btn btn-error btn-xs" @click="deletePost()">Delete</button>
+          <div class="flex flex-col justify-center items-center space-y-4 my-4">
+            <div class="flex flex-col justify-start items-center space-y-4">
+              <div class="w-full text-4xl">{{ post?.title }}</div>
+              <div class="text-lg color-neutral">Submitted {{dateRelative}} by {{authorHashString}}</div>
             </div>
-
+            <div class="flex flex-row justify-between items-center space-x-4">
+              <div class="flex flex-row justify-center items-center space-x-2">
+                <button v-if="myPost" class="btn btn-primary btn-xs" @click="editPost()">Edit</button>
+                <button v-if="myPost" class="btn btn-error btn-xs" @click="deletePost()">Delete</button>
+              </div>
           </div>
 
           <div class="w-full md:max-w-screen-md bg-base-200 p-8 shadow-sm prose md:prose-lg" v-html="postContent"></div>
         </div>
+      </div>
         
         <span v-else>The requested post was not found.</span>
       </div>
@@ -26,7 +32,7 @@
         <mwc-circular-progress indeterminate></mwc-circular-progress>
       </div>
 
-      <mwc-snackbar ref="delete-error" leading>
+      <mwc-snackbar ref="error" leading>
       </mwc-snackbar>
     </div>
   </div>
@@ -55,9 +61,12 @@ export default defineComponent({
       required: true
     }
   },
-  data(): { record: Record | undefined; loading: boolean; editing: boolean; appInfo?: AppInfo} {
+  data(): { record: Record | undefined; upvotes: number; downvotes: number; myVote: number; loading: boolean; editing: boolean; appInfo?: AppInfo} {
     return {
       record: undefined,
+      upvotes: 0,
+      downvotes: 0,
+      myVote: undefined,
       loading: true,
       editing: false,
       appInfo: undefined
@@ -100,13 +109,25 @@ export default defineComponent({
       this.loading = true;
       this.record = undefined;
 
-      this.record = await this.client.callZome({
-        cell_id: [this.dnaHash, this.client.myPubKey],
-        cap_secret: null,
-        zome_name: 'posts',
-        fn_name: 'get_post',
-        payload: this.postHash,
-      });
+      try {
+        const post_metadata = await this.client.callZome({
+          cell_id: [this.dnaHash, this.client.myPubKey],
+          cap_secret: null,
+          zome_name: 'posts',
+          fn_name: 'get_post_metadata',
+          payload: this.postHash,
+        });
+
+        console.log('post_metadata', post_metadata)
+        this.upvotes = post_metadata.upvotes;
+        this.downvotes = post_metadata.downvotes;
+        this.record = post_metadata.record;
+      } catch (e: any) {
+        console.log('error', e);
+        const errorSnackbar = this.$refs['error'] as Snackbar;
+        errorSnackbar.labelText = `Error deleting the post: ${e.data.data}`;
+        errorSnackbar.show();
+      }
 
       this.loading = false;
     },
@@ -122,14 +143,52 @@ export default defineComponent({
         this.$emit('post-deleted', this.postHash);
         this.fetchPost();
       } catch (e: any) {
-        const errorSnackbar = this.$refs['delete-error'] as Snackbar;
+        const errorSnackbar = this.$refs['error'] as Snackbar;
         errorSnackbar.labelText = `Error deleting the post: ${e.data.data}`;
         errorSnackbar.show();
       }
     },
     editPost() {
       this.$router.push(`/herds/${this.$route.params.listingHashString}/posts/${this.$route.params.postHashString}/edit`);
-    }
+    },
+    async upvotePost() {
+      if(this.myVote === 1) return;
+
+      try {
+        await this.client.callZome({
+          cell_id: [this.dnaHash, this.client.myPubKey],
+          cap_secret: null,
+          zome_name: 'posts',
+          fn_name: 'upvote_post',
+          payload: this.postHash,
+        });
+        this.$emit('post-upvoted', this.postHash);
+        this.fetchPost();
+      } catch (e: any) {
+        const errorSnackbar = this.$refs['error'] as Snackbar;
+        errorSnackbar.labelText = `Error upvoting the post: ${e.data.data}`;
+        errorSnackbar.show();
+      }
+    },
+    async downvotePost() {
+      if(this.myVote === -1) return;
+
+      try {
+        await this.client.callZome({
+          cell_id: [this.dnaHash, this.client.myPubKey],
+          cap_secret: null,
+          zome_name: 'posts',
+          fn_name: 'downvote_post',
+          payload: this.postHash,
+        });
+        this.$emit('post-downvoted', this.postHash);
+        this.fetchPost();
+      } catch (e: any) {
+        const errorSnackbar = this.$refs['error'] as Snackbar;
+        errorSnackbar.labelText = `Error downvoting the post: ${e.data.data}`;
+        errorSnackbar.show();
+      }
+    },
   },
   setup() {
     const client = (inject('client') as ComputedRef<AppAgentClient>).value;

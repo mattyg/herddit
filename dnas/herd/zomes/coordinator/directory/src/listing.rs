@@ -10,7 +10,7 @@ pub fn create_listing(listing: Listing) -> ExternResult<Record> {
             ),
         )?;
         
-    /// Link from all_listings -> Listing ActionHash
+    // Link from all_listings -> Listing ActionHash
     let path = Path::from("all_listings");
     create_link(
         path.path_entry_hash()?,
