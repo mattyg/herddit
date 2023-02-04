@@ -20,8 +20,8 @@
         <div class="flex flex-row justify-start items-center">
           <div class="flex flex-1" style="white-space: pre-line">{{  comment?.content }} </div>
           <div>
-            <mwc-icon-button class="mx-2" icon="edit" @click="editing = true"></mwc-icon-button>
-            <mwc-icon-button class="mx-2" icon="delete" @click="deleteComment()"></mwc-icon-button>
+            <mwc-icon-button class="text-bold text-gray-400" icon="edit" @click="editing = true"></mwc-icon-button>
+            <mwc-icon-button class="text-bold text-gray-400" icon="delete" @click="deleteComment()"></mwc-icon-button>
           </div>
         </div>
         <div class="flex flex-row justify-between items-center">

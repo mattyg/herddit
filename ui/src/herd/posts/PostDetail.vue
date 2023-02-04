@@ -32,8 +32,8 @@
               <div class="w-full pb-4" v-html="postContent"></div>
               
                 <div v-if="myPost" class="w-full absolute left-0 bottom-0 flex flex-row justify-end items-center space-x-2">
-                  <mwc-icon-button icon="edit" @click="editing = true"></mwc-icon-button>
-                  <mwc-icon-button icon="delete" @click="deletePost()"></mwc-icon-button>
+                  <mwc-icon-button class="text-bold text-gray-600" icon="edit" @click="editing = true"></mwc-icon-button>
+                  <mwc-icon-button class="text-bold text-gray-600" icon="delete" @click="deletePost()"></mwc-icon-button>
                 </div>
             </div>
             
