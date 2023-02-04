@@ -30,7 +30,8 @@
     "marked": "^4.2.5",
     "random-word-slugs": "^0.1.6",
     "vue": "^3.2.25",
-    "vue-router": "^4.1.6"
+    "vue-router": "^4.1.6",
+    "vue3-toastify": "^0.0.5"
   },
   "devDependencies": {
     "@tailwindcss/aspect-ratio": "^0.4.2",
