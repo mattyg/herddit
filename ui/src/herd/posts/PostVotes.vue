@@ -1,8 +1,8 @@
 <template>
   <div>
-    <button class="text-2xl font-bold" @click="upvotePost">⇧</button>
-    <div class="text-2xl font-bold" :class="{'color-blue-500': my_vote !== undefined}">{{ votes }}</div>
-    <button class="text-2xl font-bold" @click="downvotePost">⇩</button>
+    <button class="text-2xl font-bold text-gray-400 font-bold" @click="upvotePost">⇧</button>
+    <div class="text-2xl font-bold text-gray-400 font-bold" :class="{'text-blue-500': my_vote !== undefined}">{{ votes }}</div>
+    <button class="text-2xl font-bold text-gray-400 font-bold" @click="downvotePost">⇩</button>
   </div>
 </template>
 

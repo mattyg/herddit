@@ -1,5 +1,6 @@
 use hdi::prelude::*;
 use crate::*;
+
 pub fn validate_create_link_my_upvoted_posts(
     action: CreateLink,
     base: AnyLinkableHash,

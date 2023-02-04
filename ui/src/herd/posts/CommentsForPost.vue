@@ -1,22 +1,23 @@
 
 <template>
-  <div v-if="loading" style="display: flex; flex: 1; align-items: center; justify-content: center">
+  <div v-if="loading" class="flex justify-center items-center w-full md:max-w-screen-md">
     <mwc-circular-progress indeterminate></mwc-circular-progress>
   </div>
   
-  <div v-else style="display: flex; flex-direction: column">
-    <CreateComment :dnaHash="dnaHash" :postHash="postHash" @created="fetchComments" />
+  <div v-else class="w-full md:max-w-screen-md">
+    <CreateComment class="mb-8" :dnaHash="dnaHash" :postHash="postHash" @created="fetchComments"/>
 
     <span v-if="error">Error fetching the comments: {{error.data.data}}.</span>
-    <div v-else-if="hashes && hashes.length > 0">
+    <div v-else-if="hashes && hashes.length > 0" class="w-full">
       <CommentDetail 
         v-for="hash in hashes" 
         :dnaHash="dnaHash"
         :commentHash="hash" 
-        style="margin-bottom: 8px">
-      </CommentDetail>
+        class="mb-4"
+        @deleted="fetchComments"
+      />
     </div>
-    <span v-else>No comments found for this post.</span>
+    <div class="text-gray-400 font-bold text-center" v-else>No comments found for this post.</div>
   </div>
 
 </template>
@@ -56,7 +57,8 @@ export default defineComponent({
     await this.fetchComments()
   },
   methods: {
-    async fetchComments() {      
+    async fetchComments() {   
+      console.log('fetching comments again');   
       try {
         this.hashes = await this.client.callZome({
           cell_id: [this.dnaHash, this.client.myPubKey],

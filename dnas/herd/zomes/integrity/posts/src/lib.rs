@@ -14,16 +14,26 @@ pub struct Post {
     pub title: String,
     pub content: String,
 }
+
+#[hdk_entry_helper]
+#[derive(Clone)]
+pub struct Comment {
+    pub content: String,
+    pub post_ah: ActionHash,
+}
+
 #[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
 pub struct PostVoteTag {
     pub value: i8,
 }
+
 #[hdk_entry_defs]
 #[unit_enum(UnitEntryTypes)]
 pub enum EntryTypes {
     Post(Post),
     Comment(Comment),
 }
+
 #[hdk_link_types]
 pub enum LinkTypes {
     PostUpdates,

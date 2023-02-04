@@ -1,11 +1,9 @@
 <template>
   <mwc-snackbar ref="update-error"></mwc-snackbar>
 
-  <div style="display: flex; flex-direction: column">
-    <span style="font-size: 18px">Edit Comment</span>
-      <div style="margin-bottom: 16px">
-      <mwc-textarea outlined label="Content" :value="content" @input="content = $event.target.value" required></mwc-textarea>
-      </div>
+  <div class="flex flex-col w-full">
+    <div class="mb-4">Edit Comment</div>
+    <mwc-textarea class="w-full mb-4" outlined label="Content" :value="content" @input="content = $event.target.value" required></mwc-textarea>
 
 
 
@@ -13,7 +11,7 @@
       <mwc-button
         outlined
         label="Cancel"
-        @click="$emit('edit-canceled')"
+        @click="$emit('cancelled')"
         style="flex: 1; margin-right: 16px;"
       ></mwc-button>
       <mwc-button 
@@ -27,7 +25,7 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, inject, ComputedRef } from 'vue';
+import { defineComponent, inject, ComputedRef, PropType } from 'vue';
 import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash } from '@holochain/client';
 import { Comment } from './types';
 import '@material/mwc-button';
@@ -35,6 +33,8 @@ import '@material/mwc-snackbar';
 import { decode } from '@msgpack/msgpack';
 import { Snackbar } from '@material/mwc-snackbar';
 import '@material/mwc-textarea';
+import { error } from 'console';
+import { update } from 'lodash';
 
 export default defineComponent({
   data(): {
@@ -46,8 +46,12 @@ export default defineComponent({
     }
   },
   props: {
+    dnaHash: {
+      type: Object as PropType<Uint8Array>,
+      required: true,
+    },
     originalCommentHash: {
-      type: null,
+      type: Object as PropType<Uint8Array>,
       required: true,
     },
     currentRecord: {
@@ -73,8 +77,7 @@ export default defineComponent({
 
       try {
         const updateRecord: Record = await this.client.callZome({
-          cap_secret: null,
-          role_name: 'herd',
+          cell_id: [this.dnaHash, this.client.myPubKey],
           zome_name: 'posts',
           fn_name: 'update_comment',
           payload: {
@@ -83,7 +86,7 @@ export default defineComponent({
             updated_comment: comment
           }
         });
-        this.$emit('comment-updated', updateRecord.signed_action.hashed.hash);
+        this.$emit('updated', updateRecord.signed_action.hashed.hash);
       } catch (e: any) {
         const errorSnackbar = this.$refs['update-error'] as Snackbar;
         errorSnackbar.labelText = `Error updating the comment: ${e.data.data}`;
@@ -91,7 +94,7 @@ export default defineComponent({
       }
     },
   },
-  emits: ['comment-updated', 'edit-canceled'],
+  emits: ['updated', 'cancelled'],
   setup() {
     const client = (inject('client') as ComputedRef<AppAgentClient>).value;
     return {

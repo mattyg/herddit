@@ -1,10 +1,6 @@
 use hdi::prelude::*;
-#[hdk_entry_helper]
-#[derive(Clone)]
-pub struct Comment {
-    pub content: String,
-    pub post_ah: ActionHash,
-}
+use crate::{Comment};
+
 pub fn validate_create_comment(
     _action: EntryCreationAction,
     comment: Comment,
@@ -22,20 +18,29 @@ pub fn validate_create_comment(
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_update_comment(
-    _action: Update,
+    action: Update,
     _comment: Comment,
-    _original_action: EntryCreationAction,
+    original_action: EntryCreationAction,
     _original_comment: Comment,
 ) -> ExternResult<ValidateCallbackResult> {
+    if action.author.ne(original_action.author()) {
+        return Ok(ValidateCallbackResult::Invalid("Only the author can update a comment".into()));
+    }
+    
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_comment(
-    _action: Delete,
-    _original_action: EntryCreationAction,
+    action: Delete,
+    original_action: EntryCreationAction,
     _original_comment: Comment,
 ) -> ExternResult<ValidateCallbackResult> {
+    if action.author.ne(original_action.author()) {
+        return Ok(ValidateCallbackResult::Invalid("Only the author can update a comment".into()));
+    }
+    
     Ok(ValidateCallbackResult::Valid)
 }
+
 pub fn validate_create_link_post_to_comments(
     _action: CreateLink,
     base_address: AnyLinkableHash,

@@ -46,16 +46,12 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             OpEntry::CreateEntry {
                 app_entry: _,
                 action: _,
-            } => Ok(ValidateCallbackResult::Invalid(
-                "There are no entry types in this integrity zome".to_string(),
-            )),
+            } => Ok(ValidateCallbackResult::Valid),
             OpEntry::UpdateEntry {
                 app_entry: _,
                 action: _,
                 ..
-            } => Ok(ValidateCallbackResult::Invalid(
-                "There are no entry types in this integrity zome".to_string(),
-            )),
+            } => Ok(ValidateCallbackResult::Valid),
             _ => Ok(ValidateCallbackResult::Valid)
         },
         OpType::RegisterUpdate(update_entry) => match update_entry {
@@ -74,9 +70,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 original_action: _,
                 original_app_entry: _,
                 action: _
-            } => Ok(ValidateCallbackResult::Invalid(
-                "There are no entry types in this integrity zome".to_string(),
-            )),
+            } => Ok(ValidateCallbackResult::Valid),
             _ => Ok(ValidateCallbackResult::Valid),
         },
         OpType::RegisterCreateLink {
@@ -95,9 +89,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             tag: _,
             original_action: _,
             action: _
-        } => Ok(ValidateCallbackResult::Invalid(String::from(
-            "There are no link types in this integrity zome",
-        ))),
+        } => Ok(ValidateCallbackResult::Valid),
         OpType::StoreRecord(store_record) => match store_record {
             // Complementary validation to the `StoreEntry` Op, in which the record itself is validated
             // If you want to optimize performance, you can remove the validation for an entry type here and keep it in `StoreEntry`
@@ -122,7 +114,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 original_action_hash: _,
                 original_entry_hash: _,
                 action: _
-            } => Ok(ValidateCallbackResult::Invalid("There are no entry types in this integrity zome".to_string())),
+            } => Ok(ValidateCallbackResult::Valid),
             // Complementary validation to the `RegisterCreateLink` Op, in which the record itself is validated
             // If you want to optimize performance, you can remove the validation for an entry type here and keep it in `RegisterCreateLink`
             // Notice that doing so will cause `must_get_valid_record` for this record to return a valid record even if the `RegisterCreateLink` validation failed

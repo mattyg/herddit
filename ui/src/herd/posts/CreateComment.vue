@@ -1,15 +1,12 @@
 <template>
   <mwc-snackbar ref="create-error"></mwc-snackbar>
 
-  <div style="display: flex; flex-direction: column">
-    <span style="font-size: 18px">Create Comment</span>
-  
-    <div style="margin-bottom: 16px">
-      <mwc-textarea outlined label="Content" @input="content = $event.target.value" required :value="content"></mwc-textarea>
-    </div>
-
+  <div class="w-full" v-bind="$attrs">
+    <div class="text-2xl mb-2">Comment</div>
+    <mwc-textarea class="w-full mb-2" outlined label="Content" @input="content = $event.target.value" required :value="content"></mwc-textarea>
   
     <mwc-button 
+      class="w-full"
       raised
       label="Create Comment"
       :disabled="!isCommentValid || submitting"

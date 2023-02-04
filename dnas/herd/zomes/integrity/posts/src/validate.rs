@@ -1,7 +1,5 @@
 use hdi::prelude::*;
-use crate::LinkTypes;
-use crate::EntryTypes;
-use crate::Post;
+use crate::{Comment, Post, LinkTypes, EntryTypes};
 use crate::votes::*;
 use crate::post::*;
 use crate::comment::*;
@@ -12,8 +10,9 @@ pub fn validate_agent_joining(
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }
+
 #[hdk_extern]
-pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
+pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {    
     match op.to_type::<EntryTypes, LinkTypes>()? {
         OpType::StoreEntry(store_entry) => {
             match store_entry {
@@ -408,7 +407,6 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 tag,
                             )
                         }
-                        _ => Ok(ValidateCallbackResult::Valid),
                         LinkTypes::PostToComments => {
                             validate_create_link_post_to_comments(
                                 action,
@@ -425,6 +423,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 tag,
                             )
                         }
+                        _ => Ok(ValidateCallbackResult::Valid),
                     }
                 }
                 OpRecord::DeleteLink { original_action_hash, base_address, action } => {
@@ -477,7 +476,6 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 create_link.tag,
                             )
                         }
-                        _ => Ok(ValidateCallbackResult::Valid),
                         LinkTypes::PostToComments => {
                             validate_delete_link_post_to_comments(
                                 action,
@@ -496,6 +494,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 create_link.tag,
                             )
                         }
+                        _ => Ok(ValidateCallbackResult::Valid)
                     }
                 }
                 OpRecord::CreatePrivateEntry { app_entry_type: _, action: _ } => {
@@ -561,6 +560,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
         }
     }
 }
+
 fn record_to_app_entry(record: &Record) -> ExternResult<Option<EntryTypes>> {
     if let Record { signed_action, entry: RecordEntry::Present(entry) } = record {
         if let Some(EntryType::App(AppEntryDef { entry_index, zome_index, .. }))

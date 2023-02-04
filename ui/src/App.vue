@@ -3,9 +3,9 @@
       <span class="h-16 w-16 block rounded-full border-t-4 border-white-300 animate-spin z-[10]"></span>
     </div>
     <div v-else class="h-screen">
-      <div class="navbar bg-base-300">
+      <div class="navbar bg-base-300 py-4">
         <div class="flex-1">
-          <RouterLink to="/" class="mx-4 btn btn-ghost normal-case text-xl">
+          <RouterLink to="/" class="mx-4 btn btn-ghost normal-case text-3xl">
             herddit
           </RouterLink>
         </div>

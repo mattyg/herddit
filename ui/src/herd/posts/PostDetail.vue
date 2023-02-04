@@ -1,7 +1,7 @@
  <template>
   <div class="w-full flex justify-center">
-    <div class="w-full md:max-w-screen-lg">
-      <a class="fixed top-48 left-8 btn btn-ghost btn-xs" @click="$router.push(`/herds/${$route.params.listingHashString}`)">Back to Herd</a>
+    <div class="w-full md:max-w-screen-xl">
+      <a class="fixed left-8 btn btn-ghost btn-xs" @click="$router.push(`/herds/${$route.params.listingHashString}`)">Back to Herd</a>
       <div v-if="!loading">
         <div  v-if="record && postContent"  class="flex flex-row justify-center items-start space-x-4">
           <PostVotes 
@@ -10,23 +10,28 @@
             :postHash="postHash"
             @upvote="() => { if(my_vote !== 1) { my_vote = 1; upvotes += 1; fetchPost();} }"
             @downvote="() => { if(my_vote !== -1) { my_vote = -1; upvotes -= 1; fetchPost();} }"
-            @error="votingError" />
-          <div class="flex flex-col justify-center items-center space-y-4 my-4">
+            @error="votingError" 
+            class="mx-8"
+          />
+
+          <div class="my-4">
             <div class="flex flex-col justify-start items-center space-y-4">
               <div class="w-full text-4xl">{{ post?.title }}</div>
-              <div class="text-lg color-neutral">Submitted {{dateRelative}} by {{authorHashString}}</div>
+              <div class="text-lg color-neutral text-gray-400 font-bold">Submitted {{dateRelative}} by {{authorHashString}}</div>
             </div>
             <div class="flex flex-row justify-between items-center space-x-4">
               <div class="flex flex-row justify-center items-center space-x-2">
-                <button v-if="myPost" class="btn btn-primary btn-xs" @click="editPost()">Edit</button>
-                <button v-if="myPost" class="btn btn-error btn-xs" @click="deletePost()">Delete</button>
+                <mwc-icon-button v-if="myPost" class="mx-2" icon="edit" @click="editPost()"></mwc-icon-button>
+                <mwc-icon-button v-if="myPost" class="mx-2" icon="delete" @click="deletePost()"></mwc-icon-button>
               </div>
-          </div>
+            </div>
 
-          <div class="w-full md:max-w-screen-md bg-base-200 p-8 shadow-sm prose md:prose-lg" v-html="postContent"></div>
-          
-          <CommentsForPost :dnaHash="dnaHash" :postHash="postHash" />
-        </div>
+            <div class="w-full md:max-w-screen-lg bg-base-200 p-8 shadow-sm prose md:prose-lg mb-8" v-html="postContent"></div>
+            
+            <div class="mt-16 px-8 w-full">
+              <CommentsForPost :dnaHash="dnaHash" :postHash="postHash" />
+            </div>
+          </div>
       </div>
         
         <span v-else>The requested post was not found.</span>
@@ -54,18 +59,17 @@ import { Snackbar } from '@material/mwc-snackbar';
 import PostListItem from './PostListItem.vue';
 import PostVotes from './PostVotes.vue';
 import CommentsForPost from './CommentsForPost.vue';
-import CreateComment from './CreateComment.vue';
 import {marked} from 'marked';
 import dayjs from 'dayjs';
 import { error } from 'console';
 import { Listing } from '../directory/types';
+import { isEqual } from 'lodash';
 
 export default defineComponent({
   components: {
     PostListItem,
     PostVotes,
     CommentsForPost,
-    CreateComment,
   },
   props: {
     dnaHash: {
@@ -99,7 +103,7 @@ export default defineComponent({
     },
     myPost() {
       if(!this.record || !this.appInfo) return false;
-      return this.record.signed_action.hashed.content.author === this.client.myPubKey;
+      return isEqual(this.record.signed_action.hashed.content.author, this.client.myPubKey);
     },
     authorHashString() {
       if (!this.record) return undefined;
