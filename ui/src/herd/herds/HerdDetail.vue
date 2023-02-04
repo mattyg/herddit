@@ -8,7 +8,8 @@
             <div class="py-2">
             <RouterLink :to="`/herds/${$route.params.listingHashString}`" class="hover:border-b-2 border-0 border-solid border-black mb-2 text-3xl my-4">h/{{ herdInfo?.title }}</RouterLink>
             </div>
-            <div class="flex-row justify-between items-center space-x-2">
+            <div class="flex-row justify-between items-center space-x-12">
+                <div class="btn btn-secondary btn-xs" @click="leaveHerd()">Leave the {{listing?.title}} Herd</div>
                 <RouterLink :to="`/herds/${$route.params.listingHashString}/posts/create`" class="btn btn-primary btn-sm">Call to {{listing?.title}} Herd</RouterLink>
             </div>
         </div>
@@ -88,7 +89,9 @@ export default defineComponent({
                 payload: decodeHashFromBase64(this.$route.params.listingHashString as string),
             });
         },
-        async installHerdCell() {            
+        async installHerdCell() {  
+            if(!this.listing) return;
+
             const appInfo = await this.client.appInfo();
             console.log('cell info', appInfo.cell_info.herd);
             let cellInfo = appInfo.cell_info.herd.find((cell) => {    
@@ -100,6 +103,12 @@ export default defineComponent({
                 const appInfo = await this.client.appInfo();
                 console.log('new app info', appInfo);
 
+                if(!cellInfo.cloned.enabled) {
+                    await this.client.enableCloneCell({
+                        clone_cell_id: [this.listing?.dna, this.client.myPubKey]
+                    });
+                }
+                
                 this.cellInstalled = true;
                 return cellInfo.cloned.cell_id;
             } else {
@@ -137,6 +146,19 @@ export default defineComponent({
                 errorSnackbar.show();
             }
         },
+        async leaveHerd() {
+            if(!this.listing) return;
+
+            try {
+                await this.client.disableCloneCell({
+                    clone_cell_id: [this.listing.dna, this.client.myPubKey]
+                });
+            } catch (e: any) {
+                console.log('error leaving herd')
+            }
+
+            this.$router.push('/');
+        }
     },
     setup() {
         const client = (inject('client') as ComputedRef<AppAgentClient>).value;

@@ -2,16 +2,14 @@
   <mwc-snackbar ref="create-error"></mwc-snackbar>
 
   <div class="w-full" v-bind="$attrs">
-    <div class="text-2xl mb-2">Comment</div>
-    <mwc-textarea class="w-full mb-2" outlined label="Content" @input="content = $event.target.value" required :value="content"></mwc-textarea>
+    <mwc-textarea class="w-full mb-2" outlined label="Respond to Call" @input="content = $event.target.value" :value="content"></mwc-textarea>
   
-    <mwc-button 
-      class="w-full"
-      raised
-      label="Create Comment"
+    <button
+      v-if="content?.length > 0 "
+      class="btn btn-primary btn-sm"
       :disabled="!isCommentValid || submitting"
       @click="createComment"
-    ></mwc-button>
+    >Respond</button>
   </div>
 </template>
 <script lang="ts">
@@ -28,11 +26,11 @@ import { create } from 'domain';
 
 export default defineComponent({
   data(): {
-    content: string | undefined;
+    content: string;
     submitting: boolean;
   } {
     return { 
-      content: undefined,
+      content: "",
       submitting: false,
     }
   },
@@ -48,7 +46,7 @@ export default defineComponent({
   },
   computed: {
     isCommentValid() {
-      return true && this.content !== undefined
+      return true && this.content.length > 0;
     },
   },
   methods: {

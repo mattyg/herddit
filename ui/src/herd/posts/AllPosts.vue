@@ -13,7 +13,11 @@
           :postHash="hash">
         </PostListItem>
       </div>
-      <span v-else>No posts found.</span>
+      <div v-else class="flex flex-col items-center justify-center">
+        <div class="text-xl mb-4 text-center">The herd fell silent...</div>
+
+        <RouterLink :to="`/herds/${$route.params.listingHashString}/posts/create`" class="btn btn-primary btn-sm">Call to {{listing?.title}} Herd</RouterLink>
+      </div>
     </div>
   </div>
 
