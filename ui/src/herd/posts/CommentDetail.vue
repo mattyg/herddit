@@ -25,9 +25,8 @@
           </div>
         </div>
         <div class="flex flex-row justify-between items-center">
-          <div class="text-xs text-gray-400" :class="{'text-primary-100': isPostAuthor}">
+          <div class="text-xs text-gray-400" :class="{'text-primary font-bold': isPostAuthor}">
              <div>{{ authorHashString }}</div>
-            <div v-if="isPostAuthor">Orignal Caller</div>
           </div>
           <div class="text-xs text-gray-400">
             <span v-if="isUpdated">

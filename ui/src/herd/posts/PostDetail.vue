@@ -10,7 +10,7 @@
             @updated="() => { editing = false; fetchPost(); }" 
             @cancelled="() => {editing = false;}" />
         </div>
-        <div  v-else-if="record && postContent"  class="flex flex-row justify-center items-start space-x-4">
+        <div  v-else-if="record && postContent && authorHash"  class="flex flex-row justify-center items-start space-x-4">
           <PostVotes 
             :votes="votesCount" 
             :dnaHash="dnaHash" 
