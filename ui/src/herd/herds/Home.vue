@@ -4,15 +4,13 @@
     </div>
 
     <div class="w-full" v-else>
-        <div class="w-full h-4 bg-base-400 text-xs mx-4 my-4 overflow-clip">
+        <div class="w-full flex flex-row justify-between items-center border-b-2 mb-14 space-x-4">
+            <div class="text-3xl mx-8 my-4">The Watering Hole</div>
+        </div>
+
+        <div class="w-full bg-base-400 text-xs mx-4 my-4 overflow-clip text-center">
             <AllListingsInlineText />
         </div>
-
-        <div class="w-full flex flex-row justify-between items-center border-b-2 mb-14 space-x-4">
-            <div class="text-3xl mx-8 my-4">h/herddit</div>
-        </div>
-
-        <mwc-snackbar ref="create-error"></mwc-snackbar>
     </div>
 </template>
 

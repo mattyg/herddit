@@ -1,10 +1,15 @@
 <template>
-  <div v-if="!loading" class="flex flow-row">
-    <div v-if="hashes && hashes.length > 0" class="space-x-2">
+  <div v-if="!loading" class="flex flex-wrap justify-center">
+    <div v-if="hashes && hashes.length > 0" class="space-x-8">
       <ListingLink 
         v-for="hash in hashes" 
         :listingHash="hash"
         @listing-deleted="fetchListing()" />
+    </div>
+    <div v-else-if="showEmpty">
+      <div class="text-lg">No herds found</div>
+      <RouterLink :to="`/herds/create`" class="btn btn-primary btn-xl">Gather New Herd</RouterLink>
+
     </div>
   </div>
 </template>
@@ -24,6 +29,9 @@ export default defineComponent({
     dnaHash: {
       type: Object as PropType<Uint8Array> | undefined,
       required: false
+    },
+    showEmpty: {
+      default: false,
     }
   },
   data(): { hashes: Array<ActionHash> | undefined; loading: boolean; error: any } {

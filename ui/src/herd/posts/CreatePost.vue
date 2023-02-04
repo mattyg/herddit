@@ -3,7 +3,7 @@
 
   <div class="flex h-full justify-center item-center">
     <div class="w-full md:max-w-md bg-white-200">
-      <div class="text-2xl mb-8">Create Post</div>
+      <div class="text-2xl mb-8">Call to Herd</div>
     
       <div class="mb-4">
         <mwc-textfield class="w-full" outlined label="Title" @input="title = $event.target.value" required></mwc-textfield>
@@ -16,7 +16,7 @@
       <button class="btn bn-primary"
         :disabled="!isPostValid"
         @click="createPost"
-      >Create Post</button>
+      >Call to Herd</button>
     </div>
   </div>
 </template>

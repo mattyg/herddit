@@ -11,7 +11,7 @@
         </div>
         <div>
           <ul class="menu menu-horizontal px-1 flex items-center">
-            <RouterLink :to="`/herds/create`" class="btn btn-primary btn-sm">Create Herd</RouterLink>
+            <RouterLink :to="`/herds/create`" class="btn btn-ghost btn-sm">Gather New Herd</RouterLink>
 
             <li tabIndex={0}>
               <RouterLink to="/account">

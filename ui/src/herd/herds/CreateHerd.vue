@@ -3,14 +3,14 @@
 
   <div class="w-full flex justify-center my-12">
     <div class="w-full md:max-w-screen-lg mx-4">
-      <div class="text-2xl mb-4">Create Herd</div>
+      <div class="text-2xl mb-4">Gather New Herd</div>
       <div class="mb-8">
         <mwc-textfield class="w-full" outlined label="Title" @input="title = $event.target.value" required></mwc-textfield>
       </div>
     
       <mwc-button 
         raised
-        label="Create Herd"
+        label="Gather New Herd"
         :disabled="!isHerdValid || creatingHerd"
         @click="createHerd"
       ></mwc-button>

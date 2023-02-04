@@ -1,9 +1,24 @@
 <template>
-  <div>
-    <button class="text-2xl font-bold text-gray-400 font-bold" :class="{'text-lg': size === 'sm',}" @click="upvotePost">⇧</button>
-    <div class="text-2xl font-bold text-gray-400 font-bold" :class="{'text-blue-500': my_vote !== undefined, 'text-lg': size === 'sm'}">{{ votes }}</div>
-    <button class="text-2xl font-bold text-gray-400 font-bold" :class="{'text-lg': size === 'sm'}"  @click="downvotePost">⇩</button>
-  </div>
+  <div class="flex flex-col justify-center items-center">
+    <mwc-icon-button 
+      class="text-2xl font-bold text-gray-400" 
+      :class="{'text-lg': size === 'sm'}"
+      icon="arrow_upward" 
+      @click="upvotePost">
+    </mwc-icon-button>
+    <div class="text-2xl text-gray-400 font-bold" 
+      :class="{'text-blue-500': my_vote !== undefined, 'text-lg': size === 'sm'}"
+    >
+      {{ votes }}
+    </div>
+    <mwc-icon-button 
+      class="text-2xl font-bold text-gray-400" 
+      :class="{'text-lg': size === 'sm'}"
+      icon="arrow_downward" 
+      @click="upvotePost">
+    </mwc-icon-button>
+
+</div>
 </template>
 
 <script lang="ts">

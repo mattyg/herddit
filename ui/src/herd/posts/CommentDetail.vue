@@ -16,8 +16,8 @@
           class="flex flex-1"
         />
       </div>
-      <div v-else-if="record" class="bg-base-200 p-4">
-        <div class="flex flex-row justify-start items-center mb-4">
+      <div v-else-if="record" class="py-2 px-4 ">
+        <div class="flex flex-row justify-start items-center">
           <div class="flex flex-1" style="white-space: pre-line">{{  comment?.content }} </div>
           <div>
             <mwc-icon-button class="mx-2" icon="edit" @click="editing = true"></mwc-icon-button>

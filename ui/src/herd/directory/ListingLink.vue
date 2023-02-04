@@ -1,6 +1,6 @@
 <template>
   <div v-if="!loading && listing" class="inline-block">
-    <RouterLink :to="`/herds/${listingHashString}`" :title="listing.description" class="no-underline hover:underline cursor-pointer">{{ listing.title }}</RouterLink>      
+    <RouterLink :to="`/herds/${listingHashString}`" :title="listing.description" class="text-lg no-underline hover:underline cursor-pointer">{{ listing.title }}</RouterLink>      
   </div>
 </template>
 

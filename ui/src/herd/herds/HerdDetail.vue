@@ -4,19 +4,21 @@
     </div>
 
     <div v-else class="w-full">
-        <div class="w-full w-full flex flex-row justify-between items-center border-b-2 space-x-4 px-8 bg-base-100">
-            <div class="text-3xl my-4">h/{{ herdInfo?.title }}</div>
+        <div class="sticky top-0 w-full flex flex-row justify-between items-center border-b-2 space-x-4 px-8 bg-base-100">
+            <div class="py-2">
+            <RouterLink :to="`/herds/${$route.params.listingHashString}`" class="hover:border-b-2 border-0 border-solid border-black mb-2 text-3xl my-4">h/{{ herdInfo?.title }}</RouterLink>
+            </div>
             <div class="flex-row justify-between items-center space-x-2">
-                <RouterLink :to="`/herds/${$route.params.listingHashString}/posts/create`" class="btn btn-primary btn-sm">Create Post</RouterLink>
+                <RouterLink :to="`/herds/${$route.params.listingHashString}/posts/create`" class="btn btn-primary btn-sm">Call to {{listing?.title}} Herd</RouterLink>
             </div>
         </div>
 
         <div class="w-full h-4 bg-base-400 text-xs mx-4 mb-4 overflow-clip" v-if="listing">
-            <AllListingsInlineText :dnaHash="listing?.dna" />
+            <AllListingsInlineText :showEmpty="false" :dnaHash="listing?.dna" />
         </div>
         
         <div class="w-full flex justify-center" v-if="listing">
-            <div class="w-full md:max-w-screen-xl my-8">
+            <div class="w-full md:max-w-screen-xl">
                 <RouterView :dnaHash="listing.dna"></RouterView>
              </div>
         </div>

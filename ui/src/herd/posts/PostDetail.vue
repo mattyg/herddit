@@ -1,7 +1,6 @@
  <template>
   <div class="w-full flex justify-center">
     <div class="w-full md:max-w-screen-xl">
-      <a class="fixed left-8 btn btn-ghost btn-xs" @click="$router.push(`/herds/${$route.params.listingHashString}`)">Back to Herd</a>
       <div v-if="!loading">
         <div  v-if="record && postContent"  class="flex flex-row justify-center items-start space-x-4">
           <PostVotes 
