@@ -9,6 +9,8 @@ import EditPost from './herd/posts/EditPost.vue';
 import CreateHerd from './herd/herds/CreateHerd.vue';
 import Home from './herd/herds/Home.vue';
 import HerdDetail from './herd/herds/HerdDetail.vue';
+import Vue3Toastify, { type ToastContainerOptions } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
 
 const routes = [
     { path: '', component: Home },
@@ -28,5 +30,15 @@ const router = createRouter({
 });
 
 const app = createApp(App);
+
 app.use(router);
+app.use(Vue3Toastify, {
+    autoClose: 2000,
+    position: 'bottom-left',
+    style: {
+      opacity: '1',
+      userSelect: 'initial',
+    },
+  } as ToastContainerOptions);
+
 app.mount('#app');

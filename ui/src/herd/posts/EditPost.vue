@@ -48,6 +48,7 @@ import '@material/mwc-textarea';
 import { error } from 'console';
 import { update } from 'lodash';
 import { title } from 'process';
+import { toast } from 'vue3-toastify';
 
 export default defineComponent({
   data(): {
@@ -108,9 +109,7 @@ export default defineComponent({
         });
         this.$emit('updated', updateRecord.signed_action.hashed.hash);
       } catch (e: any) {
-        const errorSnackbar = this.$refs['update-error'] as Snackbar;
-        errorSnackbar.labelText = `Error updating the post: ${e.data.data}`;
-        errorSnackbar.show();
+        toast.error(`Error updating the post: ${e.data.data}`);
       }
     },
   },

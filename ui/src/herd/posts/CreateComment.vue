@@ -1,6 +1,4 @@
 <template>
-  <mwc-snackbar ref="create-error"></mwc-snackbar>
-
   <div class="w-full" v-bind="$attrs">
     <mwc-textarea class="w-full mb-2" outlined label="Respond to Call" @input="content = $event.target.value" :value="content"></mwc-textarea>
   
@@ -19,10 +17,8 @@ import { Comment } from './types';
 import '@material/mwc-button';
 import '@material/mwc-icon-button';
 import '@material/mwc-snackbar';
-import { Snackbar } from '@material/mwc-snackbar';
 import '@material/mwc-textarea';
-import { error } from 'console';
-import { create } from 'domain';
+import { toast } from 'vue3-toastify';
 
 export default defineComponent({
   data(): {
@@ -68,9 +64,7 @@ export default defineComponent({
         this.$emit('created', record.signed_action.hashed.hash);
         this.content = "";
       } catch (e: any) {
-        const errorSnackbar = this.$refs['create-error'] as Snackbar;
-        errorSnackbar.labelText = `Error creating the comment: ${e.data.data}`;
-        errorSnackbar.show();
+        toast.error(`Error creating the comment: ${e.data.data}`);
       }
 
       this.submitting = false;

@@ -35,6 +35,7 @@ import { Snackbar } from '@material/mwc-snackbar';
 import '@material/mwc-textarea';
 import { error } from 'console';
 import { update } from 'lodash';
+import { toast } from 'vue3-toastify';
 
 export default defineComponent({
   data(): {
@@ -88,9 +89,7 @@ export default defineComponent({
         });
         this.$emit('updated', updateRecord.signed_action.hashed.hash);
       } catch (e: any) {
-        const errorSnackbar = this.$refs['update-error'] as Snackbar;
-        errorSnackbar.labelText = `Error updating the comment: ${e.data.data}`;
-        errorSnackbar.show();
+        toast.error(`Error updating the comment: ${e.data.data}`);
       }
     },
   },

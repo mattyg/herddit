@@ -1,6 +1,4 @@
 <template>
-  <mwc-snackbar ref="create-error"></mwc-snackbar>
-
   <div class="w-full flex justify-center my-12">
     <div class="w-full md:max-w-screen-lg mx-4">
       <div class="text-2xl mb-4">Gather New Herd</div>
@@ -24,13 +22,9 @@ import { Listing } from '../directory/types';
 import '@material/mwc-button';
 import '@material/mwc-icon-button';
 import '@material/mwc-snackbar';
-import { Snackbar } from '@material/mwc-snackbar';
 import { generateSlug } from "random-word-slugs";
-
 import '@material/mwc-textarea';
-import { error } from 'console';
-import { create } from 'domain';
-import { title } from 'process';
+import { toast } from 'vue3-toastify';
 export default defineComponent({
   data(): {
     title: string | undefined;
@@ -83,9 +77,7 @@ export default defineComponent({
         this.$emit('listing-created', record.signed_action.hashed.hash);
         this.$router.push(`/herds/${encodeHashToBase64(record.signed_action.hashed.hash)}`);
       } catch (e: any) {
-        const errorSnackbar = this.$refs['create-error'] as Snackbar;
-        errorSnackbar.labelText = `Error creating the herd: ${e.data.data}`;
-        errorSnackbar.show();
+        toast.error(`Error creating the herd: ${e.data.data}`);
       }
 
       this.creatingHerd = false;

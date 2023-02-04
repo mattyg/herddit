@@ -54,6 +54,7 @@ import { Snackbar } from '@material/mwc-snackbar';
 import EditComment from './EditComment.vue';
 import { error } from 'console';
 import dayjs from 'dayjs';
+import { toast } from 'vue3-toastify';
 
 export default defineComponent({
   components: {
@@ -119,15 +120,8 @@ export default defineComponent({
           fn_name: 'get_comment',
           payload: this.commentHash,
         });
-        console.log('recieved record', this.record);
       } catch(e: any) {
-        console.log('error', e);
-
-        const errorSnackbar = this.$refs['delete-error'] as Snackbar;
-        errorSnackbar.labelText = `Error deleting the comment: ${e.data.data}`;
-        errorSnackbar.show();
-        
-        console.log('failed to fetch comment');
+        toast.error(`Error fetching the comment: ${e.data.data}`);
       }
 
       this.loading = false;
@@ -143,9 +137,8 @@ export default defineComponent({
         this.$emit('deleted', this.commentHash);
         this.record = undefined;
       } catch (e: any) {
-        const errorSnackbar = this.$refs['delete-error'] as Snackbar;
-        errorSnackbar.labelText = `Error deleting the comment: ${e.data.data}`;
-        errorSnackbar.show();
+        toast.error(`Error deleting the comment: ${e.data.data}`);
+
       }
     }
   },

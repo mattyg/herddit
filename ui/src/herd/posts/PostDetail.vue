@@ -72,6 +72,7 @@ import dayjs from 'dayjs';
 import { error } from 'console';
 import { Listing } from '../directory/types';
 import { isEqual } from 'lodash';
+import { toast } from 'vue3-toastify';
 
 export default defineComponent({
   components: {
@@ -151,10 +152,7 @@ export default defineComponent({
         this.downvotes = post_metadata.downvotes;
         this.record = post_metadata.record;
       } catch (e: any) {
-        console.log('error', e);
-        const errorSnackbar = this.$refs['error'] as Snackbar;
-        errorSnackbar.labelText = `Error deleting the post: ${e.data.data}`;
-        errorSnackbar.show();
+         toast.error(`Error fetching the post: ${e.data.data}`);
       }
 
       this.loading = false;
@@ -171,13 +169,8 @@ export default defineComponent({
         this.$emit('post-deleted', this.postHash);
         this.$router.push(`/herds/${this.$route.params.listingHashString}`);
       } catch (e: any) {
-        const errorSnackbar = this.$refs['error'] as Snackbar;
-        errorSnackbar.labelText = `Error deleting the post: ${e.data.data}`;
-        errorSnackbar.show();
+        toast.error(`Error deleting the post: ${e.data.data}`);
       }
-    },
-    editPost() {
-      this.$router.push(`/herds/${this.$route.params.listingHashString}/posts/${this.$route.params.postHashString}/edit`);
     },
     votingError(msg: string) {
       const errorSnackbar = this.$refs['error'] as Snackbar;

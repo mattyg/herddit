@@ -40,6 +40,7 @@ import AllPosts from '../posts/AllPosts.vue';
 import { create, isEqual } from 'lodash';
 import { error } from 'console';
 import { RouterLink, RouterView } from 'vue-router';
+import { toast } from 'vue3-toastify';
 
 export default defineComponent({
     components: {
@@ -139,11 +140,8 @@ export default defineComponent({
                     fn_name: 'get_info',
                     payload: null,
                 });
-            }
-            catch (e: any) {
-                const errorSnackbar = this.$refs['create-error'] as Snackbar;
-                errorSnackbar.labelText = `Error creating the herd: ${e.data.data}`;
-                errorSnackbar.show();
+            } catch (e: any) {
+                toast.error(`Error creating the herd cell: ${e.data.data}`);
             }
         },
         async leaveHerd() {
@@ -153,8 +151,9 @@ export default defineComponent({
                 await this.client.disableCloneCell({
                     clone_cell_id: [this.listing.dna, this.client.myPubKey]
                 });
+                toast.success(`Disabled the herd cell`);
             } catch (e: any) {
-                console.log('error leaving herd')
+                toast.error(`Error disabling the herd cell: ${e.data.data}`);
             }
 
             this.$router.push('/');

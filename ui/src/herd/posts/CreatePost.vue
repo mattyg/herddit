@@ -1,6 +1,4 @@
 <template>
-  <mwc-snackbar ref="create-error"></mwc-snackbar>
-
   <div class="flex h-full justify-center item-center">
     <div class="w-full md:max-w-md bg-white-200">
       <div class="text-2xl mb-8">Call to Herd</div>
@@ -27,11 +25,10 @@ import { Post } from './types';
 import '@material/mwc-button';
 import '@material/mwc-icon-button';
 import '@material/mwc-snackbar';
-import { Snackbar } from '@material/mwc-snackbar';
 import '@material/mwc-textfield';
 import '@vaadin/date-time-picker/theme/material/vaadin-date-time-picker.js';
 import '@material/mwc-textarea';
-import { decode } from '@msgpack/msgpack';
+import { toast } from 'vue3-toastify';
 export default defineComponent({
   
   props: {
@@ -77,9 +74,8 @@ export default defineComponent({
         this.$emit('post-created', record.signed_action.hashed.hash);
         this.$router.push(`/herds/${this.$route.params.listingHashString}/posts/${encodeHashToBase64(record.signed_action.hashed.hash)}`);
       } catch (e: any) {
-        const errorSnackbar = this.$refs['create-error'] as Snackbar;
-        errorSnackbar.labelText = `Error creating the post: ${e.data.data}`;
-        errorSnackbar.show();
+        toast.error(`Error creating the Post: ${e.data.data}`);
+
       }
     },
   },
