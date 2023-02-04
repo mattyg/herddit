@@ -18,7 +18,6 @@ const routes = [
             { path: '', component: AllPosts },
             { path: 'posts/create', component: CreatePost },
             { path: 'posts/:postHashString', component: PostDetail },
-            { path: 'posts/:postHashString/edit', component: EditPost },
         ]
     },
 ];

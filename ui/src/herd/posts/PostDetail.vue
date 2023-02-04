@@ -2,7 +2,15 @@
   <div class="w-full flex justify-center">
     <div class="w-full md:max-w-screen-xl">
       <div v-if="!loading">
-        <div  v-if="record && postContent"  class="flex flex-row justify-center items-start space-x-4">
+        <div v-if="editing && record">
+          <EditPost 
+            :dnaHash="dnaHash" 
+            :postHash="postHash" 
+            :currentRecord="record" 
+            @updated="() => { editing = false; fetchPost(); }" 
+            @cancelled="() => {editing = false;}" />
+        </div>
+        <div  v-else-if="record && postContent"  class="flex flex-row justify-center items-start space-x-4">
           <PostVotes 
             :votes="votesCount" 
             :dnaHash="dnaHash" 
@@ -10,13 +18,19 @@
             @upvote="() => { if(my_vote !== 1) { my_vote = 1; upvotes += 1; fetchPost();} }"
             @downvote="() => { if(my_vote !== -1) { my_vote = -1; upvotes -= 1; fetchPost();} }"
             @error="votingError" 
-            class="mx-8"
+            class="mr-8"
           />
 
           <div class="my-4">
             <div class="flex flex-col justify-start items-center space-y-4">
               <div class="w-full text-4xl">{{ post?.title }}</div>
               <div class="text-lg color-neutral text-gray-400 font-bold">Submitted {{dateRelative}} by {{authorHashString}}</div>
+            </div>
+            <div class="flex flex-row justify-between items-center space-x-4">
+              <div class="flex flex-row justify-center items-center space-x-2">
+                <mwc-icon-button v-if="myPost" class="mx-2" icon="edit" @click="editing = true"></mwc-icon-button>
+                <mwc-icon-button v-if="myPost" class="mx-2" icon="delete" @click="deletePost()"></mwc-icon-button>
+              </div>
             </div>
 
             <div class="w-full md:max-w-screen-lg bg-base-200 p-8 shadow-sm prose md:prose-lg mb-8" v-html="postContent"></div>
@@ -52,6 +66,7 @@ import { Snackbar } from '@material/mwc-snackbar';
 import PostListItem from './PostListItem.vue';
 import PostVotes from './PostVotes.vue';
 import CommentsForPost from './CommentsForPost.vue';
+import EditPost from './EditPost.vue';
 import {marked} from 'marked';
 import dayjs from 'dayjs';
 import { error } from 'console';
@@ -63,6 +78,7 @@ export default defineComponent({
     PostListItem,
     PostVotes,
     CommentsForPost,
+    EditPost
   },
   props: {
     dnaHash: {
@@ -78,7 +94,7 @@ export default defineComponent({
       my_vote: undefined,
       loading: true,
       editing: false,
-      appInfo: undefined
+      appInfo: undefined,
     }
   },
   computed: {
@@ -153,7 +169,7 @@ export default defineComponent({
           payload: this.postHash,
         });
         this.$emit('post-deleted', this.postHash);
-        this.fetchPost();
+        this.$router.push(`/herds/${this.$route.params.listingHashString}`);
       } catch (e: any) {
         const errorSnackbar = this.$refs['error'] as Snackbar;
         errorSnackbar.labelText = `Error deleting the post: ${e.data.data}`;
