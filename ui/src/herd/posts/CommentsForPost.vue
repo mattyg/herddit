@@ -13,6 +13,7 @@
         v-for="hash in hashes" 
         :dnaHash="dnaHash"
         :commentHash="hash" 
+        :postAuthorHash="postAuthorHash"
         class="mb-4"
         @deleted="fetchComments"
       />
@@ -42,6 +43,10 @@ export default defineComponent({
       required: true
     },
     postHash: {
+      type: Object as PropType<Uint8Array>,
+      required: true
+    },
+    postAuthorHash: {
       type: Object as PropType<Uint8Array>,
       required: true
     }

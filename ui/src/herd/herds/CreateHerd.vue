@@ -6,12 +6,11 @@
         <mwc-textfield class="w-full" outlined label="Title" @input="title = $event.target.value" required></mwc-textfield>
       </div>
     
-      <mwc-button 
-        raised
-        label="Gather New Herd"
+      <button 
+        class="btn btn-primary"
         :disabled="!isHerdValid || creatingHerd"
         @click="createHerd"
-      ></mwc-button>
+      >Gather New Herd</button>
     </div>
   </div>
 </template>
@@ -75,7 +74,7 @@ export default defineComponent({
         });
 
         this.$emit('listing-created', record.signed_action.hashed.hash);
-        toast.success(`Created clone cell for herd ${this.title}`);
+        toast.success(`Cloned cell for herd "${this.title}"`);
         this.$router.push(`/herds/${encodeHashToBase64(record.signed_action.hashed.hash)}`);
       } catch (e: any) {
         toast.error(`Error creating the herd: ${e.data.data}`);

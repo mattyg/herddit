@@ -22,21 +22,23 @@
           />
 
           <div class="my-4">
-            <div class="flex flex-col justify-start items-center space-y-4">
+            <div class="flex flex-col justify-start items-center space-y-4 mb-4">
               <div class="w-full text-4xl">{{ post?.title }}</div>
               <div class="text-lg color-neutral text-gray-400 font-bold">Submitted {{dateRelative}} by {{authorHashString}}</div>
             </div>
-            <div class="flex flex-row justify-between items-center space-x-4">
-              <div class="flex flex-row justify-center items-center space-x-2">
-                <mwc-icon-button v-if="myPost" class="mx-2" icon="edit" @click="editing = true"></mwc-icon-button>
-                <mwc-icon-button v-if="myPost" class="mx-2" icon="delete" @click="deletePost()"></mwc-icon-button>
-              </div>
-            </div>
 
-            <div class="w-full md:max-w-screen-lg bg-base-200 p-8 shadow-sm prose md:prose-lg mb-8" v-html="postContent"></div>
+            <div class="relative w-full md:max-w-screen-lg bg-base-200 py-4 px-8 shadow-sm prose md:prose-lg mb-8" >
+
+              <div class="w-full pb-4" v-html="postContent"></div>
+              
+                <div v-if="myPost" class="w-full absolute left-0 bottom-0 flex flex-row justify-end items-center space-x-2">
+                  <mwc-icon-button icon="edit" @click="editing = true"></mwc-icon-button>
+                  <mwc-icon-button icon="delete" @click="deletePost()"></mwc-icon-button>
+                </div>
+            </div>
             
             <div class="mt-16 px-8 w-full">
-              <CommentsForPost :dnaHash="dnaHash" :postHash="postHash" />
+              <CommentsForPost :dnaHash="dnaHash" :postHash="postHash" :postAuthorHash="authorHash" />
             </div>
           </div>
       </div>
@@ -115,10 +117,13 @@ export default defineComponent({
       if(!this.record || !this.appInfo) return false;
       return isEqual(this.record.signed_action.hashed.content.author, this.client.myPubKey);
     },
-    authorHashString() {
+    authorHash() {
       if (!this.record) return undefined;
 
-      return encodeHashToBase64(this.record.signed_action.hashed.content.author);
+      return this.record.signed_action.hashed.content.author;
+    },
+    authorHashString() {
+      return encodeHashToBase64(this.authorHash);
     },
     dateRelative() {
       if(!this.record?.signed_action.hashed.content.timestamp) return;

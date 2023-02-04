@@ -3,7 +3,7 @@
 
   <div class="flex h-full justify-center item-center">
     <div class="w-full md:max-w-md bg-white-200">
-      <div class="text-2xl mb-8">Call to Herd</div>
+      <div class="text-2xl mb-8">Update Call to Herd</div>
     
       <div class="mb-4">
         <mwc-textfield class="w-full" outlined label="Title" @input="title = $event.target.value" :value="title" required></mwc-textfield>
@@ -14,20 +14,16 @@
       </div>
     
 
-    <div style="display: flex; flex-direction: row">
-      <mwc-button
-        outlined
-        label="Cancel"
+    <div class="flex flex-row justify-end items-center space-x-4">
+      <button
         @click="$emit('cancelled')"
-        style="flex: 1; margin-right: 16px;"
-      ></mwc-button>
-      <mwc-button 
-        raised
-        label="Save"
-        :disabled="!isPostValid"
-        @click="updatePost"
-        style="flex: 1;"
-      ></mwc-button>
+        class="btn btn-ghost btn-sm"
+      >Cancel</button>
+      <button 
+      :disabled="!isPostValid"
+      @click="updatePost"
+        class="btn btn-primary btn-sm"
+      >Call to Herd</button>
     </div>
   
   </div>

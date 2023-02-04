@@ -25,7 +25,10 @@
           </div>
         </div>
         <div class="flex flex-row justify-between items-center">
-          <div class="text-xs text-gray-400">{{ authorHashString }}</div>
+          <div class="text-xs text-gray-400" :class="{'text-primary-100': isPostAuthor}">
+             <div>{{ authorHashString }}</div>
+            <div v-if="isPostAuthor">Orignal Caller</div>
+          </div>
           <div class="text-xs text-gray-400">
             <span v-if="isUpdated">
               edited
@@ -36,9 +39,6 @@
         </div>
       </div>    
     </div>
-
-    <mwc-snackbar ref="delete-error" leading>
-    </mwc-snackbar>
   </div>
 </template>
 
@@ -50,11 +50,10 @@ import { Comment } from './types';
 import '@material/mwc-circular-progress';
 import '@material/mwc-icon-button';
 import '@material/mwc-snackbar';
-import { Snackbar } from '@material/mwc-snackbar';
 import EditComment from './EditComment.vue';
-import { error } from 'console';
 import dayjs from 'dayjs';
 import { toast } from 'vue3-toastify';
+import { isEqual } from 'lodash';
 
 export default defineComponent({
   components: {
@@ -66,6 +65,10 @@ export default defineComponent({
       required: true
     },
     commentHash: {
+      type: Object as PropType<Uint8Array>,
+      required: true
+    },
+    postAuthorHash: {
       type: Object as PropType<Uint8Array>,
       required: true
     }
@@ -104,6 +107,11 @@ export default defineComponent({
     },
     commentHashString() {
       return encodeHashToBase64(this.commentHash);
+    },
+    isPostAuthor() {
+      if (!this.record) return undefined;
+
+      return isEqual(this.record.signed_action.hashed.content.author, this.postAuthorHash);
     }
   },
   async mounted() {

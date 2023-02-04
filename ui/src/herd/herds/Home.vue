@@ -16,8 +16,6 @@
 
 <script lang="ts">
 import { ActionHash, AppAgentClient, CellInfo, InstalledCell, Record} from '@holochain/client';
-import { Snackbar } from '@material/mwc-snackbar';
-import { decode } from '@msgpack/msgpack';
 import { ComputedRef, defineComponent, inject, PropType } from 'vue'
 import AllListingsInlineText from '../directory/AllListingsInlineText.vue';
 import { Listing } from '../directory/types';

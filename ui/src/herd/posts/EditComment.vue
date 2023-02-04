@@ -7,20 +7,16 @@
 
 
 
-    <div style="display: flex; flex-direction: row">
-      <mwc-button
-        outlined
-        label="Cancel"
+    <div class="flex flex-row justify-end items-center space-x-4">
+      <button
         @click="$emit('cancelled')"
-        style="flex: 1; margin-right: 16px;"
-      ></mwc-button>
-      <mwc-button 
-        raised
-        label="Save"
+        class="btn btn-ghost btn-sm"
+      >Cancel</button>
+      <button 
         :disabled="!isCommentValid"
         @click="updateComment"
-        style="flex: 1;"
-      ></mwc-button>
+        class="btn btn-primary btn-sm"
+      >Save</button>
     </div>
   </div>
 </template>

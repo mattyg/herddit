@@ -4,7 +4,7 @@
     </div>
 
     <div v-else class="w-full">
-        <div class="sticky top-0 w-full flex flex-row justify-between items-center border-b-2 space-x-4 px-8 bg-base-100 z-50">
+        <div class="sticky top-0 w-full flex flex-row justify-between items-center border-b-2 space-x-4 px-8 bg-base-100 z-30">
             <div class="py-2">
             <RouterLink :to="`/herds/${$route.params.listingHashString}`" class="hover:border-b-2 border-0 border-solid border-black mb-2 text-3xl my-4">h/{{ herdInfo?.title }}</RouterLink>
             </div>
@@ -148,7 +148,7 @@ export default defineComponent({
                 await this.client.disableCloneCell({
                     clone_cell_id: [this.listing.dna, this.client.myPubKey]
                 });
-                toast.success(`Disabled cell for herd ${this.listing.title}`);
+                toast.success(`Disabled cloned cell for herd ${this.listing.title}`);
             } catch (e: any) {
                 toast.error(`Error disabling the herd cell: ${e.data.data}`);
             }
