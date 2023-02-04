@@ -4,12 +4,12 @@
     </div>
 
     <div v-else class="w-full">
-        <div class="sticky top-0 w-full flex flex-row justify-between items-center border-b-2 space-x-4 px-8 bg-base-100">
+        <div class="sticky top-0 w-full flex flex-row justify-between items-center border-b-2 space-x-4 px-8 bg-base-100 z-50">
             <div class="py-2">
             <RouterLink :to="`/herds/${$route.params.listingHashString}`" class="hover:border-b-2 border-0 border-solid border-black mb-2 text-3xl my-4">h/{{ herdInfo?.title }}</RouterLink>
             </div>
             <div class="flex-row justify-between items-center space-x-12">
-                <div class="btn btn-secondary btn-xs" @click="leaveHerd()">Leave the {{listing?.title}} Herd</div>
+                <div class="btn btn-secondary btn-xs" @click="leaveHerd()">Leave the Herd</div>
                 <RouterLink :to="`/herds/${$route.params.listingHashString}/posts/create`" class="btn btn-primary btn-sm">Call to {{listing?.title}} Herd</RouterLink>
             </div>
         </div>
@@ -19,18 +19,15 @@
         </div>
         
         <div class="w-full flex justify-center" v-if="listing">
-            <div class="w-full md:max-w-screen-xl">
+            <div class="w-full md:max-w-screen-xl z-10">
                 <RouterView :dnaHash="listing.dna"></RouterView>
              </div>
         </div>
     </div>
-
-    <mwc-snackbar ref="create-error"></mwc-snackbar>
-
 </template>
 
 <script lang="ts">
-import { AppAgentClient, CellId, Record, encodeHashToBase64, decodeHashFromBase64, ClonedCell, ClonedCellInfo} from '@holochain/client';
+import { AppAgentClient, CellId, Record, encodeHashToBase64, decodeHashFromBase64, ClonedCell } from '@holochain/client';
 import { Snackbar } from '@material/mwc-snackbar';
 import { decode } from '@msgpack/msgpack';
 import { ComputedRef, defineComponent, inject, PropType } from 'vue'
@@ -151,7 +148,7 @@ export default defineComponent({
                 await this.client.disableCloneCell({
                     clone_cell_id: [this.listing.dna, this.client.myPubKey]
                 });
-                toast.success(`Disabled the herd cell`);
+                toast.success(`Disabled cell for herd ${this.listing.title}`);
             } catch (e: any) {
                 toast.error(`Error disabling the herd cell: ${e.data.data}`);
             }

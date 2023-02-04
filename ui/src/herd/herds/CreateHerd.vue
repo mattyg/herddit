@@ -75,6 +75,7 @@ export default defineComponent({
         });
 
         this.$emit('listing-created', record.signed_action.hashed.hash);
+        toast.success(`Created clone cell for herd ${this.title}`);
         this.$router.push(`/herds/${encodeHashToBase64(record.signed_action.hashed.hash)}`);
       } catch (e: any) {
         toast.error(`Error creating the herd: ${e.data.data}`);
