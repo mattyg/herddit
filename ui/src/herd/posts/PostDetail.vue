@@ -19,12 +19,6 @@
               <div class="w-full text-4xl">{{ post?.title }}</div>
               <div class="text-lg color-neutral text-gray-400 font-bold">Submitted {{dateRelative}} by {{authorHashString}}</div>
             </div>
-            <div class="flex flex-row justify-between items-center space-x-4">
-              <div class="flex flex-row justify-center items-center space-x-2">
-                <mwc-icon-button v-if="myPost" class="mx-2" icon="edit" @click="editPost()"></mwc-icon-button>
-                <mwc-icon-button v-if="myPost" class="mx-2" icon="delete" @click="deletePost()"></mwc-icon-button>
-              </div>
-            </div>
 
             <div class="w-full md:max-w-screen-lg bg-base-200 p-8 shadow-sm prose md:prose-lg mb-8" v-html="postContent"></div>
             

@@ -1,11 +1,23 @@
 <template>
   <div v-if="!loading">
-    <RouterLink v-if="record" :to="`/herds/${dnaHashString}/posts/${postHashString}`">
-      <div class="w-full flex flex-col bg-neutral-1 hover:bg-neutral-2">
-        <div class="w-full text-2xl">{{ post?.title }}</div>
-        <div class="text-xs">Submitted {{dateRelative}} by {{authorHash}}</div>
-      </div>
-    </RouterLink>
+    <div v-if="record" class="flex flex-row flex-start items-center">
+      <PostVotes 
+        :votes="votesCount" 
+        :dnaHash="dnaHash" 
+        :postHash="postHash"
+        @upvote="fetchPost()"
+        @downvote="fetchPost()"
+        class="mr-8"
+        size="sm"
+      />
+      <RouterLink :to="`/herds/${dnaHashString}/posts/${postHashString}`">
+        <div class="w-full flex flex-col bg-neutral-1 hover:bg-neutral-2">
+          <div class="w-full text-3xl mb-2">{{ post?.title }}</div>
+          <div class="text-md text-gray-400 font-bold">Submitted {{dateRelative}} by {{authorHash}}</div>
+        </div>
+      </RouterLink>
+    </div>
+
     
     <span v-else>The requested post was not found.</span>
   </div>
@@ -27,12 +39,14 @@ import '@material/mwc-circular-progress';
 import '@material/mwc-icon-button';
 import '@material/mwc-snackbar';
 import { Snackbar } from '@material/mwc-snackbar';
+import PostVotes from './PostVotes.vue';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 
 export default defineComponent({
   components: {
+    PostVotes,
   },
   props: {
     dnaHash: {
@@ -44,11 +58,12 @@ export default defineComponent({
       required: true
     }
   },
-  data(): { record: Record | undefined; loading: boolean; editing: boolean; } {
+  data(): { record: Record | undefined; loading: boolean; editing: boolean; votesCount: number} {
     return {
       record: undefined,
       loading: true,
       editing: false,
+      votesCount: 0,
     }
   },
   computed: {
@@ -89,16 +104,19 @@ export default defineComponent({
       this.loading = true;
       this.record = undefined;
 
-      this.record = await this.client.callZome({
+      const post_metadata = await this.client.callZome({
         cell_id: [this.dnaHash, this.client.myPubKey],
         cap_secret: null,
         zome_name: 'posts',
-        fn_name: 'get_post',
+        fn_name: 'get_post_metadata',
         payload: this.postHash,
       });
 
+      this.record = post_metadata.record;
+      this.votesCount = post_metadata.upvotes - post_metadata.downvotes;
+
       this.loading = false;
-    }
+    },
   },
   setup() {
     const client = (inject('client') as ComputedRef<AppAgentClient>).value;

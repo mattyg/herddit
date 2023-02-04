@@ -1,8 +1,8 @@
 <template>
   <div>
-    <button class="text-2xl font-bold text-gray-400 font-bold" @click="upvotePost">⇧</button>
-    <div class="text-2xl font-bold text-gray-400 font-bold" :class="{'text-blue-500': my_vote !== undefined}">{{ votes }}</div>
-    <button class="text-2xl font-bold text-gray-400 font-bold" @click="downvotePost">⇩</button>
+    <button class="text-2xl font-bold text-gray-400 font-bold" :class="{'text-lg': size === 'sm',}" @click="upvotePost">⇧</button>
+    <div class="text-2xl font-bold text-gray-400 font-bold" :class="{'text-blue-500': my_vote !== undefined, 'text-lg': size === 'sm'}">{{ votes }}</div>
+    <button class="text-2xl font-bold text-gray-400 font-bold" :class="{'text-lg': size === 'sm'}"  @click="downvotePost">⇩</button>
   </div>
 </template>
 
@@ -22,6 +22,9 @@ export default defineComponent({
     },
     votes: {
       default: 0
+    },
+    size: {
+      default: "lg"
     }
   },
   data(): { my_vote?: number; } {
