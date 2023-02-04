@@ -2,10 +2,9 @@
   <div class="w-full flex justify-center my-12">
     <div class="w-full md:max-w-screen-lg mx-4">
       <div class="text-2xl mb-4">Gather New Herd</div>
-      <div class="mb-8">
-        <mwc-textfield class="w-full" outlined label="Title" @input="title = $event.target.value" required></mwc-textfield>
-      </div>
-    
+      <mwc-textfield class="w-full mb-8" outlined label="Title" @input="title = $event.target.value" required></mwc-textfield>
+      <mwc-textarea class="w-full mb-8" outlined label="Description" @input="description = $event.target.value" required></mwc-textarea>
+
       <button 
         class="btn btn-primary"
         :disabled="!isHerdValid || creatingHerd"

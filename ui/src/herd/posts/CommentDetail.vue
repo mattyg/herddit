@@ -25,10 +25,10 @@
           </div>
         </div>
         <div class="flex flex-row justify-between items-center">
-          <div class="text-xs text-gray-400" :class="{'text-primary font-bold': isPostAuthor}">
+          <div class="text-xs text-gray-500" :class="{'text-primary font-bold': isPostAuthor}">
              <div>{{ authorHashString }}</div>
           </div>
-          <div class="text-xs text-gray-400">
+          <div class="text-xs text-gray-500">
             <span v-if="isUpdated">
               edited
             </span>

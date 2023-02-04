@@ -4,7 +4,7 @@
     </div>
 
     <div v-else class="w-full">
-        <div class="sticky top-0 w-full flex flex-row justify-between items-center border-b-2 space-x-4 px-8 bg-base-100 z-30">
+        <div class="sticky top-0 w-full flex flex-row justify-between items-center border-b-2 space-x-4 px-8 bg-base-100 z-0">
             <div class="py-2">
             <RouterLink :to="`/herds/${$route.params.listingHashString}`" class="hover:border-b-2 border-0 border-solid border-black mb-2 text-3xl my-4">h/{{ herdInfo?.title }}</RouterLink>
             </div>
@@ -19,7 +19,7 @@
         </div>
         
         <div class="w-full flex justify-center" v-if="listing">
-            <div class="w-full md:max-w-screen-xl z-10">
+            <div class="w-full md:max-w-screen-xl z-30">
                 <RouterView :dnaHash="listing.dna"></RouterView>
              </div>
         </div>
