@@ -6,6 +6,9 @@ use hdi::prelude::*;
 #[unit_enum(UnitEntryTypes)]
 pub enum EntryTypes {
     Listing(Listing),
+
+    #[entry_def(visibility = "private")]
+    PrivateListing(PrivateListing),
 }
 #[hdk_link_types]
 pub enum LinkTypes {

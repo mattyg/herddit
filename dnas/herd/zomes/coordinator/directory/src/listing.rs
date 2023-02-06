@@ -1,16 +1,17 @@
 use hdk::prelude::*;
 use directory_integrity::*;
+
 #[hdk_extern]
-pub fn create_listing(listing: Listing) -> ExternResult<Record> {
+pub fn create_private_listing(listing: PrivateListing) -> ExternResult<ActionHash> {
+    let listing_hash = create_entry(EntryTypes::PrivateListing(listing.clone()))?;
+
+    Ok(listing_hash)
+}
+
+#[hdk_extern]
+pub fn create_listing(listing: Listing) -> ExternResult<ActionHash> {
     let listing_hash = create_entry(&EntryTypes::Listing(listing.clone()))?;
-    let record = get(listing_hash.clone(), GetOptions::default())?
-        .ok_or(
-            wasm_error!(
-                WasmErrorInner::Guest(String::from("Could not find the newly created Listing"))
-            ),
-        )?;
-        
-    // Link from all_listings -> Listing ActionHash
+            
     let path = Path::from("all_listings");
     create_link(
         path.path_entry_hash()?,
@@ -19,7 +20,7 @@ pub fn create_listing(listing: Listing) -> ExternResult<Record> {
         (),
     )?;
 
-    Ok(record)
+    Ok(listing_hash)
 }
 
 #[hdk_extern]
@@ -68,4 +69,21 @@ pub fn update_listing(input: UpdateListingInput) -> ExternResult<Record> {
 #[hdk_extern]
 pub fn delete_listing(original_listing_hash: ActionHash) -> ExternResult<ActionHash> {
     delete_entry(original_listing_hash)
+}
+
+#[hdk_extern]
+pub fn listing_to_bubble_babble(listing: Listing) -> ExternResult<String> {
+    let bytes = SerializedBytes::try_from(listing).map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))?;
+    let babble = boba::encode(bytes.bytes());
+
+    Ok(babble)
+}
+
+#[hdk_extern]
+pub fn bubble_babble_to_listing(babble: String) -> ExternResult<Listing> {
+    let bytes = boba::decode(babble).map_err(|_| wasm_error!(WasmErrorInner::Guest("Failed to decode bytes from provided bubble babble".into())))?;
+    let serialized_bytes = SerializedBytes::try_from(UnsafeBytes::from(bytes))?;
+    let listing = Listing::try_from(serialized_bytes).map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))?;
+    
+    Ok(listing)
 }

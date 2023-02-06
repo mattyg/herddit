@@ -136,6 +136,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "boba"
+version = "5.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "272c36c2bdd1501e9072b8cfbe9250da06157d2a4c494b3720319b63658a0b0a"
+
+[[package]]
 name = "bumpalo"
 version = "3.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -503,6 +509,7 @@ dependencies = [
 name = "directory"
 version = "0.0.1"
 dependencies = [
+ "boba",
  "directory_integrity",
  "hdk",
  "serde",

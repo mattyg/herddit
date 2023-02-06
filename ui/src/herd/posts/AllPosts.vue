@@ -16,7 +16,7 @@
       <div v-else class="flex flex-col items-center justify-center">
         <div class="text-xl mb-4 text-center">The herd was quiet...</div>
 
-        <RouterLink :to="`/herds/${$route.params.listingHashString}/posts/create`" class="btn btn-primary btn-sm">Call to {{listing?.title}} Herd</RouterLink>
+        <RouterLink :to="`${$route.fullPath}/posts/create`" class="btn btn-primary btn-sm">Call to Herd</RouterLink>
       </div>
     </div>
   </div>

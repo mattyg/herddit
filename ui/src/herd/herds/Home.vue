@@ -8,8 +8,13 @@
             <div class="text-3xl mx-8 my-4">The Watering Hole</div>
         </div>
 
+        <div class="w-full flex justify-center items-center space-x-4">
+            <div class="text-gray-400 font-bold">Private Herds</div>
+            <mwc-switch class="text-gray-400 font-bold" :selected="showPrivate" @click="showPrivate = !showPrivate"></mwc-switch>
+        </div>
+        
         <div class="w-full bg-base-400 text-xs mx-4 my-4 overflow-clip text-center">
-            <AllListingsInlineText />
+            <AllListingsInlineText :showEmptyMessage="true" :showPrivate="showPrivate" />
         </div>
     </div>
 </template>
@@ -18,7 +23,7 @@
 import { ActionHash, AppAgentClient, CellInfo, InstalledCell, Record} from '@holochain/client';
 import { ComputedRef, defineComponent, inject, PropType } from 'vue'
 import AllListingsInlineText from '../directory/AllListingsInlineText.vue';
-import { Listing } from '../directory/types';
+import "@material/mwc-switch";
 
 export default defineComponent({
     components: {
@@ -26,7 +31,8 @@ export default defineComponent({
     },
     data() {
         return {
-            loading: false
+            loading: false,
+            showPrivate: true,
         };
     },
     async mounted() {

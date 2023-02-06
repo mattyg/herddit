@@ -1,7 +1,10 @@
 <template>
-  <div v-if="!loading && listing" class="inline-block">
-    <RouterLink :to="`/herds/${listingHashString}`" :title="listing.description" class="text-lg no-underline hover:underline cursor-pointer">{{ listing.title }}</RouterLink>      
-  </div>
+  <RouterLink :to="`/herds/${listingHashString}`" v-if="!loading && listing" :class="{'bg-neutral-200 rounded-full py-1 px-3': isPrivate}">
+    <div class="flex flex-row items-center space-x-1">
+      <mwc-icon class="text-gray-400 text-lg" v-if="isPrivate">visibility_off</mwc-icon>
+      <span class="text-lg no-underline hover:underline cursor-pointer">{{ listing.title }}</span>      
+    </div>
+  </RouterLink>
 </template>
 
 <script lang="ts">
@@ -11,6 +14,7 @@ import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash, encodeHashT
 import { Listing } from './types';
 import '@material/mwc-circular-progress';
 import '@material/mwc-icon-button';
+import '@material/mwc-icon';
 import '@material/mwc-snackbar';
 import { Snackbar } from '@material/mwc-snackbar';
 
@@ -37,6 +41,10 @@ export default defineComponent({
       if (!this.listing) return undefined;
 
       return encodeHashToBase64(this.listingHash);
+    },
+    isPrivate() {
+      if(!this.record) return;
+      return Object.keys(this.record?.signed_action.hashed.content.entry_type.App.visibility).includes('Private');
     }
   },
   async mounted() {

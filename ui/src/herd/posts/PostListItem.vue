@@ -10,7 +10,7 @@
         class="mr-8"
         size="sm"
       />
-      <RouterLink :to="`/herds/${dnaHashString}/posts/${postHashString}`">
+      <RouterLink :to="`${$route.fullPath}/posts/${postHashString}`">
         <div class="w-full flex flex-col bg-neutral-1 hover:bg-neutral-2">
           <div class="w-full text-3xl mb-2">{{ post?.title }}</div>
           <div class="text-md text-gray-400 font-bold">Submitted {{dateRelative}} by {{authorHash}}</div>

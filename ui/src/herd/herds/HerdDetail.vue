@@ -5,8 +5,11 @@
 
     <div v-else class="w-full">
         <div class="sticky top-0 w-full flex flex-row justify-between items-center border-b-2 space-x-4 px-8 bg-base-100 z-0">
-            <div class="py-2">
-            <RouterLink :to="`/herds/${$route.params.listingHashString}`" class="hover:border-b-2 border-0 border-solid border-black mb-2 text-3xl my-4">h/{{ herdInfo?.title }}</RouterLink>
+            <div class="my-2 h-12 flex flex-col justify-center">
+                <div class="flex flex-row justify-start items-center space-x-2">
+                    <mwc-icon class="text-gray-400 text-3xl" v-if="isPrivate">lock</mwc-icon>
+                    <RouterLink :to="`/herds/${$route.params.listingHashString}`" class="text-3xl">h/{{ herdInfo?.title }}</RouterLink>
+                </div>
             </div>
             <div class="flex-row justify-between items-center space-x-12">
                 <div class="btn btn-secondary btn-xs" @click="leaveHerd()">Leave the Herd</div>
@@ -34,8 +37,7 @@ import { ComputedRef, defineComponent, inject, PropType } from 'vue'
 import AllListingsInlineText from '../directory/AllListingsInlineText.vue';
 import { Listing } from '../directory/types';
 import AllPosts from '../posts/AllPosts.vue';
-import { create, isEqual } from 'lodash';
-import { error } from 'console';
+import { isEqual } from 'lodash';
 import { RouterLink, RouterView } from 'vue-router';
 import { toast } from 'vue3-toastify';
 
@@ -44,48 +46,72 @@ export default defineComponent({
         AllListingsInlineText,
         AllPosts
     },
-    data(): { record: Record | undefined; loading: boolean; editing: boolean; herdInfo: any; cellInstalled: boolean;} {
+    data(): { record: Record | undefined; listing?: Listing; loading: boolean; editing: boolean; herdInfo: any; cellInstalled: boolean;} {
         return {
             record: undefined,
+            listing: undefined,
             loading: true,
             editing: false,
             herdInfo: undefined,
-            cellInstalled: false
+            cellInstalled: false,
         }
     },
     computed: {
-        listingHash() {
-            return decodeHashFromBase64(this.$route.params.listingHashString as string);
-        },
-        listing() {
-            if (!this.record) return undefined;
-            return decode((this.record.entry as any).Present.entry) as Listing;
-        },
         dnaHashString() {
             if (!this.listing) return undefined;
 
             return encodeHashToBase64(this.listing.dna);
+        },
+        isPrivate() {
+            if(this.$route.params.password) return true;
+            
+            if(!this.record) return false;
+            
+            return Object.keys(this.record?.signed_action.hashed.content.entry_type.App.visibility).includes('Private');
         }
     },
     async mounted() {
-        await this.init();
+        this.loading = true;
+
+        if(this.$route.params.password) {
+            await this.decodePasswordToListing(this.$route.params.password as string);
+        } else {
+            await this.fetchListing();
+        }
+
+        const cell_id = await this.installHerdCell();
+        await this.fetchHerdInfo(cell_id);
+
+        this.loading = false;    
     },
     methods: {
-        async init() {
-            this.loading = true;
-            await this.fetchListing();
-            const cell_id = await this.installHerdCell();
-            await this.fetchHerdInfo(cell_id);
-            this.loading = false;
-        },
-        async fetchListing() {
-            this.record = await this.client.callZome({
-                cap_secret: null,
+        async decodePasswordToListing(password: string) {
+            try {
+                this.listing = await this.client.callZome({
                 role_name: 'herd',
                 zome_name: 'directory',
-                fn_name: 'get_listing',
-                payload: decodeHashFromBase64(this.$route.params.listingHashString as string),
-            });
+                fn_name: 'bubble_babble_to_listing',
+                payload: password,
+                });
+            } catch (e: any) {
+                console.log('error', e);
+                toast.error('Error converting data to mnemonic', e);
+            }
+        },
+        async fetchListing() {
+            try {
+                this.record = await this.client.callZome({
+                    cap_secret: null,
+                    role_name: 'herd',
+                    zome_name: 'directory',
+                    fn_name: 'get_listing',
+                    payload: decodeHashFromBase64(this.$route.params.listingHashString as string),
+                });
+
+                this.listing = decode((this.record?.entry as any).Present.entry) as Listing;
+            } catch(e: any) {
+                toast.error('Error fetching listing:', e.data.data);
+            }
         },
         async installHerdCell() {  
             if(!this.listing) return;

@@ -13,3 +13,4 @@ hdk = { workspace = true }
 serde = { workspace = true }
 
 directory_integrity = { workspace = true } 
+boba = "5.0.0"

@@ -7,6 +7,16 @@ pub struct Listing {
     pub network_seed: String,
     pub dna: DnaHash
 }
+
+#[hdk_entry_helper]
+#[derive(Clone)]
+pub struct PrivateListing {
+    pub title: String,
+    pub description: String,
+    pub network_seed: String,
+    pub dna: DnaHash
+}
+
 pub fn validate_create_listing(
     _action: EntryCreationAction,
     _listing: Listing,

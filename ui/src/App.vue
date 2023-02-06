@@ -11,7 +11,8 @@
         </div>
         <div>
           <ul class="menu menu-horizontal px-1 flex items-center">
-            <RouterLink :to="`/herds/create`" class="btn btn-ghost btn-sm">Gather New Herd</RouterLink>
+            <label htmlFor="join-herd-modal" className="btn btn-ghost">Join Secret Herd</label>
+            <RouterLink :to="`/herds/create`" class="btn btn-ghost btn-sm">Gather a Herd</RouterLink>
 
             <li tabIndex={0}>
               <RouterLink to="/account">
@@ -29,12 +30,24 @@
 
       <RouterView></RouterView>
     </div>
+
+  <input type="checkbox" id="join-herd-modal" v-model="joinHerdModalVisible" className="modal-toggle" />
+  <label htmlFor="join-herd-modal" className="modal cursor-pointer">
+    <label className="modal-box relative" htmlFor="">
+      <h3 class="text-xl">Enter Secret Herd Password:</h3>
+      <mwc-textarea class="w-full h-32 my-4" v-model="herd_password" outlined></mwc-textarea>
+      <div class="modal-action">
+        <button class="btn btn-primary bn-sm" @click="joinPrivateHerd">Join Secret Herd</button>
+      </div>
+    </label>
+  </label>
 </template>
 <script lang="ts">
 import { defineComponent, computed } from 'vue';
-import { AppWebsocket, ActionHash, AppAgentClient, AppAgentWebsocket } from '@holochain/client';
+import { AppWebsocket, ActionHash, AppAgentClient, AppAgentWebsocket, decodeHashFromBase64 } from '@holochain/client';
 import '@material/mwc-circular-progress';
 import { themeChange} from 'theme-change'
+import { RouterLink, RouterView } from 'vue-router';
 
 export default defineComponent({
   components: {
@@ -44,12 +57,16 @@ export default defineComponent({
     loading: boolean;
     herd_name: string;
     theme: string;
+    herd_password: string;
+    joinHerdModalVisible: boolean;
   } {
     return {
       client: undefined,
       loading: true,
       herd_name: 'SupaHerd',
       theme: 'dark',
+      herd_password: "",
+      joinHerdModalVisible: false,
     };
   },
   async mounted() {
@@ -63,6 +80,13 @@ export default defineComponent({
     this.client = await AppAgentWebsocket.connect(appWs, 'herddit');
 
     this.loading = false;
+  },
+  methods: {
+    joinPrivateHerd() {
+      this.$router.push(`/herds/private/${this.herd_password}`);
+      this.herd_password = "";
+      this.joinHerdModalVisible = false;
+    }
   },
   provide() {
     return {
