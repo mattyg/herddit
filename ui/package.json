@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@babel/types": "^7.20.2",
+    "@holochain-open-dev/profiles": "^0.10.1",
     "@holochain-open-dev/utils": "^0.10.1",
     "@holochain/client": "^0.12.0",
     "@material/mwc-button": "^0.27.0",
@@ -27,6 +28,7 @@
     "@types/lodash": "^4.14.191",
     "@types/ws": "^8.5.1",
     "@vaadin/date-time-picker": "^23.2.8",
+    "@webcomponents/scoped-custom-element-registry": "^0.0.8",
     "dayjs": "^1.11.7",
     "lodash": "^4.17.21",
     "marked": "^4.2.5",

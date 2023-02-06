@@ -11,13 +11,12 @@
         <RouterLink :to="`/herds/create`" class="btn btn-ghost btn-sm">Gather a Herd</RouterLink>
 
         <li tabIndex={0}>
-          <RouterLink to="/account">
-            My Account
+          <RouterLink to="/account" class="flex flex-row justify-center">
+            <AgentProfile :agentPubKey="client.myPubKey" size="lg" />
             <svg class="fill-current" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/></svg>
           </RouterLink>
-          <ul class="p-2 bg-base-100 z-40">
-            <li><a>Submenu 1</a></li>
-            <li><a>Submenu 2</a></li>
+          <ul class="p-2 bg-base-100 z-40 w-full">
+            <li><RouterLink :to="`/agents/${client.myPubKey}`">My Profile</RouterLink></li>
           </ul>
         </li>
       </ul>
@@ -25,8 +24,34 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts">
+import { defineComponent, computed, ComputedRef, inject, PropType } from 'vue';
+import { AppWebsocket, ActionHash, AppAgentClient, AppAgentWebsocket, decodeHashFromBase64 } from '@holochain/client';
+import { ProfilesStore, ProfilesClient, Profile } from "@holochain-open-dev/profiles";
+import AgentProfile from '../herd/profiles/AgentProfile.vue';
+import { RouterLink } from 'vue-router';
 
+export default defineComponent({
+  components: {
+    AgentProfile
+  },
+  props: {
+    profile: {
+      type: Object as PropType<Profile>,
+      required: true,
+    }
+  },
+  methods: {
+  },
+  setup() {
+    const profilesStore = (inject('profilesStore') as ComputedRef<ProfilesStore>).value;
+    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
+    return {
+      client,
+      profilesStore,
+    };
+  },
+});
 </script>
 
 <style scoped>

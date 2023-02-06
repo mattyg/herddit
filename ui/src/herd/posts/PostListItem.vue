@@ -13,7 +13,12 @@
       <RouterLink :to="`${$route.fullPath}/posts/${postHashString}`">
         <div class="w-full flex flex-col bg-neutral-1 hover:bg-neutral-2">
           <div class="w-full text-3xl mb-2">{{ post?.title }}</div>
-          <div class="text-md text-gray-400 font-bold">Submitted {{dateRelative}} by {{authorHash}}</div>
+          <div class="flex flex-row items-center space-x-2" v-if="authorHash">
+            <span class="text-md text-gray-400 font-bold">
+              Submitted {{dateRelative}} by 
+            </span>
+            <AgentProfile :agentPubKey="authorHash" size="sm" :muted="true" /> 
+          </div>
         </div>
       </RouterLink>
     </div>
@@ -35,11 +40,8 @@ import { defineComponent, inject, ComputedRef, PropType } from 'vue';
 import { decode } from '@msgpack/msgpack';
 import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash, encodeHashToBase64, decodeHashFromBase64 } from '@holochain/client';
 import { Post } from './types';
-import '@material/mwc-circular-progress';
-import '@material/mwc-icon-button';
-import '@material/mwc-snackbar';
-import { Snackbar } from '@material/mwc-snackbar';
 import PostVotes from './PostVotes.vue';
+import AgentProfile from '../profiles/AgentProfile.vue';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
@@ -47,6 +49,7 @@ dayjs.extend(relativeTime);
 export default defineComponent({
   components: {
     PostVotes,
+    AgentProfile,
   },
   props: {
     dnaHash: {
@@ -74,7 +77,7 @@ export default defineComponent({
     authorHash() {
       if (!this.record) return undefined;
 
-      return encodeHashToBase64(this.record.signed_action.hashed.content.author);
+      return this.record.signed_action.hashed.content.author;
     },
     dateRelative() {
       if(!this.record?.signed_action.hashed.content.timestamp) return;

@@ -4,7 +4,7 @@ name: herd
 integrity:
   network_seed: ~
   properties:
-    title: 'herd'
+    title: herd
   origin_time: 1672608938336518
   zomes:
     - name: posts_integrity
@@ -18,6 +18,10 @@ integrity:
     - name: herd_integrity
       hash: ~
       bundled: "../../../target/wasm32-unknown-unknown/release/herd_integrity.wasm"
+      dependencies: ~
+    - name: profiles_integrity
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/profiles_integrity.wasm"
       dependencies: ~
 coordinator:
   zomes:
@@ -36,3 +40,8 @@ coordinator:
       bundled: "../../../target/wasm32-unknown-unknown/release/herd.wasm"
       dependencies:
         - name: herd_integrity
+    - name: profiles
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/profiles.wasm"
+      dependencies:
+        - name: profiles_integrity

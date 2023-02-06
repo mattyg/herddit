@@ -23,7 +23,6 @@
 import { ActionHash, AppAgentClient, CellInfo, InstalledCell, Record} from '@holochain/client';
 import { ComputedRef, defineComponent, inject, PropType } from 'vue'
 import AllListingsInlineText from '../directory/AllListingsInlineText.vue';
-import "@material/mwc-switch";
 
 export default defineComponent({
     components: {

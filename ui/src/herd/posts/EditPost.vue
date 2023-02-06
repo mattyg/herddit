@@ -34,13 +34,9 @@
 import { defineComponent, inject, ComputedRef, PropType } from 'vue';
 import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash, decodeHashFromBase64, encodeHashToBase64} from '@holochain/client';
 import { Post } from './types';
-import '@material/mwc-button';
-import '@material/mwc-snackbar';
 import { decode } from '@msgpack/msgpack';
 import { Snackbar } from '@material/mwc-snackbar';
 import '@vaadin/date-time-picker/theme/material/vaadin-date-time-picker.js';
-import '@material/mwc-textfield';
-import '@material/mwc-textarea';
 import { error } from 'console';
 import { update } from 'lodash';
 import { title } from 'process';

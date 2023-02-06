@@ -17,16 +17,18 @@
         />
       </div>
       <div v-else-if="record" class="py-2 px-4 ">
-        <div class="flex flex-row justify-start items-center">
-          <div class="flex flex-1" style="white-space: pre-line">{{  comment?.content }} </div>
+        <div class="flex flex-row justify-start items-center mb-2">
+          <div class="flex flex-1 pre-line prose-2xl" >{{  comment?.content }} </div>
           <div>
-            <mwc-icon-button class="text-bold text-gray-400" icon="edit" @click="editing = true"></mwc-icon-button>
-            <mwc-icon-button class="text-bold text-gray-400" icon="delete" @click="deleteComment()"></mwc-icon-button>
+            <mwc-icon-button class="text-gray-400" icon="edit" @click="editing = true"></mwc-icon-button>
+            <mwc-icon-button class="text-gray-400" icon="delete" @click="deleteComment()"></mwc-icon-button>
           </div>
         </div>
         <div class="flex flex-row justify-between items-center">
-          <div class="text-xs text-gray-500" :class="{'text-primary font-bold': isPostAuthor}">
-             <div>{{ authorHashString }}</div>
+          <div class="flex flex-row items-center space-x-4" v-if="authorPubKey">
+            <AgentProfile :agentPubKey="authorPubKey" size="sm" :muted="true">
+              <div class="badge badge-sm badge-primary" v-if="isPostAuthor">Author</div>
+            </AgentProfile>
           </div>
           <div class="text-xs text-gray-500">
             <span v-if="isUpdated">
@@ -46,17 +48,16 @@ import { defineComponent, inject, ComputedRef, PropType } from 'vue';
 import { decode } from '@msgpack/msgpack';
 import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash, encodeHashToBase64 } from '@holochain/client';
 import { Comment } from './types';
-import '@material/mwc-circular-progress';
-import '@material/mwc-icon-button';
-import '@material/mwc-snackbar';
 import EditComment from './EditComment.vue';
+import AgentProfile from '../profiles/AgentProfile.vue';
 import dayjs from 'dayjs';
 import { toast } from 'vue3-toastify';
 import { isEqual } from 'lodash';
 
 export default defineComponent({
   components: {
-    EditComment
+    EditComment,
+    AgentProfile
   },
   props: {
     dnaHash: {
@@ -94,10 +95,10 @@ export default defineComponent({
       if (!this.record?.entry) return undefined;
       return decode((this.record.entry as any).Present.entry) as Comment;
     },
-    authorHashString() {
+    authorPubKey() {
       if (!this.record) return undefined;
 
-      return encodeHashToBase64(this.record.signed_action.hashed.content.author);
+      return this.record.signed_action.hashed.content.author;
     },
     dateRelative() {
       if(!this.record?.signed_action.hashed.content.timestamp) return;
@@ -110,7 +111,7 @@ export default defineComponent({
     isPostAuthor() {
       if (!this.record) return undefined;
 
-      return isEqual(this.record.signed_action.hashed.content.author, this.postAuthorHash);
+      return isEqual(this.authorPubKey, this.postAuthorHash);
     }
   },
   async mounted() {

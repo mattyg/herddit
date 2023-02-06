@@ -1,7 +1,7 @@
 <template>
   <div class="modal" :class="{'modal-open': visible}">
     <div class="modal-box">
-      <h3 class="text-xl">Below is your secret Herd Word:</h3>
+      <h3 class="text-xl">Below is your secret Herd-Word:</h3>
       <mwc-textarea class="w-full h-32 my-4" outlined readonly :value="text"></mwc-textarea>
       <p class="text-lg mb-4">Only share it with your stampede!</p>
       <div class="modal-action">

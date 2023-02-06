@@ -10,7 +10,7 @@
             @updated="() => { editing = false; fetchPost(); }" 
             @cancelled="() => {editing = false;}" />
         </div>
-        <div  v-else-if="record && postContent && authorHash"  class="flex flex-row justify-center items-start space-x-4">
+        <div v-else-if="record && postContent && authorHash"  class="flex flex-row justify-center items-start space-x-4">
           <PostVotes 
             :votes="votesCount" 
             :dnaHash="dnaHash" 
@@ -21,23 +21,26 @@
             class="mr-8"
           />
 
-          <div class="my-4">
+          <div class="my-4 w-full md:max-w-screen-lg">
             <div class="flex flex-col justify-start items-center space-y-4 mb-4">
-              <div class="w-full text-4xl">{{ post?.title }}</div>
-              <div class="text-lg color-neutral text-gray-400 font-bold">Submitted {{dateRelative}} by {{authorHashString}}</div>
+              <div class="w-full text-5xl">{{ post?.title }}</div>
+                   
+              <div class="w-full flex flex-row justify-between items-center">
+                <div class="text-lg text-gray-400 font-bold">Submitted {{dateRelative}}</div>
+                <AgentProfile :agentPubKey="authorHash" size="md" class="mx-4" />
+              </div>
             </div>
 
-            <div class="relative w-full md:max-w-screen-lg bg-base-200 py-4 px-8 shadow-sm prose md:prose-lg mb-8" >
-
-              <div class="w-full pb-4" v-html="postContent"></div>
-              
-                <div v-if="myPost" class="w-full absolute left-0 bottom-0 flex flex-row justify-end items-center space-x-2">
-                  <mwc-icon-button class="text-bold text-gray-600" icon="edit" @click="editing = true"></mwc-icon-button>
-                  <mwc-icon-button class="text-bold text-gray-600" icon="delete" @click="deletePost()"></mwc-icon-button>
-                </div>
+            <div class="relative w-full bg-base-200 p-12 shadow-sm mb-24 flex flex-col items-center" >
+              <div class="w-full pb-4 prose md:prose-2xl" v-html="postContent"></div> 
+               
+              <div v-if="myPost" class="w-full absolute left-0 bottom-0 flex flex-row justify-end items-center space-x-2">
+                <mwc-icon-button class="text-bold text-gray-600" icon="edit" @click="editing = true"></mwc-icon-button>
+                <mwc-icon-button class="text-bold text-gray-600" icon="delete" @click="deletePost()"></mwc-icon-button>
+              </div>
             </div>
             
-            <div class="mt-16 px-8 w-full">
+            <div class="w-full flex justify-center">
               <CommentsForPost :dnaHash="dnaHash" :postHash="postHash" :postAuthorHash="authorHash" />
             </div>
           </div>
@@ -61,13 +64,11 @@ import { defineComponent, inject, ComputedRef, PropType } from 'vue';
 import { decode } from '@msgpack/msgpack';
 import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash, AppInfo, encodeHashToBase64, decodeHashFromBase64 } from '@holochain/client';
 import { Post } from './types';
-import '@material/mwc-circular-progress';
-import '@material/mwc-icon-button';
-import '@material/mwc-snackbar';
 import { Snackbar } from '@material/mwc-snackbar';
 import PostListItem from './PostListItem.vue';
 import PostVotes from './PostVotes.vue';
 import CommentsForPost from './CommentsForPost.vue';
+import AgentProfile from '../profiles/AgentProfile.vue';
 import EditPost from './EditPost.vue';
 import {marked} from 'marked';
 import dayjs from 'dayjs';
@@ -81,7 +82,8 @@ export default defineComponent({
     PostListItem,
     PostVotes,
     CommentsForPost,
-    EditPost
+    EditPost,
+    AgentProfile
   },
   props: {
     dnaHash: {

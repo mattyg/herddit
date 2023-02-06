@@ -22,12 +22,6 @@
 import { defineComponent, inject, ComputedRef, PropType } from 'vue';
 import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash, encodeHashToBase64 } from '@holochain/client';
 import { Post } from './types';
-import '@material/mwc-button';
-import '@material/mwc-icon-button';
-import '@material/mwc-snackbar';
-import '@material/mwc-textfield';
-import '@vaadin/date-time-picker/theme/material/vaadin-date-time-picker.js';
-import '@material/mwc-textarea';
 import { toast } from 'vue3-toastify';
 export default defineComponent({
   

@@ -2,10 +2,16 @@
     <div v-if="loading" class="h-screen flex justify-center items-center">
       <span class="h-16 w-16 block rounded-full border-t-4 border-white-300 animate-spin z-[10]"></span>
     </div>
-    <div v-else class="h-screen">
-      <HomeNavbar />
-
-      <RouterView></RouterView>
+    <div v-else class="h-screen w-full">
+      <profiles-context :store="profilesStore" >
+        <div class="h-screen w-full flex justify-center items-center" v-if="!profile">
+          <create-profile @profile-created="createProfile"/>
+        </div>
+        <div v-else>
+          <HomeNavbar :profile="profile" />
+          <RouterView></RouterView>
+        </div>
+      </profiles-context>
     </div>
 
   <input type="checkbox" id="join-herd-modal" v-model="joinHerdModalVisible" className="modal-toggle" />
@@ -22,36 +28,54 @@
 <script lang="ts">
 import { defineComponent, computed } from 'vue';
 import { AppWebsocket, ActionHash, AppAgentClient, AppAgentWebsocket, decodeHashFromBase64 } from '@holochain/client';
-import '@material/mwc-circular-progress';
 import HomeNavbar from './components/HomeNavbar.vue';
+import { ProfilesStore, ProfilesClient, ProfilePrompt, ProfilesContext, Profile } from "@holochain-open-dev/profiles";
+import { RouterView } from 'vue-router';
+import { toast } from 'vue3-toastify';
 
 export default defineComponent({
   components: {
-    HomeNavbar,
+    HomeNavbar
   },
   data(): {
-    client: AppAgentClient | undefined;
+    client?: AppAgentClient;
+    profilesStore?: ProfilesStore;
     loading: boolean;
     herd_name: string;
     theme: string;
     herd_password: string;
     joinHerdModalVisible: boolean;
+    profile?: Profile
   } {
     return {
       client: undefined,
+      profilesStore: undefined,
       loading: true,
       herd_name: 'SupaHerd',
       theme: 'dark',
       herd_password: "",
       joinHerdModalVisible: false,
+      profile: undefined,
     };
   },
   async mounted() {    
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const TIMEOUT = 12000
-    // default timeout is set to 12000
+    // Setup conductor websocket
     this.client = await AppAgentWebsocket.connect('', 'herddit', 12000);
+
+    // Setup profiles store
+    const profilesClient = new ProfilesClient(this.client, 'herd', 'profiles');
+    this.profilesStore = new ProfilesStore(profilesClient, {
+      avatarMode: "avatar-required",
+      additionalFields: ["Bio", "Location", "Website"],
+    });
+    
+    await this.setProfile();
+
+    this.profilesStore.myProfile.subscribe((data) => {
+      if (data.status === 'complete') {
+        this.profile = data.value;
+      }
+    });
 
     this.loading = false;
   },
@@ -60,11 +84,28 @@ export default defineComponent({
       this.$router.push(`/herds/private/${this.herd_password}`);
       this.herd_password = "";
       this.joinHerdModalVisible = false;
+    },
+    async createProfile() {
+      try {
+        await this.setProfile();
+        toast.success('Created your agent profile');
+      } catch(e: any) {
+        toast.error('Error creating profile', e);
+      }
+    },
+    async setProfile() {
+      if(!this.client) return;
+
+      const profile = await this.profilesStore?.client.getAgentProfile(this.client.myPubKey);
+      if(profile) {
+        this.profile = profile;
+      }
     }
   },
   provide() {
     return {
       client: computed(() => this.client),
+      profilesStore: computed(() => this.profilesStore)
     };
   },
 });

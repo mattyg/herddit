@@ -19,7 +19,6 @@
 import { defineComponent, inject, ComputedRef, PropType } from 'vue';
 import { decode } from '@msgpack/msgpack';
 import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash } from '@holochain/client';
-import '@material/mwc-circular-progress';
 import ListingLink from './ListingLink.vue';
 
 export default defineComponent({

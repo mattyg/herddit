@@ -12,11 +12,6 @@ import { defineComponent, inject, ComputedRef, PropType } from 'vue';
 import { decode } from '@msgpack/msgpack';
 import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash, encodeHashToBase64, decodeHashFromBase64 } from '@holochain/client';
 import { Listing } from './types';
-import '@material/mwc-circular-progress';
-import '@material/mwc-icon-button';
-import '@material/mwc-icon';
-import '@material/mwc-snackbar';
-import { Snackbar } from '@material/mwc-snackbar';
 import { RouterLink } from 'vue-router';
 import { toast } from 'vue3-toastify';
 

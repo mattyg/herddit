@@ -25,9 +25,7 @@
 
 <script lang="ts">
 import { defineComponent, inject, ComputedRef, PropType } from 'vue';
-import { decode } from '@msgpack/msgpack';
 import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash } from '@holochain/client';
-import '@material/mwc-circular-progress';
 import PostListItem from './PostListItem.vue';
 
 export default defineComponent({

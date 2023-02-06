@@ -25,9 +25,7 @@
 
 <script lang="ts">
 import { defineComponent, inject, ComputedRef, PropType } from 'vue';
-import { decode } from '@msgpack/msgpack';
 import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash } from '@holochain/client';
-import '@material/mwc-circular-progress';
 import CommentDetail from './CommentDetail.vue';
 import CreateComment from './CreateComment.vue';
 import { error } from 'console';

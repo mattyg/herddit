@@ -23,11 +23,6 @@
 <script lang="ts">
 import { defineComponent, inject, ComputedRef, PropType, ref } from 'vue';
 import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash, InstalledCell, encodeHashToBase64, ClonedCell, randomByteArray } from '@holochain/client';
-import '@material/mwc-button';
-import '@material/mwc-icon-button';
-import '@material/mwc-checkbox';
-import '@material/mwc-formfield';
-import '@material/mwc-textarea';
 import { toast } from 'vue3-toastify';
 import HerdPasswordModal from './HerdPasswordModal.vue';
 import { title } from 'process';
