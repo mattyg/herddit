@@ -1,5 +1,10 @@
 # Herddit
 
+Have you herddit?
+
+P2P sub-group posting app - built on Holochain
+
+![Wildebeests Stable Diffusion](./assets/wildebeests-stable-diffusion.jpg)
 ## Environment Setup
 
 > PREREQUISITE: set up the [holochain development environment](https://developer.holochain.org/docs/install/).
