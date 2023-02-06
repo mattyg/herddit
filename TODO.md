@@ -7,12 +7,14 @@
 - [x] Call to a herd
 - [x] Respond to a call
 - [x] Upvote / downvote a call
-- [ ] Profiles
+- [ ] Agent profiles
+- [ ] Restrict herd names to all-lowercase, no-spaces, underscores
 - [ ] Upvote/downvote responses
-- [ ] Refactor upvoting / downvoting -- store each vote in it's own entry, agent can update their votes
+- [ ] Refactor upvoting / downvoting posts -- store each vote in it's own entry, agent can update their votes
 - [ ] Voting on comments
 - [ ] Sort posts by votes, descending
 - [ ] Hide Posts / Comments with vote count < 0
+- [ ] Threaded responses (responses to responses)
 
 ## Content Filtering 
 - [ ] Filter content displayed in a herd based on DNA properties
