@@ -34,7 +34,7 @@
   <input type="checkbox" id="join-herd-modal" v-model="joinHerdModalVisible" className="modal-toggle" />
   <label htmlFor="join-herd-modal" className="modal cursor-pointer">
     <label className="modal-box relative" htmlFor="">
-      <h3 class="text-xl">Enter Secret Herd Password:</h3>
+      <h3 class="text-xl">Enter Secret Herd Word:</h3>
       <mwc-textarea class="w-full h-32 my-4" v-model="herd_password" outlined></mwc-textarea>
       <div class="modal-action">
         <button class="btn btn-primary bn-sm" @click="joinPrivateHerd">Join Secret Herd</button>

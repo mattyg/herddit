@@ -1,7 +1,7 @@
 <template>
   <div class="modal" :class="{'modal-open': visible}">
     <div class="modal-box">
-      <h3 class="text-xl"><mwc-icon>warning</mwc-icon>Below is your secret Herd Password:</h3>
+      <h3 class="text-xl"><mwc-icon>warning</mwc-icon>Below is your secret Herd Word:</h3>
 
       <mwc-textarea class="w-full h-32 my-4" outlined :value="password" @input="password = $event.target.value" @focus="copy"></mwc-textarea>
       <p class="text-lg mb-4">Only share it with people allowed in the herd</p>

@@ -17,6 +17,8 @@ import '@material/mwc-icon-button';
 import '@material/mwc-icon';
 import '@material/mwc-snackbar';
 import { Snackbar } from '@material/mwc-snackbar';
+import { RouterLink } from 'vue-router';
+import { toast } from 'vue3-toastify';
 
 export default defineComponent({
   props: {
@@ -56,6 +58,8 @@ export default defineComponent({
       this.loading = true;
       this.record = undefined;
 
+      try {
+
       this.record = await this.client.callZome({
         cap_secret: null,
         role_name: 'herd',
@@ -64,6 +68,9 @@ export default defineComponent({
         payload: this.listingHash,
       });
       
+      } catch(e:any) {
+        toast.error('Error getting listing: ', e.data.data)
+      }
       this.loading = false;
     },
   },
