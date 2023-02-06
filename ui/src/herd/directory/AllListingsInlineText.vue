@@ -70,17 +70,14 @@ export default defineComponent({
           include_public: true,
           include_private: this.showPrivate,
         };
-        console.log('input', input);
 
-
+        // @ts-ignore
         this.hashes = await this.client.callZome({
           ...cellArgs,
           zome_name: 'directory',
           fn_name: 'get_listings',
           payload: input
         });
-
-        console.log('hashes', this.hashes);
       } catch (e) {
         this.error = e;
       }

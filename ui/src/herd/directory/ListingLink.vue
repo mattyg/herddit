@@ -44,6 +44,7 @@ export default defineComponent({
     },
     isPrivate() {
       if(!this.record) return;
+      // @ts-ignore
       return Object.keys(this.record?.signed_action.hashed.content.entry_type.App.visibility).includes('Private');
     }
   },

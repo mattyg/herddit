@@ -5,15 +5,9 @@
 
     <div v-else class="w-full">
         <div class="sticky top-0 w-full flex flex-row justify-between items-center border-b-2 space-x-4 px-8 bg-base-100 z-0">
-            <div class="my-2 h-12 flex flex-col justify-center">
-                <div class="flex flex-row justify-start items-center space-x-2">
-                    <mwc-icon class="text-gray-400 text-3xl" v-if="isPrivate">lock</mwc-icon>
-                    <RouterLink :to="`/herds/${$route.params.listingHashString}`" class="text-3xl">h/{{ herdInfo?.title }}</RouterLink>
-                </div>
-            </div>
-            <div class="flex-row justify-between items-center space-x-12">
-                <div class="btn btn-secondary btn-xs" @click="leaveHerd()">Leave the Herd</div>
-                <RouterLink :to="`/herds/${$route.params.listingHashString}/posts/create`" class="btn btn-primary btn-sm">Call to {{listing?.title}} Herd</RouterLink>
+            <div class="flex flex-row justify-start items-center space-x-2">
+                <mwc-icon class="text-gray-400 text-3xl" v-if="isPrivate">visibility_off</mwc-icon>
+                <RouterLink :to="`/herds/${$route.params.listingHashString}`" class="text-3xl">h/{{ herdInfo?.title }}</RouterLink>
             </div>
         </div>
 
@@ -31,7 +25,6 @@
 
 <script lang="ts">
 import { AppAgentClient, CellId, Record, encodeHashToBase64, decodeHashFromBase64, ClonedCell } from '@holochain/client';
-import { Snackbar } from '@material/mwc-snackbar';
 import { decode } from '@msgpack/msgpack';
 import { ComputedRef, defineComponent, inject, PropType } from 'vue'
 import AllListingsInlineText from '../directory/AllListingsInlineText.vue';
@@ -46,7 +39,7 @@ export default defineComponent({
         AllListingsInlineText,
         AllPosts
     },
-    data(): { record: Record | undefined; listing?: Listing; loading: boolean; editing: boolean; herdInfo: any; cellInstalled: boolean;} {
+    data(): { record: Record | undefined; listing?: Listing; loading: boolean; editing: boolean; herdInfo: any; cellInstalled: boolean} {
         return {
             record: undefined,
             listing: undefined,
@@ -54,7 +47,7 @@ export default defineComponent({
             editing: false,
             herdInfo: undefined,
             cellInstalled: false,
-        }
+        };
     },
     computed: {
         dnaHashString() {
@@ -67,6 +60,7 @@ export default defineComponent({
             
             if(!this.record) return false;
             
+            // @ts-ignore
             return Object.keys(this.record?.signed_action.hashed.content.entry_type.App.visibility).includes('Private');
         }
     },
@@ -80,6 +74,7 @@ export default defineComponent({
         }
 
         const cell_id = await this.installHerdCell();
+        console.log('installed herd cell');
         await this.fetchHerdInfo(cell_id);
 
         this.loading = false;    
@@ -88,10 +83,10 @@ export default defineComponent({
         async decodePasswordToListing(password: string) {
             try {
                 this.listing = await this.client.callZome({
-                role_name: 'herd',
-                zome_name: 'directory',
-                fn_name: 'bubble_babble_to_listing',
-                payload: password,
+                    role_name: 'herd',
+                    zome_name: 'directory',
+                    fn_name: 'bubble_babble_to_listing',
+                    payload: password,
                 });
             } catch (e: any) {
                 console.log('error', e);
@@ -99,6 +94,7 @@ export default defineComponent({
             }
         },
         async fetchListing() {
+            console.log('fetching listing', this.$route.params.listingHashString);
             try {
                 this.record = await this.client.callZome({
                     cap_secret: null,
@@ -109,6 +105,7 @@ export default defineComponent({
                 });
 
                 this.listing = decode((this.record?.entry as any).Present.entry) as Listing;
+                console.log('listing is', this.listing);
             } catch(e: any) {
                 toast.error('Error fetching listing:', e.data.data);
             }
@@ -117,25 +114,29 @@ export default defineComponent({
             if(!this.listing) return;
 
             const appInfo = await this.client.appInfo();
-            console.log('cell info', appInfo.cell_info.herd);
-            let cellInfo = appInfo.cell_info.herd.find((cell) => {    
+            let cellInfo = appInfo.cell_info.herd.find((cell) => {  
+                // @ts-ignore  
                 return cell.cloned && isEqual(cell.cloned.cell_id[0], this.listing?.dna)
             });
+            // @ts-ignore
+            const clonedCell = cellInfo?.cloned;
 
-            if(cellInfo) {
-                console.log('already have dna with cell_id:', cellInfo.cloned.cell_id);
-                const appInfo = await this.client.appInfo();
-                console.log('new app info', appInfo);
-
-                if(!cellInfo.cloned.enabled) {
+            if(cellInfo && !clonedCell.enabled) {
+                // If cell is disabled, enable it again
+                try {
                     await this.client.enableCloneCell({
                         clone_cell_id: [this.listing?.dna, this.client.myPubKey]
                     });
+
+                    this.cellInstalled = true;
+                }
+                catch(e: any) {
+                   toast.error("Error enabling cloned cell", e.data.data)
                 }
                 
-                this.cellInstalled = true;
-                return cellInfo.cloned.cell_id;
+                return clonedCell.cell_id;
             } else {
+                // If cell not found, install it
                 const cloneCell: ClonedCell = await this.client.createCloneCell({
                     role_name: 'herd',
                     modifiers: {
@@ -145,10 +146,6 @@ export default defineComponent({
                         },
                     }
                 });
-
-                console.log('installed dna with cell_id:', cloneCell.cell_id);
-                const appInfo = await this.client.appInfo();
-                console.log('new app info', appInfo);
 
                 this.cellInstalled = true;
                 return cloneCell.cell_id;

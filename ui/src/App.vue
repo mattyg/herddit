@@ -46,8 +46,6 @@
 import { defineComponent, computed } from 'vue';
 import { AppWebsocket, ActionHash, AppAgentClient, AppAgentWebsocket, decodeHashFromBase64 } from '@holochain/client';
 import '@material/mwc-circular-progress';
-import { themeChange} from 'theme-change'
-import { RouterLink, RouterView } from 'vue-router';
 
 export default defineComponent({
   components: {
@@ -69,15 +67,12 @@ export default defineComponent({
       joinHerdModalVisible: false,
     };
   },
-  async mounted() {
-    themeChange(true);
-    
+  async mounted() {    
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const TIMEOUT = 12000
     // default timeout is set to 12000
-    const appWs = await AppWebsocket.connect('', 12000);
-    this.client = await AppAgentWebsocket.connect(appWs, 'herddit');
+    this.client = await AppAgentWebsocket.connect('', 'herddit', 12000);
 
     this.loading = false;
   },

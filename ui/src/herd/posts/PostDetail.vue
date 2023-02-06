@@ -85,6 +85,7 @@ export default defineComponent({
   },
   props: {
     dnaHash: {
+      // @ts-ignore
       type: Object as PropType<Uint8Array>,
       required: true
     }
@@ -123,6 +124,8 @@ export default defineComponent({
       return this.record.signed_action.hashed.content.author;
     },
     authorHashString() {
+      if(!this.authorHash) return;
+      
       return encodeHashToBase64(this.authorHash);
     },
     dateRelative() {
