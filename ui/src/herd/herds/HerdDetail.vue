@@ -4,7 +4,7 @@
     </div>
 
     <div v-else class="w-full">
-        <div class="sticky top-0 w-full flex flex-row justify-between items-center border-b-2 space-x-4 px-8 bg-base-100 z-0">
+        <div class="h-16 sticky top-0 w-full flex flex-row justify-between items-center border-b-2 space-x-4 px-8 bg-base-100 z-30">
             <div class="flex flex-row justify-start items-center space-x-2">
                 <mwc-icon class="text-gray-400 text-3xl" v-if="isPrivate">visibility_off</mwc-icon>
                 <RouterLink :to="`/herds/${$route.params.listingHashString}`" class="text-3xl">h/{{ herdInfo?.title }}</RouterLink>
@@ -16,7 +16,7 @@
         </div>
         
         <div class="w-full flex justify-center" v-if="listing">
-            <div class="w-full md:max-w-screen-xl z-30">
+            <div class="w-full md:max-w-screen-xl z-10">
                 <RouterView :dnaHash="listing.dna"></RouterView>
              </div>
         </div>
