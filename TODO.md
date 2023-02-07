@@ -5,10 +5,14 @@
 - [x] Publish herd listing to public directory
 - [x] Create a secret herd - accessible via secret herd-word
 - [x] Call to a herd
+- [x] Edit / Delete call
 - [x] Respond to a call
+- [x] Edit / Delete Response
 - [x] Upvote / downvote a call
-- [ ] Agent profiles
-- [ ] Restrict herd names to all-lowercase, no-spaces, underscores
+- [x] Integrate agent profiles
+- [ ] Manage / View Agent profile
+
+- [x] Restrict herd names to all-lowercase, no-spaces, underscores
 - [ ] Upvote/downvote responses
 - [ ] Refactor upvoting / downvoting posts -- store each vote in it's own entry, agent can update their votes
 - [ ] Voting on comments
