@@ -1,9 +1,9 @@
 <template>
   <div class="w-full flex justify-center my-12">
-    <div class="w-full md:max-w-screen-lg mx-4">
-      <div class="text-2xl mb-4">Gather A Herd</div>
+    <article class="prose w-full md:max-w-screen-lg mx-4">
+      <h1>Gather a Herd</h1>
       <mwc-textfield class="w-full mb-8" outlined label="Title" @input="title = $event.target.value" required></mwc-textfield>
-      <mwc-textarea class="w-full mb-8" outlined label="Description" @input="description = $event.target.value"></mwc-textarea>
+      <mwc-textarea class="w-full mb-8" :rows="10" outlined label="Description" @input="description = $event.target.value"></mwc-textarea>
       <div class="flex flex-row justify-start items-center space-x-4 mb-8 cursor-pointer" @click="public = !public">
         <mwc-checkbox class="w-full w-8" :checked="public"></mwc-checkbox>
         <div class="flex-1">Announce at The Watering Hole</div>
@@ -14,9 +14,9 @@
         class="btn btn-primary"
         :disabled="!isHerdValid || creatingHerd"
         @click="createHerd"
-      >Gather A Herd</button>
+      >Gather a Herd</button>
     </div>
-  </div>
+  </article>
   </div>
   <HerdPasswordModal :visible="showPasswordModal" :text="password" />
 </template>

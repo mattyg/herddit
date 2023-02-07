@@ -4,18 +4,16 @@
     </div>
 
     <div class="w-full" v-else>
-        <div class="w-full flex flex-row justify-between items-center border-b-2 mb-14 space-x-4">
-            <div class="text-3xl mx-8 my-4">The Watering Hole</div>
+        <div class="h-16 sticky top-0 w-full flex flex-row justify-between items-center shadow-md space-x-4 px-8 bg-base-100 z-30">
+            <div class="text-3xl my-4">The Watering Hole</div>
         </div>
 
-        <div class="w-full flex justify-center items-center space-x-4">
+        <div class="w-full flex justify-center items-center space-x-4 my-8">
             <div class="text-gray-400 font-bold">Private Herds</div>
             <mwc-switch class="text-gray-400 font-bold" :selected="showPrivate" @click="showPrivate = !showPrivate"></mwc-switch>
         </div>
         
-        <div class="w-full bg-base-400 text-xs mx-4 my-4 overflow-clip text-center">
-            <AllListingsInlineText :showEmptyMessage="true" :showPrivate="showPrivate" />
-        </div>
+        <AllListingsInlineText :showEmptyMessage="true" :showPrivate="showPrivate" class="my-12" />
     </div>
 </template>
 

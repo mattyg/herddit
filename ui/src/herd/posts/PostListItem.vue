@@ -1,38 +1,24 @@
 <template>
-  <div v-if="!loading">
-    <div v-if="record" class="flex flex-row flex-start items-center">
-      <PostVotes 
-        :votes="votesCount" 
-        :dnaHash="dnaHash" 
-        :postHash="postHash"
-        @upvote="fetchPost()"
-        @downvote="fetchPost()"
-        class="mr-8"
-        size="sm"
-      />
-      <RouterLink :to="`${$route.fullPath}/posts/${postHashString}`">
-        <div class="w-full flex flex-col bg-neutral-1 hover:bg-neutral-2">
-          <div class="w-full text-3xl mb-2">{{ post?.title }}</div>
-          <div class="flex flex-row items-center space-x-2" v-if="authorHash">
-            <span class="text-md text-gray-400 font-bold">
-              Submitted {{dateRelative}} by 
-            </span>
-            <AgentProfile :agentPubKey="authorHash" size="sm" :muted="true" /> 
-          </div>
+  <div v-if="record" class="w-full flex flex-row justify-start items-center bg-base-200 px-8 py-4 space-x-8">
+    <PostVotes 
+      :votes="votesCount" 
+      :dnaHash="dnaHash" 
+      :postHash="postHash"
+      @upvote="fetchPost()"
+      @downvote="fetchPost()"
+      size="sm"
+    />
+    <RouterLink :to="`${$route.fullPath}/posts/${postHashString}`" class="w-full flex flex-col space-y-1">
+      <div class="w-full text-3xl mb-4">{{ post?.title }}</div>
+      <div class="flex flex-row items-center justify-between" v-if="authorHash">
+        <div class="text-md text-gray-400 font-bold">
+          Submitted {{dateRelative}} 
         </div>
-      </RouterLink>
-    </div>
 
-    
-    <span v-else>The requested post was not found.</span>
+        <AgentProfile :agentPubKey="authorHash" size="sm" :muted="true" /> 
+      </div>
+    </RouterLink>
   </div>
-
-  <div v-else style="display: flex; flex: 1; align-items: center; justify-content: center">
-    <mwc-circular-progress indeterminate></mwc-circular-progress>
-  </div>
-
-  <mwc-snackbar ref="delete-error" leading>
-  </mwc-snackbar>
 </template>
 
 <script lang="ts">

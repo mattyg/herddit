@@ -18,10 +18,9 @@
             @upvote="() => { if(my_vote !== 1) { my_vote = 1; upvotes += 1; fetchPost();} }"
             @downvote="() => { if(my_vote !== -1) { my_vote = -1; upvotes -= 1; fetchPost();} }"
             @error="votingError" 
-            class="mr-8"
           />
 
-          <div class="my-4 w-full md:max-w-screen-lg">
+          <div class="my-4 w-full">
             <div class="flex flex-col justify-start items-center space-y-4 mb-4">
               <div class="w-full text-5xl">{{ post?.title }}</div>
                    
@@ -32,7 +31,7 @@
             </div>
 
             <div class="relative w-full bg-base-200 p-12 shadow-sm mb-24 flex flex-col items-center" >
-              <div class="w-full pb-4 prose md:prose-2xl" v-html="postContent"></div> 
+              <div class="w-full pb-4 prose md:prose-md lg:prose-xl" v-html="postContent"></div> 
                
               <div v-if="myPost" class="w-full absolute left-0 bottom-0 flex flex-row justify-end items-center space-x-2">
                 <mwc-icon-button class="text-bold text-gray-600" icon="edit" @click="editing = true"></mwc-icon-button>

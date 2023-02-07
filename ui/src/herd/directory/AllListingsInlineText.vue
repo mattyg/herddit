@@ -1,13 +1,13 @@
 <template>
-  
-  <div v-if="!loading" class="flex justify-center items-center space-x-8">
-    <div v-if="hashes && hashes.length > 0" class="flex flex-row flex-wrap items-center space-x-8 space-y-4">
+  <div v-if="!loading" class="flex justify-center">
+    <div v-if="hashes && hashes.length > 0" class="flex flex-wrap">
       <ListingLink 
         v-for="hash in hashes" 
         :listingHash="hash"
+        class="mx-8 my-4"
       />
     </div>
-    <div v-else-if="showEmptyMessage">
+    <div v-else-if="showEmptyMessage" class="flex flex-col justify-center items-center space-y-8">
       <div class="text-2xl my-16">All seems quiet at the watering hole...</div>
 
       <RouterLink :to="`/herds/create`" class="btn btn-primary btn-xl">Gather a Herd</RouterLink>

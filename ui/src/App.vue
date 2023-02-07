@@ -1,29 +1,41 @@
 <template>
+  <profiles-context :store="profilesStore" >
     <div v-if="loading" class="h-screen flex justify-center items-center">
-      <span class="h-16 w-16 block rounded-full border-t-4 border-white-300 animate-spin z-[10]"></span>
-    </div>
-    <div v-else class="h-screen w-full">
-      <profiles-context :store="profilesStore" >
-        <div class="h-screen w-full flex justify-center items-center" v-if="!profile">
-          <create-profile @profile-created="createProfile"/>
-        </div>
-        <div v-else>
-          <HomeNavbar :profile="profile" />
-          <RouterView></RouterView>
-        </div>
-      </profiles-context>
+      <span class="h-16 w-16 block rounded-full border-t-4 border-white-300 animate-spin z-40"></span>
     </div>
 
-  <input type="checkbox" id="join-herd-modal" v-model="joinHerdModalVisible" className="modal-toggle" />
-  <label htmlFor="join-herd-modal" className="modal cursor-pointer">
-    <label className="modal-box relative" htmlFor="">
-      <h3 class="text-xl">Enter Secret Herd-Word:</h3>
-      <mwc-textarea class="w-full h-32 my-4" v-model="herd_password" outlined></mwc-textarea>
-      <div class="modal-action">
-        <button class="btn btn-primary bn-sm" @click="joinPrivateHerd">Join Secret Herd</button>
+    <div v-else class="w-full">
+      <HomeNavbar :profile="profile" />
+
+      <div class="min-h-screen  w-full flex justify-center items-center" v-if="!profile">
+        <create-profile @profile-created="createProfile"/>
       </div>
+      <div v-else class="min-h-screen w-full">
+        <RouterView></RouterView>
+      </div>
+
+
+      <footer class="footer p-10 bg-neutral text-neutral-content">
+        <div>
+          <div class="text-4xl font-bold">herddit</div> 
+          <div class="text-lg">find your herd</div> 
+        </div>
+      </footer>
+    </div>
+  
+    <input type="checkbox" id="join-herd-modal" v-model="joinHerdModalVisible" className="modal-toggle" />
+    <label htmlFor="join-herd-modal" className="modal cursor-pointer">
+      <label className="modal-box relative" htmlFor="">
+        <div class="prose">
+        <h3>Enter Secret Herd-Word:</h3>
+        <mwc-textarea class="w-full h-32" v-model="herd_password" outlined></mwc-textarea>
+        <div class="modal-action">
+          <button class="btn btn-primary bn-sm" @click="joinPrivateHerd">Join Secret Herd</button>
+        </div>
+      </div>
+      </label>
     </label>
-  </label>
+  </profiles-context>
 </template>
 <script lang="ts">
 import { defineComponent, computed } from 'vue';
