@@ -1,6 +1,8 @@
 use std::cmp::Ordering;
 use hdk::prelude::*;
 use posts_integrity::*;
+use crate::utils::*;
+
 #[hdk_extern]
 pub fn create_post(post: Post) -> ExternResult<Record> {
     let post_hash = create_entry(&EntryTypes::Post(post.clone()))?;
@@ -16,18 +18,13 @@ pub fn create_post(post: Post) -> ExternResult<Record> {
     create_link(my_agent_pub_key, post_hash.clone(), LinkTypes::MyPosts, ())?;
     Ok(record)
 }
+
+
 #[hdk_extern]
-pub fn get_post(original_post_hash: ActionHash) -> ExternResult<Option<Record>> {
-    let links = get_links(original_post_hash.clone(), LinkTypes::PostUpdates, None)?;
-    let latest_link = links
-        .into_iter()
-        .max_by(|link_a, link_b| link_b.timestamp.cmp(&link_a.timestamp));
-    let latest_post_hash = match latest_link {
-        Some(link) => ActionHash::from(link.target.clone()),
-        None => original_post_hash.clone(),
-    };
-    get(latest_post_hash, GetOptions::default())
+pub fn get_post(original_post_hash: ActionHash) -> ExternResult<Record> {
+    get_latest_record(original_post_hash)
 }
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct PostMetadata {
     pub record: Record,
@@ -38,49 +35,50 @@ pub struct PostMetadata {
 pub fn get_post_metadata(
     original_post_hash: ActionHash,
 ) -> ExternResult<Option<PostMetadata>> {
-    let maybe_post = get_post(original_post_hash.clone())?;
-    if let Some(post) = maybe_post {
-        let mut post_vote_links = get_links(
-            original_post_hash,
-            LinkTypes::PostVoteByAgent,
-            None,
-        )?;
-        post_vote_links
-            .sort_by(|a, b| -> Ordering {
-                if a.target == b.target {
-                    return b.timestamp.cmp(&a.timestamp);
-                } else {
-                    return a.target.cmp(&b.target);
-                }
-            });
-        post_vote_links.dedup_by_key(|a| a.target.clone());
-        let latest_post_vote_tags: Vec<PostVoteTag> = post_vote_links
-            .into_iter()
-            .map(|link| PostVoteTag::try_from(
-                SerializedBytes::from(UnsafeBytes::from(link.tag.0)),
-            ))
-            .filter_map(Result::ok)
-            .collect();
-        let upvotes = latest_post_vote_tags
-            .clone()
-            .into_iter()
-            .filter(|post_vote_tag| post_vote_tag.value == 1)
-            .collect::<Vec<PostVoteTag>>()
-            .len();
-        let downvotes = latest_post_vote_tags
-            .into_iter()
-            .filter(|post_vote_tag| post_vote_tag.value == -1)
-            .collect::<Vec<PostVoteTag>>()
-            .len();
-        let post_metadata = PostMetadata {
-            record: post,
-            upvotes: upvotes,
-            downvotes: downvotes,
-        };
-        Ok(Some(post_metadata))
-    } else {
-        Ok(None)
-    }
+    let post = get_post(original_post_hash.clone())?;
+    
+    let mut post_vote_links = get_links(
+        original_post_hash,
+        LinkTypes::PostVoteByAgent,
+        None,
+    )?;
+    post_vote_links
+        .sort_by(|a, b| -> Ordering {
+            if a.target == b.target {
+                return b.timestamp.cmp(&a.timestamp);
+            } else {
+                return a.target.cmp(&b.target);
+            }
+        });
+    post_vote_links.dedup_by_key(|a| a.target.clone());
+    let latest_post_vote_tags: Vec<PostVoteTag> = post_vote_links
+        .into_iter()
+        .map(|link| PostVoteTag::try_from(
+            SerializedBytes::from(UnsafeBytes::from(link.tag.0)),
+        ))
+        .filter_map(Result::ok)
+        .collect();
+    
+    let upvotes = latest_post_vote_tags
+        .clone()
+        .into_iter()
+        .filter(|post_vote_tag| post_vote_tag.value == 1)
+        .collect::<Vec<PostVoteTag>>()
+        .len();
+    
+    let downvotes = latest_post_vote_tags
+        .into_iter()
+        .filter(|post_vote_tag| post_vote_tag.value == -1)
+        .collect::<Vec<PostVoteTag>>()
+        .len();
+    
+    let post_metadata = PostMetadata {
+        record: post,
+        upvotes: upvotes,
+        downvotes: downvotes,
+    };
+    
+    Ok(Some(post_metadata))
 }
 #[derive(Serialize, Deserialize, Debug)]
 pub struct UpdatePostInput {
@@ -91,7 +89,7 @@ pub struct UpdatePostInput {
 #[hdk_extern]
 pub fn update_post(input: UpdatePostInput) -> ExternResult<Record> {
     let updated_post_hash = update_entry(
-        input.previous_post_hash.clone(),
+        input.original_post_hash.clone(),
         &input.updated_post,
     )?;
     create_link(
