@@ -46,12 +46,8 @@ export default defineComponent({
           payload: this.password,
         });
       } catch (e: any) {
-          console.log('error', e);
-          toast.error('Error converting data to mnemonic', e);
+          toast.error('Error converting mnemonic to data', e);
       }
-    },
-    async decodeListing() {
-      
     },
   },
   setup() {

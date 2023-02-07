@@ -70,24 +70,28 @@ export default defineComponent({
     };
   },
   async mounted() {    
-    // Setup conductor websocket
-    this.client = await AppAgentWebsocket.connect('', 'herddit', 12000);
+    try {
+      // Setup conductor websocket
+      this.client = await AppAgentWebsocket.connect('', 'herddit', 12000);
 
-    // Setup profiles store
-    const profilesClient = new ProfilesClient(this.client, 'herd', 'profiles');
-    this.profilesStore = new ProfilesStore(profilesClient, {
-      avatarMode: "avatar-required",
-      additionalFields: ["Bio", "Location", "Website"],
-    });
-    
-    await this.setProfile();
+      // Setup profiles store
+      const profilesClient = new ProfilesClient(this.client, 'herd', 'profiles');
+      this.profilesStore = new ProfilesStore(profilesClient, {
+        avatarMode: "avatar-required",
+        additionalFields: ["Bio", "Location", "Website"],
+      });
+      
+      await this.setProfile();
 
-    this.profilesStore.myProfile.subscribe((data) => {
-      console.log('profile store', data);
-      if (data.status === 'complete') {
-        this.profile = data.value;
+      this.profilesStore.myProfile.subscribe((data) => {
+        console.log('profile store', data);
+        if (data.status === 'complete') {
+          this.profile = data.value;
+        }
+      });
+      } catch (e: any) {
+        toast.error("Error setting up conductor websocket")
       }
-    });
 
     this.loading = false;
   },

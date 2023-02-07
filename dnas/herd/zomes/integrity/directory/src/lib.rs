@@ -148,15 +148,7 @@ pub fn validate(_op: Op) -> ExternResult<ValidateCallbackResult> {
                         target_address,
                         tag,
                     )
-                },
-                LinkTypes::HomeListing => {
-                    validate_create_link_home_listing(
-                        action,
-                        base_address,
-                        target_address,
-                        tag,
-                    )
-                },
+                }
             }
         }
         OpType::RegisterDeleteLink {
@@ -179,15 +171,6 @@ pub fn validate(_op: Op) -> ExternResult<ValidateCallbackResult> {
                 }
                 LinkTypes::AllListings => {
                     validate_delete_link_all_listings(
-                        action,
-                        original_action,
-                        base_address,
-                        target_address,
-                        tag,
-                    )
-                },
-                LinkTypes::HomeListing => {
-                    validate_delete_link_home_listing(
                         action,
                         original_action,
                         base_address,
@@ -346,14 +329,6 @@ pub fn validate(_op: Op) -> ExternResult<ValidateCallbackResult> {
                                 target_address,
                                 tag,
                             )
-                        },
-                        LinkTypes::HomeListing => {
-                            validate_create_link_home_listing(
-                                action,
-                                base_address,
-                                target_address,
-                                tag,
-                            )
                         }
                     }
                 }
@@ -394,15 +369,6 @@ pub fn validate(_op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                         LinkTypes::AllListings => {
                             validate_delete_link_all_listings(
-                                action,
-                                create_link.clone(),
-                                base_address,
-                                create_link.target_address,
-                                create_link.tag,
-                            )
-                        },
-                        LinkTypes::HomeListing => {
-                            validate_delete_link_home_listing(
                                 action,
                                 create_link.clone(),
                                 base_address,

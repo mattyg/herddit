@@ -19,7 +19,7 @@
       <div v-else-if="record" class="py-2 px-4 ">
         <div class="flex flex-row justify-start items-end mb-2">
           <div class="flex flex-1 pre-line prose-2xl" >{{  comment?.content }} </div>
-          <div>
+          <div v-if="isMyComment">
             <mwc-icon-button class="text-gray-400" icon="edit" @click="editing = true"></mwc-icon-button>
             <mwc-icon-button class="text-gray-400" icon="delete" @click="deleteComment()"></mwc-icon-button>
           </div>
@@ -105,13 +105,15 @@ export default defineComponent({
 
       return dayjs(this.record.signed_action.hashed.content.timestamp/1000).fromNow();
     },
-    commentHashString() {
-      return encodeHashToBase64(this.commentHash);
-    },
     isPostAuthor() {
       if (!this.record) return undefined;
 
       return isEqual(this.authorPubKey, this.postAuthorHash);
+    },
+    isMyComment() {
+      if (!this.commentHash) return false;
+
+      return isEqual(this.authorPubKey, this.client.myPubKey);
     }
   },
   async mounted() {

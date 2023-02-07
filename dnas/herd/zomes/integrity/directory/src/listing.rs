@@ -19,8 +19,18 @@ pub struct PrivateListing {
 
 pub fn validate_create_listing(
     _action: EntryCreationAction,
-    _listing: Listing,
+    listing: Listing,
 ) -> ExternResult<ValidateCallbackResult> {
+    // Listing title < 50 characters
+    if listing.title.chars().count() > 50 {
+        return Ok(ValidateCallbackResult::Invalid("Title must be < 50 characters".into()));
+    }
+    
+    // Listing title contains no whitespace, is alphanumeric
+    if !listing.title.chars().all(|c| !char::is_whitespace(c) && char::is_alphanumeric(c)) {
+        return Ok(ValidateCallbackResult::Invalid("Title can only contain alphanumeric characters, and no spaces".into()));
+    }
+
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_update_listing(
@@ -29,14 +39,14 @@ pub fn validate_update_listing(
     _original_action: EntryCreationAction,
     _original_listing: Listing,
 ) -> ExternResult<ValidateCallbackResult> {
-    Ok(ValidateCallbackResult::Valid)
+    Ok(ValidateCallbackResult::Invalid("Listings cannot be updated".into()))
 }
 pub fn validate_delete_listing(
     _action: Delete,
     _original_action: EntryCreationAction,
     _original_listing: Listing,
 ) -> ExternResult<ValidateCallbackResult> {
-    Ok(ValidateCallbackResult::Valid)
+    Ok(ValidateCallbackResult::Invalid("Listings cannot be deleted".into()))
 }
 pub fn validate_create_link_listing_updates(
     _action: CreateLink,
@@ -44,7 +54,7 @@ pub fn validate_create_link_listing_updates(
     _target_address: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    Ok(ValidateCallbackResult::Valid)
+    Ok(ValidateCallbackResult::Invalid("Listings cannot be updated".into()))
 }
 pub fn validate_delete_link_listing_updates(
     _action: DeleteLink,
@@ -81,26 +91,3 @@ pub fn validate_delete_link_all_listings(
     )
 }
 
-pub fn validate_create_link_home_listing(
-    _action: CreateLink,
-    _base_address: AnyLinkableHash,
-    _target_address: AnyLinkableHash,
-    _tag: LinkTag,
-) -> ExternResult<ValidateCallbackResult> {
-    // TODO:  only DNA progenitor can define home listing
-    // TODO:  only one link of this type should exist (not possible?)
-    Ok(ValidateCallbackResult::Valid)
-}
-pub fn validate_delete_link_home_listing(
-    _action: DeleteLink,
-    _original_action: CreateLink,
-    _base: AnyLinkableHash,
-    _target: AnyLinkableHash,
-    _tag: LinkTag,
-) -> ExternResult<ValidateCallbackResult> {
-    Ok(
-        ValidateCallbackResult::Invalid(
-            String::from("HomeListing links cannot be deleted"),
-        ),
-    )
-}

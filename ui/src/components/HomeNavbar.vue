@@ -13,10 +13,10 @@
         <RouterLink :to="`/herds/create`" class="btn btn-ghost btn-sm">Gather a Herd</RouterLink>
 
         <li tabIndex={0}>
-          <RouterLink to="/account" class="flex flex-row justify-center">
+          <div class="flex flex-row justify-center">
             <AgentProfile :agentPubKey="client.myPubKey" size="lg" />
             <svg class="fill-current" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/></svg>
-          </RouterLink>
+          </div>
           <ul class="p-2 bg-base-100 z-40 w-full bg-base-200 text-base-content">
 
             <!-- TODO waiting on fix to profiles components-->
