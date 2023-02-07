@@ -18,7 +18,10 @@
             <svg class="fill-current" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/></svg>
           </RouterLink>
           <ul class="p-2 bg-base-100 z-40 w-full bg-base-200 text-base-content">
-            <li><RouterLink :to="`/agents/${client.myPubKey}`">Edit Profile</RouterLink></li>
+
+            <!-- TODO waiting on fix to profiles components-->
+            <!-- <li><RouterLink :to="`/agents/${client.myPubKey}`">Edit Profile</RouterLink></li> -->
+            
             <li><label htmlFor="join-herd-modal">Join Secret Herd</label></li>
           </ul>
         </li>

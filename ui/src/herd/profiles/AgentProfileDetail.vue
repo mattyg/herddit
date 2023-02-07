@@ -1,11 +1,10 @@
 <template>
   <div>
-    WORKING
-    <profile-detail :agentPubKey="$route.params.agentPubKey"></profile-detail>
+    <profile-detail :agentPubKey="$route.params.agentPubKey"/>
 
-      <div v-if="isAgent">
-        <update-profile></update-profile>
-      </div>
+    <div v-if="isAgent">
+      <update-profile></update-profile>
+    </div>
   </div>
 </template>
 
