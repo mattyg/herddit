@@ -108,6 +108,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             action,
         } => {
             match link_type {
+                // Posts
                 LinkTypes::PostUpdates => {
                     validate_create_link_post_updates(
                         action,
@@ -125,31 +126,26 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                     )
                 }
                 LinkTypes::MyPosts => {
-                    validate_create_link_my_posts(
+                    validate_link_authored_by_base(
                         action,
                         base_address,
                         target_address,
                         tag,
                     )
                 }
-                LinkTypes::PostVoteByAgent => {
-                    validate_create_link_vote_post_by_agent(
-                        action,
-                        base_address,
-                        target_address,
-                        tag,
-                    )
-                }
-                LinkTypes::MyUpvotedPosts => {
-                    validate_create_link_my_upvoted_posts(
-                        action,
-                        base_address,
-                        target_address,
-                        tag,
-                    )
-                }
+
+                           
+                // Post Comments
                 LinkTypes::PostToComments => {
                     validate_create_link_post_to_comments(
+                        action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
+                LinkTypes::MyComments => {
+                    validate_link_authored_by_base(
                         action,
                         base_address,
                         target_address,
@@ -164,6 +160,45 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         tag,
                     )
                 }
+
+
+                // Post Votes
+                LinkTypes::PostVoteByAgent => {
+                    validate_create_link_vote_by_agent(
+                        action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
+                LinkTypes::MyVotedPosts => {
+                    validate_link_authored_by_base(
+                        action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
+
+
+                // Comment Votes
+                LinkTypes::CommentVoteByAgent => {
+                    validate_create_link_vote_by_agent(
+                        action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
+                LinkTypes::MyVotedComments => {
+                    validate_link_authored_by_base(
+                        action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
+
             }
         }
         OpType::RegisterDeleteLink {
@@ -175,6 +210,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             action,
         } => {
             match link_type {
+                // Posts
                 LinkTypes::PostUpdates => {
                     validate_delete_link_post_updates(
                         action,
@@ -202,17 +238,11 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         tag,
                     )
                 }
-                LinkTypes::PostVoteByAgent => {
-                    validate_delete_link_vote_post_by_agent(
-                        action,
-                        original_action,
-                        base_address,
-                        target_address,
-                        tag,
-                    )
-                }
-                LinkTypes::MyUpvotedPosts => {
-                    validate_delete_link_my_upvoted_posts(
+
+
+                // Comments
+                LinkTypes::MyComments => {
+                    validate_link_deleted_by_author(
                         action,
                         original_action,
                         base_address,
@@ -231,6 +261,48 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 }
                 LinkTypes::CommentUpdates => {
                     validate_delete_link_comment_updates(
+                        action,
+                        original_action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
+                
+                                
+                // Post Votes
+                LinkTypes::PostVoteByAgent => {
+                    validate_link_deleted_by_author(
+                        action,
+                        original_action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
+                LinkTypes::MyVotedPosts => {
+                    validate_link_deleted_by_author(
+                        action,
+                        original_action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
+        
+                                                
+                // Comment Votes
+                LinkTypes::CommentVoteByAgent => {
+                    validate_link_deleted_by_author(
+                        action,
+                        original_action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
+                LinkTypes::MyVotedComments => {
+                    validate_link_deleted_by_author(
                         action,
                         original_action,
                         base_address,

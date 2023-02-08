@@ -90,9 +90,6 @@ export default defineComponent({
   },
   methods: {
     async fetchPost() {
-      this.loading = true;
-      this.record = undefined;
-
       const post_metadata = await this.client.callZome({
         cell_id: [this.dnaHash, this.client.myPubKey],
         cap_secret: null,

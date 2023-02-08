@@ -12,12 +12,11 @@
         </div>
         <div v-else-if="record && postContent && authorHash"  class="flex flex-row justify-center items-start space-x-4">
           <PostVotes 
-            :votes="votesCount" 
+            :votes="upvotes - downvotes" 
             :dnaHash="dnaHash" 
             :postHash="postHash"
-            @upvote="() => { if(my_vote !== 1) { my_vote = 1; upvotes += 1; fetchPost();} }"
-            @downvote="() => { if(my_vote !== -1) { my_vote = -1; upvotes -= 1; fetchPost();} }"
-            @error="votingError" 
+            @upvote="fetchPost"
+            @downvote="fetchPost"
           />
 
           <div class="my-4 w-full">
@@ -51,9 +50,6 @@
       <div v-else style="display: flex; flex: 1; align-items: center; justify-content: center">
         <mwc-circular-progress indeterminate></mwc-circular-progress>
       </div>
-
-      <mwc-snackbar ref="error" leading>
-      </mwc-snackbar>
     </div>
   </div>
 </template>
@@ -134,9 +130,6 @@ export default defineComponent({
 
       return dayjs(this.record.signed_action.hashed.content.timestamp/1000).fromNow();
     },
-    votesCount() {
-      return this.upvotes - this.downvotes;
-    }
   },
   async mounted() {
     await this.fetchPost();
@@ -144,10 +137,6 @@ export default defineComponent({
   },
   methods: {
     async fetchPost() {
-      console.log('fetching post');
-      this.loading = true;
-      this.record = undefined;
-
       try {
         const post_metadata = await this.client.callZome({
           cell_id: [this.dnaHash, this.client.myPubKey],
@@ -181,11 +170,6 @@ export default defineComponent({
         toast.error(`Error deleting the post: ${e.data.data}`);
       }
     },
-    votingError(msg: string) {
-      const errorSnackbar = this.$refs['error'] as Snackbar;
-        errorSnackbar.labelText = `Error voting on post ${msg}`;
-        errorSnackbar.show();
-    }
   },
   setup() {
     const client = (inject('client') as ComputedRef<AppAgentClient>).value;

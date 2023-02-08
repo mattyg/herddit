@@ -31,6 +31,7 @@ pub struct PostMetadata {
     pub upvotes: usize,
     pub downvotes: usize,
 }
+
 #[hdk_extern]
 pub fn get_post_metadata(
     original_post_hash: ActionHash,
@@ -51,9 +52,9 @@ pub fn get_post_metadata(
             }
         });
     post_vote_links.dedup_by_key(|a| a.target.clone());
-    let latest_post_vote_tags: Vec<PostVoteTag> = post_vote_links
+    let latest_post_vote_tags: Vec<VoteTag> = post_vote_links
         .into_iter()
-        .map(|link| PostVoteTag::try_from(
+        .map(|link| VoteTag::try_from(
             SerializedBytes::from(UnsafeBytes::from(link.tag.0)),
         ))
         .filter_map(Result::ok)
@@ -63,13 +64,13 @@ pub fn get_post_metadata(
         .clone()
         .into_iter()
         .filter(|post_vote_tag| post_vote_tag.value == 1)
-        .collect::<Vec<PostVoteTag>>()
+        .collect::<Vec<VoteTag>>()
         .len();
     
     let downvotes = latest_post_vote_tags
         .into_iter()
         .filter(|post_vote_tag| post_vote_tag.value == -1)
-        .collect::<Vec<PostVoteTag>>()
+        .collect::<Vec<VoteTag>>()
         .len();
     
     let post_metadata = PostMetadata {
@@ -80,12 +81,14 @@ pub fn get_post_metadata(
     
     Ok(Some(post_metadata))
 }
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct UpdatePostInput {
     pub original_post_hash: ActionHash,
     pub previous_post_hash: ActionHash,
     pub updated_post: Post,
 }
+
 #[hdk_extern]
 pub fn update_post(input: UpdatePostInput) -> ExternResult<Record> {
     let updated_post_hash = update_entry(
@@ -106,41 +109,68 @@ pub fn update_post(input: UpdatePostInput) -> ExternResult<Record> {
         )?;
     Ok(record)
 }
+
 #[hdk_extern]
 pub fn delete_post(original_post_hash: ActionHash) -> ExternResult<ActionHash> {
     delete_entry(original_post_hash)
 }
+
 #[hdk_extern]
 pub fn upvote_post(original_post_hash: ActionHash) -> ExternResult<()> {
     let agent_pubkey = agent_info()?.agent_initial_pubkey;
     create_link(
         agent_pubkey.clone(),
         original_post_hash.clone(),
-        LinkTypes::MyUpvotedPosts,
+        LinkTypes::MyVotedPosts,
         (),
     )?;
     create_link(
         original_post_hash,
         agent_pubkey,
         LinkTypes::PostVoteByAgent,
-        make_post_vote_tag(1)?,
+        make_vote_link_tag(1)?,
     )?;
     Ok(())
 }
+
 #[hdk_extern]
 pub fn downvote_post(original_post_hash: ActionHash) -> ExternResult<()> {
     create_link(
         original_post_hash,
         agent_info()?.agent_initial_pubkey,
         LinkTypes::PostVoteByAgent,
-        make_post_vote_tag(-1)?,
+        make_vote_link_tag(-1)?,
     )?;
     Ok(())
 }
-pub fn make_post_vote_tag(value: i8) -> ExternResult<LinkTag> {
-    let tag_bytes = SerializedBytes::try_from(PostVoteTag { value })
-        .map_err(|_e| {
-            wasm_error!(WasmErrorInner::Guest("serializedbytes error".into()))
-        })?;
-    Ok(LinkTag::new(tag_bytes.bytes().clone()))
+
+
+#[hdk_extern]
+pub fn get_my_vote_on_post(comment_hash: ActionHash) -> ExternResult<Option<VoteTag>> {
+    // Get all votes on this comment
+    let vote_links = get_links(
+        comment_hash.clone(),
+        LinkTypes::PostVoteByAgent,
+        None,
+    )?;
+
+    // Filter only my votes, sort by timestamp
+    let my_pubkey = agent_info()?.agent_initial_pubkey;
+    let mut my_vote_links: Vec<Link> = vote_links.into_iter()
+        .filter(|link| link.target == AnyLinkableHash::from(my_pubkey.clone()))
+        .collect();
+    my_vote_links.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
+
+    let maybe_my_vote = my_vote_links.first();
+
+    match maybe_my_vote {
+        Some(my_vote) => {
+            let my_vote_tag = VoteTag::try_from(
+                SerializedBytes::from(UnsafeBytes::from(my_vote.clone().tag.0)),
+            ).map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))?;
+        
+            Ok(Some(my_vote_tag))
+        }
+        None => Ok(None)
+    }
 }

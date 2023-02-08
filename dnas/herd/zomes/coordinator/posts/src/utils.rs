@@ -1,4 +1,14 @@
 use hdk::prelude::*;
+use posts_integrity::VoteTag;
+
+pub fn make_vote_link_tag(value: i8) -> ExternResult<LinkTag> {
+    let tag_bytes = SerializedBytes::try_from(VoteTag { value })
+        .map_err(|_e| {
+            wasm_error!(WasmErrorInner::Guest("serializedbytes error".into()))
+        })?;
+    Ok(LinkTag::new(tag_bytes.bytes().clone()))
+}
+
 
 pub fn get_latest_record(original_ah: ActionHash) -> ExternResult<Record> {
   let details = get_details(original_ah, GetOptions::latest())?.ok_or(wasm_error!(WasmErrorInner::Guest("Record with that original action hash not found".into())))?;

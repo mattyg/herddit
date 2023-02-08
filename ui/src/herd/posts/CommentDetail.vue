@@ -16,29 +16,39 @@
           class="flex flex-1"
         />
       </div>
-      <div v-else-if="record" class="py-2 px-4 ">
-        <div class="flex flex-row justify-start items-end mb-2">
-          <div class="flex flex-1 pre-line prose-2xl" >{{  comment?.content }} </div>
-          <div v-if="isMyComment">
-            <mwc-icon-button class="text-gray-400" icon="edit" @click="editing = true"></mwc-icon-button>
-            <mwc-icon-button class="text-gray-400" icon="delete" @click="deleteComment()"></mwc-icon-button>
+      <div v-else-if="record" class="flex flex-row items-center">
+        <CommentVotes 
+            :votes="upvotes - downvotes" 
+            :dnaHash="dnaHash" 
+            :commentHash="commentHash"
+            @upvote="fetchComment"
+            @downvote="fetchComment"
+        />
+        <div class="py-2 px-4 flex-1">
+          <div class="flex flex-row justify-start items-end mb-2">
+            <div class="flex flex-1 pre-line prose-2xl" >{{  comment?.content }} </div>
+            <div v-if="isMyComment">
+              <mwc-icon-button class="text-gray-400" icon="edit" @click="editing = true"></mwc-icon-button>
+              <mwc-icon-button class="text-gray-400" icon="delete" @click="deleteComment()"></mwc-icon-button>
+            </div>
           </div>
-        </div>
-        <div class="flex flex-row justify-between items-center">
-          <div class="flex flex-row items-center space-x-4" v-if="authorPubKey">
-            <AgentProfile :agentPubKey="authorPubKey" size="sm" :muted="true">
-              <div class="badge badge-sm badge-primary" v-if="isPostAuthor">Author</div>
-            </AgentProfile>
+          <div class="flex flex-row justify-between items-center">
+            <div class="flex flex-row items-center space-x-4" v-if="authorPubKey">
+              <AgentProfile :agentPubKey="authorPubKey" size="sm" :muted="true">
+                <div class="badge badge-sm badge-primary" v-if="isPostAuthor">Author</div>
+              </AgentProfile>
+            </div>
+            <div class="text-xs text-gray-500">
+              <span v-if="isUpdated">
+                edited
+              </span>
+            
+              {{ dateRelative }}
+            </div>
           </div>
-          <div class="text-xs text-gray-500">
-            <span v-if="isUpdated">
-              edited
-            </span>
-          
-            {{ dateRelative }}
-          </div>
-        </div>
-      </div>    
+        </div>   
+      </div>
+ 
     </div>
   </div>
 </template>
@@ -53,11 +63,13 @@ import AgentProfile from '../profiles/AgentProfile.vue';
 import dayjs from 'dayjs';
 import { toast } from 'vue3-toastify';
 import { isEqual } from 'lodash';
+import CommentVotes from './CommentVotes.vue';
 
 export default defineComponent({
   components: {
     EditComment,
-    AgentProfile
+    AgentProfile,
+    CommentVotes
   },
   props: {
     dnaHash: {
@@ -73,10 +85,12 @@ export default defineComponent({
       required: true
     }
   },
-  data(): { record: Record | undefined; loading: boolean; editing: boolean; } {
+  data(): { record?: Record; upvotes: number; downvotes: number; loading: boolean; editing: boolean; } {
     return {
       record: undefined,
-      loading: false,
+      upvotes: 0,
+      downvotes: 0,
+      loading: true,
       editing: false,
     }
   },
@@ -121,15 +135,18 @@ export default defineComponent({
   },
   methods: {
     async fetchComment() {
-      this.loading = true;
       try {
         console.log('fetching comment with this comment hash', this.commentHash)
-        this.record = await this.client.callZome({
+        const comment_metadata = await this.client.callZome({
           cell_id: [this.dnaHash, this.client.myPubKey],
           zome_name: 'posts',
-          fn_name: 'get_comment',
+          fn_name: 'get_comment_metadata',
           payload: this.commentHash,
         });
+
+        this.record = comment_metadata.record;
+        this.upvotes = comment_metadata.upvotes;
+        this.downvotes = comment_metadata.downvotes;
       } catch(e: any) {
         toast.error(`Error fetching the comment: ${e.data.data}`);
       }
