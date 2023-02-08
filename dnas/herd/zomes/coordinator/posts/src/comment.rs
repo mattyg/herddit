@@ -118,12 +118,32 @@ pub fn delete_comment(original_comment_hash: ActionHash) -> ExternResult<ActionH
 #[hdk_extern]
 pub fn get_comments_for_post(post_hash: ActionHash) -> ExternResult<Vec<ActionHash>> {
     let links = get_links(post_hash, LinkTypes::PostToComments, None)?;
-    let comment_hashes: Vec<ActionHash> = links
+   
+    // Get all posts metadata and sort by votes, descending
+    let mut comments_metadata: Vec<CommentMetadata> = links
         .into_iter()
-        .map(|link| ActionHash::from(link.target))
+        .filter_map(|link| get_comment_metadata(ActionHash::from(link.target)).ok())
+        .collect();
+    comments_metadata.sort_by(|a, b| -> Ordering {
+        let a_value = (a.upvotes - a.downvotes) as isize;
+        let b_value = (b.upvotes - b.downvotes) as isize;
+        
+        if a_value == b_value {
+            // If values equal, order by record timestamp, desc
+            return b.record.action().timestamp().cmp(&a.record.action().timestamp());
+        } else {
+            // Order by highest value, desc
+            return b_value.cmp(&a_value);
+        }
+    });
+
+    // Return hashes
+    let hashes: Vec<ActionHash> = comments_metadata
+        .into_iter()
+        .map(|r| r.record.action_address().clone())
         .collect();
 
-    Ok(comment_hashes)
+    Ok(hashes)
 }
 
 

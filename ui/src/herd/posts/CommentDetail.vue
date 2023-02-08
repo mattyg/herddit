@@ -1,22 +1,17 @@
 <template>
-  <div class="w-full">
-
-    <div v-if="loading" class="flex justify-center items-center">
-      <mwc-circular-progress indeterminate></mwc-circular-progress>
+  <div v-if="!loading && !isDeleted">
+    <div v-if="editing">
+      <EditComment
+        :dnaHash="dnaHash"
+        :original-comment-hash="commentHash"
+        :current-record="record!"
+        @updated="editing = false; fetchComment();"
+        @cancelled="editing = false"
+        class="flex flex-1"
+      />
     </div>
-
-    <div v-else-if="!isDeleted">
-      <div v-if="editing">
-        <EditComment
-          :dnaHash="dnaHash"
-          :original-comment-hash="commentHash"
-          :current-record="record!"
-          @updated="editing = false; fetchComment();"
-          @cancelled="editing = false"
-          class="flex flex-1"
-        />
-      </div>
-      <div v-else-if="record" class="flex flex-row items-center">
+    <div v-else-if="record" >
+      <div v-if="upvotes - downvotes >= 0 || showIfVoteNegative" class="flex flex-row items-center">
         <CommentVotes 
             :votes="upvotes - downvotes" 
             :dnaHash="dnaHash" 
@@ -48,8 +43,13 @@
           </div>
         </div>   
       </div>
- 
+
+      <div v-else class="w-full flex flex-row justify-between items-center bg-base-200 px-8 py-4 space-x-8 text-gray-400 font-bold">
+        <div>Response buried due to negative vote score</div>
+        <button class="btn btn-ghost btn-xs" @click="showIfVoteNegative = true">Show</button>
+      </div>
     </div>
+
   </div>
 </template>
 
@@ -85,13 +85,14 @@ export default defineComponent({
       required: true
     }
   },
-  data(): { record?: Record; upvotes: number; downvotes: number; loading: boolean; editing: boolean; } {
+  data(): { record?: Record; upvotes: number; downvotes: number; loading: boolean; editing: boolean; showIfVoteNegative: boolean;} {
     return {
       record: undefined,
       upvotes: 0,
       downvotes: 0,
       loading: true,
       editing: false,
+      showIfVoteNegative: false
     }
   },
   computed: {
