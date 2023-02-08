@@ -1,23 +1,29 @@
 <template>
-  <div v-if="record" class="w-full flex flex-row justify-start items-center bg-base-200 px-8 py-4 space-x-8">
-    <PostVotes 
-      :votes="votesCount" 
-      :dnaHash="dnaHash" 
-      :postHash="postHash"
-      @upvote="fetchPost()"
-      @downvote="fetchPost()"
-      size="sm"
-    />
-    <RouterLink :to="`${$route.fullPath}/posts/${postHashString}`" class="w-full flex flex-col space-y-1">
-      <div class="w-full text-3xl mb-4">{{ post?.title }}</div>
-      <div class="flex flex-row items-center justify-between" v-if="authorHash">
-        <div class="text-md text-gray-400 font-bold">
-          Submitted {{dateRelative}} 
-        </div>
+  <div v-if="record">
+    <div v-if="votesCount >= 0 || showIfVoteNegative" class="w-full flex flex-row justify-start items-center bg-base-200 px-8 py-4 space-x-8">
+      <PostVotes 
+        :votes="votesCount" 
+        :dnaHash="dnaHash" 
+        :postHash="postHash"
+        @upvote="fetchPost()"
+        @downvote="fetchPost()"
+        size="sm"
+      />
+      <RouterLink :to="`${$route.fullPath}/posts/${postHashString}`" class="w-full flex flex-col space-y-1">
+        <div class="w-full text-3xl mb-4">{{ post?.title }}</div>
+        <div class="flex flex-row items-center justify-between" v-if="authorHash">
+          <div class="text-md text-gray-400 font-bold">
+            Submitted {{dateRelative}} 
+          </div>
 
-        <AgentProfile :agentPubKey="authorHash" size="sm" :muted="true" /> 
-      </div>
-    </RouterLink>
+          <AgentProfile :agentPubKey="authorHash" size="sm" :muted="true" /> 
+        </div>
+      </RouterLink>
+    </div>
+    <div v-else class="w-full flex flex-row justify-between items-center bg-base-200 px-8 py-4 space-x-8 text-gray-400 font-bold">
+      <div>Call buried due to negative vote score</div>
+      <button class="btn btn-ghost btn-xs" @click="showIfVoteNegative = true">Show</button>
+    </div>
   </div>
 </template>
 
@@ -47,12 +53,13 @@ export default defineComponent({
       required: true
     }
   },
-  data(): { record: Record | undefined; loading: boolean; editing: boolean; votesCount: number} {
+  data(): { record: Record | undefined; loading: boolean; editing: boolean; votesCount: number; showIfVoteNegative: boolean; } {
     return {
       record: undefined,
       loading: true,
       editing: false,
       votesCount: 0,
+      showIfVoteNegative: false,
     }
   },
   computed: {

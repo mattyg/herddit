@@ -54,7 +54,7 @@ export default defineComponent({
           cell_id: [this.dnaHash, this.client.myPubKey],
           cap_secret: null,
           zome_name: 'posts',
-          fn_name: 'get_all_posts',
+          fn_name: 'get_all_posts_sorted_by_votes',
           payload: null,
         });
         console.log('post hashes received is',response);

@@ -35,7 +35,7 @@ pub struct PostMetadata {
 #[hdk_extern]
 pub fn get_post_metadata(
     original_post_hash: ActionHash,
-) -> ExternResult<Option<PostMetadata>> {
+) -> ExternResult<PostMetadata> {
     let post = get_post(original_post_hash.clone())?;
     
     let mut post_vote_links = get_links(
@@ -79,7 +79,7 @@ pub fn get_post_metadata(
         downvotes: downvotes,
     };
     
-    Ok(Some(post_metadata))
+    Ok(post_metadata)
 }
 
 #[derive(Serialize, Deserialize, Debug)]

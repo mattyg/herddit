@@ -37,7 +37,7 @@ pub fn validate_link_deleted_by_author(
 
 pub fn validate_create_link_vote_by_agent(
     action: CreateLink,
-    base: AnyLinkableHash,
+    _base: AnyLinkableHash,
     target: AnyLinkableHash,
     tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
