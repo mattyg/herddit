@@ -1,5 +1,5 @@
 <template>
-  <div class="navbar py-4 bg-neutral-200 text-neutral-content-200">
+  <div class="navbar h-13 bg-neutral-200 text-neutral-content-200">
     <div class="flex-1">
       <RouterLink to="/" class="mx-4 btn btn-ghost normal-case text-3xl">
         herddit

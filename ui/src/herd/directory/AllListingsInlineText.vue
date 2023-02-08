@@ -1,11 +1,18 @@
 <template>
   <div v-if="!loading" class="flex justify-center">
-    <div v-if="hashes && hashes.length > 0" class="flex flex-wrap">
-      <ListingLink 
-        v-for="hash in hashes" 
-        :listingHash="hash"
-        class="mx-8 my-4"
-      />
+    <div v-if="hashes && hashes.length > 0">
+      <div class="w-full flex justify-center items-center space-x-4 my-8">
+          <div class="text-gray-400 font-bold">Private Herds</div>
+          <mwc-switch class="text-gray-400 font-bold" :selected="showPrivate" @click="showPrivate = !showPrivate"></mwc-switch>
+      </div>
+
+      <div clas="flex flex-wrap justify-center items-center">
+        <ListingLink 
+          v-for="hash in hashes" 
+          :listingHash="hash"
+          class="mx-8 my-4 inline-block"
+        />
+      </div>
     </div>
     <div v-else-if="showEmptyMessage" class="flex flex-col justify-center items-center space-y-8">
       <div class="text-2xl my-16">All seems quiet at the watering hole...</div>
@@ -33,15 +40,13 @@ export default defineComponent({
     showEmptyMessage: {
       default: false,
     },
-    showPrivate: {
-      default: true
-    }
   },
-  data(): { hashes: Array<ActionHash> | undefined; loading: boolean; error: any } {
+  data(): { hashes: Array<ActionHash> | undefined; loading: boolean; error: any; showPrivate: boolean; } {
     return {
       hashes: undefined,
       loading: true,
-      error: undefined
+      error: undefined,
+      showPrivate: true,
     }
   },
   watch: {
@@ -55,9 +60,6 @@ export default defineComponent({
   },
   methods: {
     async fetchListings() {
-      console.log('fetching')
-      this.loading = true;
-
       const cellArgs = this.dnaHash ? {
         cell_id: [this.dnaHash, this.client.myPubKey]
       } : {
