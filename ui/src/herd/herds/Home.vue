@@ -23,11 +23,10 @@ export default defineComponent({
     },
     data() {
         return {
-            loading: false,
+            loading: true,
         };
     },
     async mounted() {
-        this.loading = true;
         await this.client.appInfo();
         this.loading = false;
     },
