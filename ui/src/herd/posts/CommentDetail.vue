@@ -134,6 +134,11 @@ export default defineComponent({
   async mounted() {
     await this.fetchComment();
   },
+  watch: {
+    commentHash() {
+      this.fetchComment();
+    }
+  },
   methods: {
     async fetchComment() {
       try {

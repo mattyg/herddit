@@ -2,8 +2,9 @@
   <div class="w-full flex justify-center my-12">
     <article class="prose w-full md:max-w-screen-lg mx-4">
       <h1>Gather a Herd</h1>
-      <mwc-textfield class="w-full mb-8" outlined label="Title" @input="title = $event.target.value" required></mwc-textfield>
-      <mwc-textarea class="w-full mb-8" :rows="10" outlined label="Description" @input="description = $event.target.value"></mwc-textarea>
+      <mwc-textfield class="w-full" outlined label="Title" :value="title" @input="title = $event.target.value" required></mwc-textfield>
+      <div class="text-sm mt-1 mb-8">Letters, numbers and underscores only</div>
+
       <div class="flex flex-row justify-start items-center space-x-4 mb-8 cursor-pointer" @click="public = !public">
         <mwc-checkbox class="w-full w-8" :checked="public"></mwc-checkbox>
         <div class="flex-1">Announce at The Watering Hole</div>
@@ -33,7 +34,7 @@ export default defineComponent({
     HerdPasswordModal
   },
   data(): {
-    title: string | undefined;
+    title: string;
     description: string | undefined;
     public: boolean;
     creatingHerd: boolean;
@@ -41,7 +42,7 @@ export default defineComponent({
     showPasswordModal: boolean;
   } {
     return { 
-      title: undefined,
+      title: '',
       description: '',
       public: true,
       creatingHerd: false,
@@ -51,7 +52,12 @@ export default defineComponent({
   },
   computed: {
     isHerdValid() {
-      return true && this.title !== undefined
+      return this.title.length > 0
+    },
+  },
+  watch: {
+    title(val) {
+      this.title = val.replace(/\W/g, "");
     },
   },
   methods: {
