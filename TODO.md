@@ -11,14 +11,13 @@
 - [x] Upvote / downvote a call
 - [x] Integrate agent profiles
 - [ ] Manage / View Agent profile
-
-- [x] Restrict herd names to all-lowercase, no-spaces, underscores
-- [ ] Upvote/downvote responses
-- [ ] Refactor upvoting / downvoting posts -- store each vote in it's own entry, agent can update their votes
-- [ ] Voting on comments
-- [ ] Sort posts by votes, descending
-- [ ] Hide Posts / Comments with vote count < 0
+- [x] Restrict herd names to all-lowercase, no-spaces, underscores (temporily disabled)
+- [x] Upvote / downvote an comments
+- [x] Sort posts by votes, descending
+- [x] Hide Posts / Comments with vote count < 0
+- [x] Save secret herd-word to your private chain
 - [ ] Threaded responses (responses to responses)
+- [ ] Sort responses by vote count within their own thread level 
 
 ## Content Filtering 
 - [ ] Filter content displayed in a herd based on DNA properties
@@ -41,7 +40,8 @@
 - [ ] Zome for registering / defining participation rules. Rules can be stacked together.
 - [ ] A few example participation rules
   - [ ] Min/Max posts of type by agent per timeperiod
-  - [ ] Min/Max votes by agent per timeperiod
+  - [ ] Min/Max votes by agent per timeperiod or
+  - [ ] Min/Max votes per post (i.e. 1 vote each, or spread your votes among posts
   - [ ] Min/Max comments by agent per timeperiod
   - [ ] Min/Max comments by agent on posts of given type, per time period
 
