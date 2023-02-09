@@ -13,7 +13,6 @@
     "network:port": "func() { concurrently -k -m 2 \"npm -w ui run dev -- --port $1\" \"npm run launch:happ:port $1\"; }; func",
     "launch:happ:port": "func() { echo \"pass\" | RUST_LOG=warn hc launch --piped -n 1 --ui-port $1 workdir/herddit.happ network mem; }; WEBKIT_DISABLE_COMPOSITING_MODE=1 func",
     "launch:happ:path": "echo \"pass\" | RUST_LOG=warn hc launch --piped -n $AGENTS workdir/herddit.happ -w --ui-path ui/dist network mdns",
-
     "test": "npm run build:zomes && hc app pack workdir --recursive && npm t -w tests",
     "package": "npm run build:happ && npm run package -w ui && hc web-app pack workdir --recursive",
     "build:happ": "npm run build:zomes && hc app pack workdir --recursive",
@@ -22,8 +21,17 @@
   },
   "devDependencies": {
     "@holochain-playground/cli": "^0.1.0",
+    "@typescript-eslint/eslint-plugin": "^5.50.0",
     "concurrently": "^6.2.1",
-    "rimraf": "^3.0.2"
+    "eslint": "^8.33.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-config-standard-with-typescript": "^34.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-n": "^15.6.1",
+    "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-vue": "^9.9.0",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.9.5"
   },
   "engines": {
     "npm": ">=7.0.0"

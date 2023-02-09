@@ -3,7 +3,7 @@
     :size="size"
     :votes="votes"
     :dnaHash="dnaHash"
-    :commentHash="postHash"
+    :commentHash="commentHash"
     :myVote="myVote"
     @upvote="upvote"
     @downvote="downvote"
@@ -26,7 +26,7 @@ export default defineComponent({
       type: Object as PropType<Uint8Array>,
       required: true
     },
-    postHash: {
+    commentHash: {
       type: Object as PropType<Uint8Array>,
       required: true
     },
@@ -52,15 +52,15 @@ export default defineComponent({
           cell_id: [this.dnaHash, this.client.myPubKey],
           cap_secret: null,
           zome_name: 'posts',
-          fn_name: 'get_my_vote_on_post',
-          payload: this.postHash,
+          fn_name: 'get_my_vote_on_comment',
+          payload: this.commentHash,
         });
         
         if(vote_tag) {
           this.myVote = vote_tag.value;
         }
       } catch (e: any) {
-        toast.error("Failed to get my vote", e.data.data);
+        toast.error("Failed to vote on post: ", e.data.data);
       }
     },
     async upvote() {
@@ -71,14 +71,13 @@ export default defineComponent({
           cell_id: [this.dnaHash, this.client.myPubKey],
           cap_secret: null,
           zome_name: 'posts',
-          fn_name: 'upvote_post',
-          payload: this.postHash,
+          fn_name: 'upvote_comment',
+          payload: this.commentHash,
         });
         this.$emit('upvote');
         this.getMyVote();
       } catch (e: any) {
-        console.log(e);
-        toast.error(`Failed to upvote post: ${e.data.data}`);
+        toast.error("Failed to vote on post: ", e.data.data);
       }
     },
     async downvote() {
@@ -89,14 +88,13 @@ export default defineComponent({
           cell_id: [this.dnaHash, this.client.myPubKey],
           cap_secret: null,
           zome_name: 'posts',
-          fn_name: 'downvote_post',
-          payload: this.postHash,
+          fn_name: 'downvote_comment',
+          payload: this.commentHash,
         });
         this.$emit('downvote');
         this.getMyVote();
       } catch (e: any) {
-        console.log(e);
-        toast.error(`Failed to downvote post: ${e.data.data}`);
+        toast.error("Failed to vote on post: ", e.data.data);
       }
     },
   },

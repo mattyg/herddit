@@ -1,6 +1,6 @@
 <template>
   <div class="w-full" v-bind="$attrs">
-    <mwc-textarea class="w-full mb-2" outlined label="Respond to Call" @input="content = $event.target.value" :value="content"></mwc-textarea>
+    <mwc-textarea class="w-full mb-2" outlined contenteditable label="Respond to Call" @input="content = $event.target.value" :value="content"></mwc-textarea>
   
     <button
       v-if="content?.length > 0 "
@@ -14,10 +14,6 @@
 import { defineComponent, inject, ComputedRef, PropType } from 'vue';
 import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash } from '@holochain/client';
 import { Comment } from './types';
-import '@material/mwc-button';
-import '@material/mwc-icon-button';
-import '@material/mwc-snackbar';
-import '@material/mwc-textarea';
 import { toast } from 'vue3-toastify';
 
 export default defineComponent({

@@ -4,33 +4,29 @@
     </div>
 
     <div class="w-full" v-else>
-        <div class="w-full flex flex-row justify-between items-center border-b-2 mb-14 space-x-4">
-            <div class="text-3xl mx-8 my-4">The Watering Hole</div>
+        <div class="h-16 sticky top-0 w-full flex flex-row justify-between items-center shadow-md space-x-4 px-8 bg-base-100 z-30">
+            <div class="text-3xl my-4">The Watering Hole</div>
         </div>
-
-        <div class="w-full bg-base-400 text-xs mx-4 my-4 overflow-clip text-center">
-            <AllListingsInlineText />
-        </div>
+        
+        <AllListings :showEmptyMessage="true" class="my-12" />
     </div>
 </template>
 
 <script lang="ts">
 import { ActionHash, AppAgentClient, CellInfo, InstalledCell, Record} from '@holochain/client';
 import { ComputedRef, defineComponent, inject, PropType } from 'vue'
-import AllListingsInlineText from '../directory/AllListingsInlineText.vue';
-import { Listing } from '../directory/types';
+import AllListings from '../directory/AllListings.vue';
 
 export default defineComponent({
     components: {
-        AllListingsInlineText
+        AllListings
     },
     data() {
         return {
-            loading: false
+            loading: true,
         };
     },
     async mounted() {
-        this.loading = true;
         await this.client.appInfo();
         this.loading = false;
     },

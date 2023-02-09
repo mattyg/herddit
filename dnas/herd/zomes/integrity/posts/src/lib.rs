@@ -23,7 +23,7 @@ pub struct Comment {
 }
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
-pub struct PostVoteTag {
+pub struct VoteTag {
     pub value: i8,
 }
 
@@ -36,13 +36,23 @@ pub enum EntryTypes {
 
 #[hdk_link_types]
 pub enum LinkTypes {
+    // Posts
     PostUpdates,
     AllPosts,
     MyPosts,
-    MyUpvotedPosts,
+
+    // Post votes
+    MyVotedPosts,
     PostVoteByAgent,
+
+    // Comments
     PostToComments,
     CommentUpdates,
+    MyComments,
+
+    // Comment votes
+    MyVotedComments,
+    CommentVoteByAgent,
 }
 #[hdk_extern]
 pub fn genesis_self_check(

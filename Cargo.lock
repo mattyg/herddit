@@ -136,6 +136,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "boba"
+version = "5.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "272c36c2bdd1501e9072b8cfbe9250da06157d2a4c494b3720319b63658a0b0a"
+
+[[package]]
 name = "bumpalo"
 version = "3.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -503,6 +509,7 @@ dependencies = [
 name = "directory"
 version = "0.0.1"
 dependencies = [
+ "boba",
  "directory_integrity",
  "hdk",
  "serde",
@@ -650,6 +657,29 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8a9ee70c43aaf417c914396645a0fa852624801b24ebb7ae78fe8272889ac888"
 dependencies = [
  "ahash",
+]
+
+[[package]]
+name = "hc_zome_profiles_coordinator"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b9460530f0ac152fcac325cc3b5239d97efd95576c8d4463b274abf3cc24f38d"
+dependencies = [
+ "derive_more",
+ "hc_zome_profiles_integrity",
+ "hdk",
+ "serde",
+]
+
+[[package]]
+name = "hc_zome_profiles_integrity"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7749c3ce685dd07fc55efab8abd24ebba82460ff3e499c098cb224de39177ceb"
+dependencies = [
+ "derive_more",
+ "hdi",
+ "serde",
 ]
 
 [[package]]
@@ -1248,6 +1278,25 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57a8eca9f9c4ffde41714334dee777596264c7825420f521abc92b5b5deb63a5"
 dependencies = [
  "unicode-ident",
+]
+
+[[package]]
+name = "profiles"
+version = "0.0.1"
+dependencies = [
+ "hc_zome_profiles_coordinator",
+ "hdk",
+ "profiles_integrity",
+ "serde",
+]
+
+[[package]]
+name = "profiles_integrity"
+version = "0.0.1"
+dependencies = [
+ "hc_zome_profiles_integrity",
+ "hdi",
+ "serde",
 ]
 
 [[package]]

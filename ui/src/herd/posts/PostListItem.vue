@@ -1,33 +1,30 @@
 <template>
-  <div v-if="!loading">
-    <div v-if="record" class="flex flex-row flex-start items-center">
+  <div v-if="record">
+    <div v-if="votesCount >= 0 || showIfVoteNegative" class="w-full flex flex-row justify-start items-center bg-base-200 px-8 py-4 space-x-8">
       <PostVotes 
         :votes="votesCount" 
         :dnaHash="dnaHash" 
         :postHash="postHash"
         @upvote="fetchPost()"
         @downvote="fetchPost()"
-        class="mr-8"
         size="sm"
       />
-      <RouterLink :to="`/herds/${dnaHashString}/posts/${postHashString}`">
-        <div class="w-full flex flex-col bg-neutral-1 hover:bg-neutral-2">
-          <div class="w-full text-3xl mb-2">{{ post?.title }}</div>
-          <div class="text-md text-gray-400 font-bold">Submitted {{dateRelative}} by {{authorHash}}</div>
+      <RouterLink :to="`${$route.fullPath}/posts/${postHashString}`" class="w-full flex flex-col space-y-1">
+        <div class="w-full text-3xl mb-4">{{ post?.title }}</div>
+        <div class="flex flex-row items-center justify-between" v-if="authorHash">
+          <div class="text-md text-gray-400 font-bold">
+            Submitted {{dateRelative}} 
+          </div>
+
+          <AgentProfile :agentPubKey="authorHash" size="sm" :muted="true" /> 
         </div>
       </RouterLink>
     </div>
-
-    
-    <span v-else>The requested post was not found.</span>
+    <div v-else class="w-full flex flex-row justify-between items-center bg-base-200 px-8 py-4 space-x-8 text-gray-400 font-bold">
+      <div>Call trampled by the herd</div>
+      <button class="btn btn-ghost btn-xs" @click="showIfVoteNegative = true">Take a look</button>
+    </div>
   </div>
-
-  <div v-else style="display: flex; flex: 1; align-items: center; justify-content: center">
-    <mwc-circular-progress indeterminate></mwc-circular-progress>
-  </div>
-
-  <mwc-snackbar ref="delete-error" leading>
-  </mwc-snackbar>
 </template>
 
 <script lang="ts">
@@ -35,11 +32,8 @@ import { defineComponent, inject, ComputedRef, PropType } from 'vue';
 import { decode } from '@msgpack/msgpack';
 import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash, encodeHashToBase64, decodeHashFromBase64 } from '@holochain/client';
 import { Post } from './types';
-import '@material/mwc-circular-progress';
-import '@material/mwc-icon-button';
-import '@material/mwc-snackbar';
-import { Snackbar } from '@material/mwc-snackbar';
 import PostVotes from './PostVotes.vue';
+import AgentProfile from '../profiles/AgentProfile.vue';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
@@ -47,6 +41,7 @@ dayjs.extend(relativeTime);
 export default defineComponent({
   components: {
     PostVotes,
+    AgentProfile,
   },
   props: {
     dnaHash: {
@@ -58,12 +53,13 @@ export default defineComponent({
       required: true
     }
   },
-  data(): { record: Record | undefined; loading: boolean; editing: boolean; votesCount: number} {
+  data(): { record: Record | undefined; loading: boolean; editing: boolean; votesCount: number; showIfVoteNegative: boolean; } {
     return {
       record: undefined,
       loading: true,
       editing: false,
       votesCount: 0,
+      showIfVoteNegative: false,
     }
   },
   computed: {
@@ -74,7 +70,7 @@ export default defineComponent({
     authorHash() {
       if (!this.record) return undefined;
 
-      return encodeHashToBase64(this.record.signed_action.hashed.content.author);
+      return this.record.signed_action.hashed.content.author;
     },
     dateRelative() {
       if(!this.record?.signed_action.hashed.content.timestamp) return;
@@ -101,9 +97,6 @@ export default defineComponent({
   },
   methods: {
     async fetchPost() {
-      this.loading = true;
-      this.record = undefined;
-
       const post_metadata = await this.client.callZome({
         cell_id: [this.dnaHash, this.client.myPubKey],
         cap_secret: null,

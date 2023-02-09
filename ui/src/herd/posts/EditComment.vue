@@ -2,10 +2,8 @@
   <mwc-snackbar ref="update-error"></mwc-snackbar>
 
   <div class="flex flex-col w-full">
-    <div class="mb-4">Edit Comment</div>
+    <div class="mb-4">Edit Response</div>
     <mwc-textarea class="w-full mb-4" outlined label="Content" :value="content" @input="content = $event.target.value" required></mwc-textarea>
-
-
 
     <div class="flex flex-row justify-end items-center space-x-4">
       <button
@@ -24,11 +22,7 @@
 import { defineComponent, inject, ComputedRef, PropType } from 'vue';
 import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash } from '@holochain/client';
 import { Comment } from './types';
-import '@material/mwc-button';
-import '@material/mwc-snackbar';
 import { decode } from '@msgpack/msgpack';
-import { Snackbar } from '@material/mwc-snackbar';
-import '@material/mwc-textarea';
 import { error } from 'console';
 import { update } from 'lodash';
 import { toast } from 'vue3-toastify';

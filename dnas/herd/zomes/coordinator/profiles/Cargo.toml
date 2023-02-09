@@ -1,16 +1,16 @@
 [package]
-name = "directory"
+name = "profiles"
 version = "0.0.1"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
-name = "directory"
+name = "profiles"
 
 [dependencies]
 hdk = { workspace = true }
 
 serde = { workspace = true }
 
-directory_integrity = { workspace = true } 
-boba = "5.0.0"
+profiles_integrity = { workspace = true } 
+hc_zome_profiles_coordinator = "0.1.1"

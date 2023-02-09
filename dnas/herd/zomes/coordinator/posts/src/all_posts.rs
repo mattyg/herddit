@@ -1,5 +1,9 @@
+use std::cmp::Ordering;
+
 use hdk::prelude::*;
 use posts_integrity::*;
+use crate::post::*;
+
 #[hdk_extern]
 pub fn get_all_posts(_: ()) -> ExternResult<Vec<ActionHash>> {
     let path = Path::from("all_posts");
@@ -17,5 +21,38 @@ pub fn get_all_posts(_: ()) -> ExternResult<Vec<ActionHash>> {
         .filter_map(|r| r)
         .map(|r| r.action_address().clone())
         .collect();
+    Ok(hashes)
+}
+
+
+#[hdk_extern]
+pub fn get_all_posts_sorted_by_votes(_: ()) -> ExternResult<Vec<ActionHash>> {
+    let path = Path::from("all_posts");
+    let links = get_links(path.path_entry_hash()?, LinkTypes::AllPosts, None)?;
+   
+    // Get all posts metadata and sort by votes, descending
+    let mut posts_metadata: Vec<PostMetadata> = links
+        .into_iter()
+        .filter_map(|link| get_post_metadata(ActionHash::from(link.target)).ok())
+        .collect();
+    posts_metadata.sort_by(|a, b| -> Ordering {
+        let a_value = (a.upvotes - a.downvotes) as isize;
+        let b_value = (b.upvotes - b.downvotes) as isize;
+        
+        if a_value == b_value {
+            // If values equal, order by record timestamp, desc
+            return b.record.action().timestamp().cmp(&a.record.action().timestamp());
+        } else {
+            // Order by highest value, desc
+            return b_value.cmp(&a_value);
+        }
+    });
+
+    // Return hashes
+    let hashes: Vec<ActionHash> = posts_metadata
+        .into_iter()
+        .map(|r| r.record.action_address().clone())
+        .collect();
+        
     Ok(hashes)
 }

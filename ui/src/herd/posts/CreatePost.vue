@@ -1,20 +1,15 @@
 <template>
-  <div class="flex h-full justify-center item-center">
-    <div class="w-full md:max-w-md bg-white-200">
-      <div class="text-2xl mb-8">Call to Herd</div>
-    
-      <div class="mb-4">
-        <mwc-textfield class="w-full" outlined label="Title" @input="title = $event.target.value" required></mwc-textfield>
-      </div>
-
-      <div  class="mb-4">
-        <mwc-textarea class="w-full" outlined label="Content" @input="content = $event.target.value" required></mwc-textarea>
-      </div>
-    
+  <div class="w-full flex justify-center">
+    <div class="prose w-full md:max-w-screen-lg mx-4">
+      <h1>Call to Herd</h1>
+      <mwc-textfield class="w-full mb-4" outlined label="Title" @input="title = $event.target.value" required></mwc-textfield>
+      <mwc-textarea ref="contentTextarea"  rows="10" class="w-full" outlined label="Content" @input="content = $event.target.value" required></mwc-textarea>
+    <div class="mt-4">
       <button class="btn bn-primary"
         :disabled="!isPostValid"
         @click="createPost"
       >Call to Herd</button>
+    </div>
     </div>
   </div>
 </template>
@@ -22,12 +17,6 @@
 import { defineComponent, inject, ComputedRef, PropType } from 'vue';
 import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash, encodeHashToBase64 } from '@holochain/client';
 import { Post } from './types';
-import '@material/mwc-button';
-import '@material/mwc-icon-button';
-import '@material/mwc-snackbar';
-import '@material/mwc-textfield';
-import '@vaadin/date-time-picker/theme/material/vaadin-date-time-picker.js';
-import '@material/mwc-textarea';
 import { toast } from 'vue3-toastify';
 export default defineComponent({
   

@@ -11,6 +11,7 @@
     "esModuleInterop": true,
     "lib": ["esnext", "dom"],
     "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
     "types": [
       "vue3-toastify/global"
     ]

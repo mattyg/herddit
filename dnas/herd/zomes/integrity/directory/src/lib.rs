@@ -6,6 +6,9 @@ use hdi::prelude::*;
 #[unit_enum(UnitEntryTypes)]
 pub enum EntryTypes {
     Listing(Listing),
+
+    #[entry_def(visibility = "private")]
+    PrivateListing(PrivateListing),
 }
 #[hdk_link_types]
 pub enum LinkTypes {
@@ -48,9 +51,11 @@ pub fn validate_agent_joining(
 // - Link tags don't exceed the maximum tag size (currently 1KB)
 // - Countersigned entries include an action from each required signer
 //
+
 #[hdk_extern]
 #[allow(dead_code)]
-pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
+pub fn validate(_op: Op) -> ExternResult<ValidateCallbackResult> {
+    /*
     match op.to_type::<EntryTypes, LinkTypes>()? {
         OpType::StoreEntry(store_entry) => {
             match store_entry {
@@ -61,6 +66,9 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 EntryCreationAction::Create(action),
                                 listing,
                             )
+                        },
+                        EntryTypes::PrivateListing(_) => {
+                            Ok(ValidateCallbackResult::Valid)
                         }
                     }
                 }
@@ -71,7 +79,8 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 EntryCreationAction::Update(action),
                                 listing,
                             )
-                        }
+                        },
+                        EntryTypes::PrivateListing(_) => Ok(ValidateCallbackResult::Valid)
                     }
                 }
                 _ => Ok(ValidateCallbackResult::Valid),
@@ -96,7 +105,8 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 original_action,
                                 original_listing,
                             )
-                        }
+                        },
+                        _ =>  Ok(ValidateCallbackResult::Valid)
                     }
                 }
                 _ => Ok(ValidateCallbackResult::Valid),
@@ -108,7 +118,8 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                     match original_app_entry {
                         EntryTypes::Listing(listing) => {
                             validate_delete_listing(action, original_action, listing)
-                        }
+                        },
+                        EntryTypes::PrivateListing(_) => Ok(ValidateCallbackResult::Valid)
                     }
                 }
                 _ => Ok(ValidateCallbackResult::Valid),
@@ -137,15 +148,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         target_address,
                         tag,
                     )
-                },
-                LinkTypes::HomeListing => {
-                    validate_create_link_home_listing(
-                        action,
-                        base_address,
-                        target_address,
-                        tag,
-                    )
-                },
+                }
             }
         }
         OpType::RegisterDeleteLink {
@@ -174,15 +177,6 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         target_address,
                         tag,
                     )
-                },
-                LinkTypes::HomeListing => {
-                    validate_delete_link_home_listing(
-                        action,
-                        original_action,
-                        base_address,
-                        target_address,
-                        tag,
-                    )
                 }
             }
         }
@@ -198,7 +192,8 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 EntryCreationAction::Create(action),
                                 listing,
                             )
-                        }
+                        },
+                        EntryTypes::PrivateListing(_) => Ok(ValidateCallbackResult::Valid)
                     }
                 }
                 // Complementary validation to the `RegisterUpdate` Op, in which the record itself is validated
@@ -263,7 +258,8 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                             } else {
                                 Ok(result)
                             }
-                        }
+                        },
+                        EntryTypes::PrivateListing(_) => Ok(ValidateCallbackResult::Valid)
                     }
                 }
                 // Complementary validation to the `RegisterDelete` Op, in which the record itself is validated
@@ -303,7 +299,8 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 original_action,
                                 original_listing,
                             )
-                        }
+                        },
+                        EntryTypes::PrivateListing(_) => Ok(ValidateCallbackResult::Valid)
                     }
                 }
                 // Complementary validation to the `RegisterCreateLink` Op, in which the record itself is validated
@@ -327,14 +324,6 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                         LinkTypes::AllListings => {
                             validate_create_link_all_listings(
-                                action,
-                                base_address,
-                                target_address,
-                                tag,
-                            )
-                        },
-                        LinkTypes::HomeListing => {
-                            validate_create_link_home_listing(
                                 action,
                                 base_address,
                                 target_address,
@@ -386,21 +375,11 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 create_link.target_address,
                                 create_link.tag,
                             )
-                        },
-                        LinkTypes::HomeListing => {
-                            validate_delete_link_home_listing(
-                                action,
-                                create_link.clone(),
-                                base_address,
-                                create_link.target_address,
-                                create_link.tag,
-                            )
                         }
                     }
                 }
-                OpRecord::CreatePrivateEntry { app_entry_type: _, action: _ } => {
-                    Ok(ValidateCallbackResult::Valid)
-                }
+                OpRecord::CreatePrivateEntry { app_entry_type: _, action: _ } => 
+                    Ok(ValidateCallbackResult::Valid),
                 OpRecord::UpdatePrivateEntry {
                     original_action_hash: _,
                     original_entry_hash: _,
@@ -454,8 +433,10 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             }
         }
     }
+    */
+    Ok(ValidateCallbackResult::Valid)
 }
-fn record_to_app_entry(record: &Record) -> ExternResult<Option<EntryTypes>> {
+fn _record_to_app_entry(record: &Record) -> ExternResult<Option<EntryTypes>> {
     if let Record { signed_action, entry: RecordEntry::Present(entry) } = record {
         if let Some(EntryType::App(AppEntryDef { entry_index, zome_index, .. }))
             = signed_action.action().entry_type()
