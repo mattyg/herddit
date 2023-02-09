@@ -1,0 +1,28 @@
+---
+manifest_version: "1"
+name: directory
+integrity:
+  network_seed: ~
+  properties: ~
+  origin_time: 1675920592357481
+  zomes: 
+    - name: profiles_integrity
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/profiles_integrity.wasm"
+      dependencies: ~
+    - name: directory_integrity
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/directory_integrity.wasm"
+      dependencies: ~
+coordinator:
+  zomes:
+    - name: profiles
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/profiles.wasm"
+      dependencies:
+        - name: profiles_integrity
+    - name: directory
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/directory.wasm"
+      dependencies:
+        - name: directory_integrity

@@ -16,3 +16,16 @@ roles:
         quantum_time: ~
       version: ~
       clone_limit: 1000000000
+  - name: directory
+    provisioning:
+      strategy: create
+      deferred: false
+    dna:
+      bundled: "../dnas/directory/workdir/directory.dna"
+      modifiers:
+        network_seed: ~
+        properties: ~
+        origin_time: ~
+        quantum_time: ~
+      version: ~
+      clone_limit: 0

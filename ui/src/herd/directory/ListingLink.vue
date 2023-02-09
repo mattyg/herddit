@@ -57,7 +57,7 @@ export default defineComponent({
 
       this.record = await this.client.callZome({
         cap_secret: null,
-        role_name: 'herd',
+        role_name: 'directory',
         zome_name: 'directory',
         fn_name: 'get_listing',
         payload: this.listingHash,

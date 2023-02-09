@@ -62,7 +62,7 @@ export default defineComponent({
       const cellArgs = this.dnaHash ? {
         cell_id: [this.dnaHash, this.client.myPubKey]
       } : {
-        role_name: 'herd'
+        role_name: 'directory'
       };
 
       try {

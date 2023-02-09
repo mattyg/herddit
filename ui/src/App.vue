@@ -75,7 +75,7 @@ export default defineComponent({
       this.client = await AppAgentWebsocket.connect('', 'herddit', 12000);
 
       // Setup profiles store
-      const profilesClient = new ProfilesClient(this.client, 'herd', 'profiles');
+      const profilesClient = new ProfilesClient(this.client, 'directory', 'profiles');
       this.profilesStore = new ProfilesStore(profilesClient, {
         avatarMode: "avatar-required",
         additionalFields: ["Bio", "Location", "Website"],

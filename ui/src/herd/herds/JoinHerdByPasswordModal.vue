@@ -40,7 +40,7 @@ export default defineComponent({
     async join() {
       try {
         const listing = await this.client.callZome({
-          role_name: 'herd',
+          role_name: 'directory',
           zome_name: 'directory',
           fn_name: 'bubble_babble_to_listing',
           payload: this.password,

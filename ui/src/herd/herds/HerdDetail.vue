@@ -82,7 +82,7 @@ export default defineComponent({
             try {
                 // Deserialize Listing from Bubble Babble string
                 const listing: Listing = await this.client.callZome({
-                    role_name: 'herd',
+                    role_name: 'directory',
                     zome_name: 'directory',
                     fn_name: 'bubble_babble_to_listing',
                     payload: password,
@@ -91,7 +91,7 @@ export default defineComponent({
                 // Save PrivateListing to source chain
                 await this.client.callZome({
                     cap_secret: null,
-                    role_name: 'herd',
+                    role_name: 'directory',
                     zome_name: 'directory',
                     fn_name: 'create_private_listing_idempotent',
                     payload: listing,
@@ -109,7 +109,7 @@ export default defineComponent({
             try {
                 this.record = await this.client.callZome({
                     cap_secret: null,
-                    role_name: 'herd',
+                    role_name: 'directory',
                     zome_name: 'directory',
                     fn_name: 'get_listing',
                     payload: decodeHashFromBase64(this.$route.params.listingHashString as string),

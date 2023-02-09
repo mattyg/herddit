@@ -13,10 +13,16 @@ hdk = "=0.1.0"
 serde = "1"
 
 [workspace.dependencies.directory]
-path = "dnas/herd/zomes/coordinator/directory"
+path = "dnas/directory/zomes/coordinator/directory"
 
 [workspace.dependencies.directory_integrity]
-path = "dnas/herd/zomes/integrity/directory"
+path = "dnas/directory/zomes/integrity/directory"
+
+[workspace.dependencies.profiles]
+path = "dnas/directory/zomes/coordinator/profiles"
+
+[workspace.dependencies.profiles_integrity]
+path = "dnas/directory/zomes/integrity/profiles"
 
 [workspace.dependencies.herd]
 path = "dnas/herd/zomes/coordinator/herd"
@@ -29,9 +35,3 @@ path = "dnas/herd/zomes/coordinator/posts"
 
 [workspace.dependencies.posts_integrity]
 path = "dnas/herd/zomes/integrity/posts"
-
-[workspace.dependencies.profiles]
-path = "dnas/herd/zomes/coordinator/profiles"
-
-[workspace.dependencies.profiles_integrity]
-path = "dnas/herd/zomes/integrity/profiles"

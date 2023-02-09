@@ -101,7 +101,7 @@ export default defineComponent({
     // Publish listing to public directory 
     try {
       const listing_ah: ActionHash = await this.client.callZome({
-          role_name: 'herd',
+          role_name: 'directory',
           zome_name: 'directory',
           fn_name: 'create_listing',
           payload: listing,
@@ -110,19 +110,18 @@ export default defineComponent({
       this.$router.push(`/herds/${encodeHashToBase64(listing_ah)}`);
     } catch (e: any) {
       console.log('error', e);
-      toast.error('Error creating private listing', e.data.data);
+      toast.error('Error creating listing', e.data.data);
     }
   },
   async createPrivateListing(listing: Listing) {
     // Publish listing to private entry
     try {
       const listing_ah: ActionHash = await this.client.callZome({
-        role_name: 'herd',
+        role_name: 'directory',
         zome_name: 'directory',
         fn_name: 'create_private_listing_idempotent',
         payload: listing,
       });
-      console.log('created private listing', listing_ah)
     } catch (e: any) {
       console.log('error', e);
       toast.error('Error creating private listing', e.data.data);
@@ -130,7 +129,7 @@ export default defineComponent({
     // Encode listing into string to use a secret herd password
     try {
       const listing_babble = await this.client.callZome({
-        role_name: 'herd',
+        role_name: 'directory',
         zome_name: 'directory',
         fn_name: 'listing_to_bubble_babble',
         payload: listing,
