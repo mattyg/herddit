@@ -27,7 +27,6 @@
 import { AppAgentClient, CellId, Record, encodeHashToBase64, decodeHashFromBase64, ClonedCell } from '@holochain/client';
 import { decode } from '@msgpack/msgpack';
 import { ComputedRef, defineComponent, inject, PropType } from 'vue'
-import AllListingsInlineText from '../directory/AllListingsInlineText.vue';
 import { Listing } from '../directory/types';
 import AllPosts from '../posts/AllPosts.vue';
 import { isEqual } from 'lodash';
@@ -36,7 +35,6 @@ import { toast } from 'vue3-toastify';
 
 export default defineComponent({
     components: {
-        AllListingsInlineText,
         AllPosts
     },
     data(): { record: Record | undefined; listing?: Listing; loading: boolean; editing: boolean; herdInfo: any; cellInstalled: boolean} {
@@ -82,12 +80,25 @@ export default defineComponent({
     methods: {
         async decodePasswordToListing(password: string) {
             try {
-                this.listing = await this.client.callZome({
+                // Deserialize Listing from Bubble Babble string
+                const listing: Listing = await this.client.callZome({
                     role_name: 'herd',
                     zome_name: 'directory',
                     fn_name: 'bubble_babble_to_listing',
                     payload: password,
                 });
+
+                // Save PrivateListing to source chain
+                await this.client.callZome({
+                    cap_secret: null,
+                    role_name: 'herd',
+                    zome_name: 'directory',
+                    fn_name: 'create_private_listing_idempotent',
+                    payload: listing,
+                });
+
+                this.listing = listing;
+                
             } catch (e: any) {
                 console.log('error', e);
                 toast.error('Error converting data to mnemonic', e);

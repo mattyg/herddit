@@ -8,18 +8,18 @@
             <div class="text-3xl my-4">The Watering Hole</div>
         </div>
         
-        <AllListingsInlineText :showEmptyMessage="true" :showPrivate="showPrivate" class="my-12" />
+        <AllListings :showEmptyMessage="true" class="my-12" />
     </div>
 </template>
 
 <script lang="ts">
 import { ActionHash, AppAgentClient, CellInfo, InstalledCell, Record} from '@holochain/client';
 import { ComputedRef, defineComponent, inject, PropType } from 'vue'
-import AllListingsInlineText from '../directory/AllListingsInlineText.vue';
+import AllListings from '../directory/AllListings.vue';
 
 export default defineComponent({
     components: {
-        AllListingsInlineText
+        AllListings
     },
     data() {
         return {

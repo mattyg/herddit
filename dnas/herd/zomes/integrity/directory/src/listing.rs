@@ -1,6 +1,6 @@
 use hdi::prelude::*;
 #[hdk_entry_helper]
-#[derive(Clone)]
+#[derive(Clone, Eq, PartialEq)]
 pub struct Listing {
     pub title: String,
     pub description: String,
@@ -9,7 +9,7 @@ pub struct Listing {
 }
 
 #[hdk_entry_helper]
-#[derive(Clone)]
+#[derive(Clone, Eq, PartialEq)]
 pub struct PrivateListing {
     pub title: String,
     pub description: String,

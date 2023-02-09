@@ -1,25 +1,25 @@
 <template>
   <div v-if="!loading" class="flex justify-center">
-    <div v-if="hashes && hashes.length > 0">
-      <div class="w-full flex justify-center items-center space-x-4 my-8">
-          <div class="text-gray-400 font-bold">Private Herds</div>
-          <mwc-switch class="text-gray-400 font-bold" :selected="showPrivate" @click="showPrivate = !showPrivate"></mwc-switch>
+    <div>
+      <div class="flex justify-center items-center space-x-4 my-8">
+        <div class="text-gray-400 font-bold">Private Herds</div>
+        <mwc-switch class="text-gray-400 font-bold" :selected="showPrivate" @click="showPrivate = $event.target.selected"></mwc-switch>
       </div>
+        
+      <div v-if="hashes && hashes.length > 0"  clas="flex flex-wrap justify-center items-center">
+          <ListingLink 
+            v-for="hash in hashes" 
+            :listingHash="hash"
+            class="mx-8 my-4 inline-block"
+          />
+      </div>
+      <div v-else-if="showEmptyMessage" class="flex flex-col justify-center items-center space-y-8">
+        <div class="text-2xl my-16">All seems quiet at the watering hole...</div>
 
-      <div clas="flex flex-wrap justify-center items-center">
-        <ListingLink 
-          v-for="hash in hashes" 
-          :listingHash="hash"
-          class="mx-8 my-4 inline-block"
-        />
+        <RouterLink :to="`/herds/create`" class="btn btn-primary btn-xl">Gather a Herd</RouterLink>
       </div>
     </div>
-    <div v-else-if="showEmptyMessage" class="flex flex-col justify-center items-center space-y-8">
-      <div class="text-2xl my-16">All seems quiet at the watering hole...</div>
-
-      <RouterLink :to="`/herds/create`" class="btn btn-primary btn-xl">Gather a Herd</RouterLink>
-    </div>
-  </div>
+</div>
 </template>
 
 <script lang="ts">
@@ -51,7 +51,6 @@ export default defineComponent({
   },
   watch: {
     showPrivate(newVal) {
-      console.log('showPriavte changed', newVal)
       this.fetchListings();
     }
   },
@@ -72,6 +71,7 @@ export default defineComponent({
           include_private: this.showPrivate,
         };
 
+        console.log('input', input);
         // @ts-ignore
         this.hashes = await this.client.callZome({
           ...cellArgs,

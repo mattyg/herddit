@@ -1,11 +1,20 @@
 use hdk::prelude::*;
 use directory_integrity::*;
+use crate::all_listings::*;
 
 #[hdk_extern]
-pub fn create_private_listing(listing: PrivateListing) -> ExternResult<ActionHash> {
-    let listing_hash = create_entry(EntryTypes::PrivateListing(listing.clone()))?;
+pub fn create_private_listing_idempotent(listing: PrivateListing) -> ExternResult<ActionHash> {
+    let private_listings = query_private_listings()?;
 
-    Ok(listing_hash)
+    let identical_listings: Vec<Record> = private_listings
+        .into_iter()
+        .filter(|r| r.entry().to_app_option().ok().unwrap().eq(&Some(listing.clone())))
+        .collect();
+
+    match identical_listings.len() > 0 {
+        true => Ok(identical_listings.first().unwrap().action_hashed().hash.clone()),
+        false => create_entry(EntryTypes::PrivateListing(listing.clone())),
+    }
 }
 
 #[hdk_extern]

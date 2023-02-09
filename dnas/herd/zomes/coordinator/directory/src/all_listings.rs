@@ -51,13 +51,13 @@ fn get_public_listings() -> ExternResult<Vec<Record>> {
     Ok(records)
 }
 
-fn query_private_listings() -> ExternResult<Vec<Record>> { 
+pub fn query_private_listings() -> ExternResult<Vec<Record>> { 
   let private_listing_entry_type: EntryType = UnitEntryTypes::PrivateListing.try_into()?;
   let filter = ChainQueryFilter::new()
     .entry_type(private_listing_entry_type)
     .include_entries(true);
 
-  let my_private_listings = query(filter)?;
+  let records = query(filter)?;
 
-  Ok(my_private_listings)
+  Ok(records)
 }

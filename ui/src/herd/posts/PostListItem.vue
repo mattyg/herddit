@@ -21,8 +21,8 @@
       </RouterLink>
     </div>
     <div v-else class="w-full flex flex-row justify-between items-center bg-base-200 px-8 py-4 space-x-8 text-gray-400 font-bold">
-      <div>Call buried due to negative vote score</div>
-      <button class="btn btn-ghost btn-xs" @click="showIfVoteNegative = true">Show</button>
+      <div>Call trampled by the herd</div>
+      <button class="btn btn-ghost btn-xs" @click="showIfVoteNegative = true">Take a look</button>
     </div>
   </div>
 </template>

@@ -119,7 +119,7 @@ export default defineComponent({
       const listing_ah: ActionHash = await this.client.callZome({
         role_name: 'herd',
         zome_name: 'directory',
-        fn_name: 'create_private_listing',
+        fn_name: 'create_private_listing_idempotent',
         payload: listing,
       });
       console.log('created private listing', listing_ah)

@@ -104,7 +104,6 @@ export default defineComponent({
     async createProfile() {
       try {
         await this.setProfile();
-        toast.success('Created your agent profile');
       } catch(e: any) {
         toast.error('Error creating profile', e);
       }
