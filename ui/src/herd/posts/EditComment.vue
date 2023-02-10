@@ -55,7 +55,7 @@ export default defineComponent({
       return decode((this.currentRecord.entry as any).Present.entry) as Comment;
     },
     isCommentValid() {
-      return true && this.content !== undefined;
+      return this.content;
     },
   },
   methods: {

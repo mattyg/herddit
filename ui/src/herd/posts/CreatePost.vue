@@ -4,7 +4,9 @@
       <h1>Call to Herd</h1>
       <mwc-textfield class="w-full mb-4" outlined label="Title" @input="title = $event.target.value" required></mwc-textfield>
       <mwc-textarea ref="contentTextarea"  rows="10" class="w-full" outlined label="Content" @input="content = $event.target.value" required></mwc-textarea>
-    <div class="mt-4">
+      <span>Use markdown for rich text</span>
+
+    <div class="flex flex-row justify-end items-center space-x-4 mt-8">
       <button class="btn bn-primary"
         :disabled="!isPostValid"
         @click="createPost"
@@ -41,7 +43,7 @@ export default defineComponent({
   },
   computed: {
     isPostValid() {
-      return true && this.title !== undefined && this.content !== undefined;
+      return this.title && this.content;
     },
   },
   methods: {

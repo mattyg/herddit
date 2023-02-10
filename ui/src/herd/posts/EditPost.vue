@@ -1,34 +1,24 @@
 <template>
-  <mwc-snackbar ref="update-error"></mwc-snackbar>
-
-  <div class="flex h-full justify-center item-center">
-    <div class="w-full md:max-w-md bg-white-200">
-      <div class="text-2xl mb-8">Update Call to Herd</div>
-    
-      <div class="mb-4">
-        <mwc-textfield class="w-full" outlined label="Title" @input="title = $event.target.value" :value="title" required></mwc-textfield>
+<div class="w-full flex justify-center">
+    <div class="prose w-full md:max-w-screen-lg mx-4">
+      <h1>Edit Call</h1>
+      <mwc-textfield class="w-full mb-4" outlined label="Title" :value="title" @input="title = $event.target.value" required></mwc-textfield>
+      <mwc-textarea ref="contentTextarea"  rows="10" class="w-full" outlined label="Content" :value="content"  @input="content = $event.target.value" required></mwc-textarea>
+      <span>Use markdown for rich text</span>
+      
+      <div class="flex flex-row justify-end items-center space-x-4 mt-8">
+        <button
+          @click="$emit('cancelled')"
+          class="btn btn-ghost btn-sm"
+        >Cancel</button>
+        <button 
+        :disabled="!isPostValid"
+        @click="updatePost"
+          class="btn btn-primary btn-sm"
+        >Edit Call</button>
       </div>
-
-      <div  class="mb-4">
-        <mwc-textarea class="w-full" outlined label="Content" @input="content = $event.target.value" :value="content" required></mwc-textarea>
-      </div>
-    
-
-    <div class="flex flex-row justify-end items-center space-x-4">
-      <button
-        @click="$emit('cancelled')"
-        class="btn btn-ghost btn-sm"
-      >Cancel</button>
-      <button 
-      :disabled="!isPostValid"
-      @click="updatePost"
-        class="btn btn-primary btn-sm"
-      >Call to Herd</button>
-    </div>
-  
   </div>
-
-  </div>
+</div>
 </template>
 <script lang="ts">
 import { defineComponent, inject, ComputedRef, PropType } from 'vue';
@@ -72,7 +62,7 @@ export default defineComponent({
       return decode((this.currentRecord.entry as any).Present.entry) as Post;
     },
     isPostValid() {
-      return true && this.title !== undefined && this.content !== undefined;
+      return this.title && this.content;
     },
     postHashString() {
       if(!this.postHash) return undefined;
