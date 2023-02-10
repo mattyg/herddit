@@ -30,7 +30,7 @@
             </div>
 
             <div class="relative w-full bg-base-200 p-12 shadow-sm mb-24 flex flex-col items-center" >
-              <div class="w-full pb-4 prose md:prose-md lg:prose-xl" v-html="postContent"></div> 
+              <div class="w-full pb-4 prose md:prose-md lg:prose-xl" v-text="postContent"></div> 
                
               <div v-if="myPost" class="w-full absolute left-0 bottom-0 flex flex-row justify-end items-center space-x-2">
                 <mwc-icon-button class="text-bold text-gray-600" icon="edit" @click="editing = true"></mwc-icon-button>
