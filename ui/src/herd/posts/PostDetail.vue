@@ -72,7 +72,7 @@ import { toast } from 'vue3-toastify';
 
 // Override function
 const renderer = {
-  link(href) {
+  link(href: string) {
     return href;
   }
 };
