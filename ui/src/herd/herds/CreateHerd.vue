@@ -81,7 +81,6 @@ export default defineComponent({
 
         // Clone herd cell
         const cloneCell: ClonedCell = await this.client.createCloneCell(cloneCellParams);
-        toast.success(`Cloned cell for herd "${this.title}"`);
 
         // Publish Listing about cell
         const listing: Listing = { 
@@ -96,6 +95,8 @@ export default defineComponent({
         } else {
           await this.createPrivateListing(listing);
         }
+
+        toast.success(`Cloned cell for herd "${this.title}"`);
       } catch (e: any) {
         toast.error(`Error creating the herd: ${e.data.data}`);
       }
