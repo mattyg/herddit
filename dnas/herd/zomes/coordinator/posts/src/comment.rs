@@ -70,20 +70,15 @@ pub fn get_comment_metadata(
         .len();
 
     // get actual comment
-    let maybe_record = get(original_action_hash.clone(), GetOptions::default())?;
+    let record = get_latest_record(original_action_hash.clone())?;
     
-    match maybe_record {
-        Some(record) => {
-            let comment_metadata = CommentMetadata {
-                record: record,
-                upvotes: upvotes,
-                downvotes: downvotes,
-            };
+    let comment_metadata = CommentMetadata {
+        record: record,
+        upvotes: upvotes,
+        downvotes: downvotes,
+    };
             
-            Ok(comment_metadata)
-        },
-        None => Err(wasm_error!(WasmErrorInner::Guest("Failed to get record".into())))
-    }
+    Ok(comment_metadata)
 
 }
 
