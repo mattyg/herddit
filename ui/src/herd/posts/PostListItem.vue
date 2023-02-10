@@ -1,6 +1,9 @@
 <template>
   <div v-if="record">
-    <div v-if="votesCount >= 0 || showIfVoteNegative" class="w-full flex flex-row justify-start items-center bg-base-200 px-8 py-4 space-x-8">
+    <div v-if="isDeleted" class="w-full bg-base-200 px-8 py-4 space-x-8 text-gray-400 font-bold">
+      <div>Call deleted by author</div>
+    </div>
+    <div v-else-if="votesCount >= 0 || showIfVoteNegative" class="w-full flex flex-row justify-start items-center bg-base-200 px-8 py-4 space-x-8">
       <PostVotes 
         :votes="votesCount" 
         :dnaHash="dnaHash" 
@@ -66,6 +69,11 @@ export default defineComponent({
     post() {
       if (!this.record) return undefined;
       return decode((this.record.entry as any).Present.entry) as Post;
+    },
+    isDeleted() {
+      if (!this.record) return undefined;
+
+      return this.record.signed_action.hashed.content.type === 'Delete';
     },
     authorHash() {
       if (!this.record) return undefined;
