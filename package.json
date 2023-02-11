@@ -6,12 +6,11 @@
     "tests"
   ],
   "scripts": {
-    "start:port": "hc s clean && npm run build:happ && npm run start:port:multiple",
-    "start:port:multiple": "concurrently -k -m 2 \"npm run network:port 3333\" \"npm run network:port 3334\"",
+    "start": "AGENTS=2 WEBKIT_DISABLE_COMPOSITING_MODE=1 npm run network",
     "start:path": "AGENTS=2 WEBKIT_DISABLE_COMPOSITING_MODE=1 npm run network:path",
+    "network": "hc s clean && npm run build:happ && UI_PORT=8888 concurrently \"npm start -w ui\" \"npm run launch:happ\"",
     "network:path": "hc s clean && npm run build:happ && concurrently \"npm run build:watch -w ui\" \"npm run launch:happ:path\"",
-    "network:port": "func() { concurrently -k -m 2 \"npm -w ui run dev -- --port $1\" \"npm run launch:happ:port $1\"; }; func",
-    "launch:happ:port": "func() { echo \"pass\" | RUST_LOG=warn hc launch --piped -n 1 --ui-port $1 workdir/herddit.happ network mem; }; WEBKIT_DISABLE_COMPOSITING_MODE=1 func",
+    "launch:happ": "echo \"pass\" | RUST_LOG=warn hc launch --piped -n $AGENTS workdir/herddit.happ --ui-port $UI_PORT network mdns",
     "launch:happ:path": "echo \"pass\" | RUST_LOG=warn hc launch --piped -n $AGENTS workdir/herddit.happ -w --ui-path ui/dist network mdns",
     "test": "npm run build:zomes && hc app pack workdir --recursive && npm t -w tests",
     "package": "npm run build:happ && npm run package -w ui && hc web-app pack workdir --recursive",
