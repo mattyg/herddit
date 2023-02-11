@@ -72,7 +72,6 @@ export default defineComponent({
         }
 
         const cell_id = await this.installHerdCell();
-        console.log('installed herd cell');
         await this.fetchHerdInfo(cell_id);
 
         this.loading = false;    
@@ -134,6 +133,7 @@ export default defineComponent({
 
             if(cellInfo && !clonedCell.enabled) {
                 // If cell is disabled, enable it again
+                console.log("Cell is disabled, enabling");
                 try {
                     await this.client.enableCloneCell({
                         clone_cell_id: [this.listing?.dna, this.client.myPubKey]
@@ -146,7 +146,8 @@ export default defineComponent({
                 }
                 
                 return clonedCell.cell_id;
-            } else {
+            } else if(!clonedCell) {
+                console.log("Cell not found, installing");
                 // If cell not found, install it
                 const cloneCell: ClonedCell = await this.client.createCloneCell({
                     role_name: 'herd',
@@ -160,6 +161,10 @@ export default defineComponent({
 
                 this.cellInstalled = true;
                 return cloneCell.cell_id;
+            } else {
+                console.log('Cell installed & enabled, do nothing')
+                this.cellInstalled = true;
+                return clonedCell.cell_id;
             }
         },
         async fetchHerdInfo(cell_id: CellId) {
@@ -172,7 +177,7 @@ export default defineComponent({
                     payload: null,
                 });
             } catch (e: any) {
-                toast.error(`Error creating the herd cell: ${e.data.data}`);
+                toast.error(`Error creating the herd cell: ${e}`);
             }
         },
         async leaveHerd() {
