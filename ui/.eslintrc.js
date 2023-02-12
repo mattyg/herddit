@@ -4,8 +4,9 @@ module.exports = {
     es2021: true
   },
   extends: [
-    'plugin:vue/vue3-essential',
-    'standard-with-typescript'
+    'eslint:recommended',
+    'plugin:vue/vue3-recommended',
+    '@vue/eslint-config-typescript/recommended',
   ],
   overrides: [
   ],
@@ -17,5 +18,6 @@ module.exports = {
     'vue'
   ],
   rules: {
-  }
+  },
+  root: true
 }
