@@ -1,30 +1,51 @@
 <template>
-  <div v-if="loading" style="display: flex; flex: 1; align-items: center; justify-content: center">
-    <mwc-circular-progress indeterminate></mwc-circular-progress>
+  <div
+    v-if="loading"
+    style="display: flex; flex: 1; align-items: center; justify-content: center"
+  >
+    <mwc-circular-progress indeterminate />
   </div>
 
-  <div v-else class="w-full flex justify-center">
-    <div v-if="error">Error fetching the posts: {{error.data.data}}.</div>
-    <div v-else-if="hashes && hashes.length > 0" class="w-full md:max-w-screen-md flex flex-col justify-center items-start space-y-8">
+  <div
+    v-else
+    class="w-full flex justify-center"
+  >
+    <div v-if="error">
+      Error fetching the posts: {{ error.data.data }}.
+    </div>
+    <div
+      v-else-if="hashes && hashes.length > 0"
+      class="w-full md:max-w-screen-md flex flex-col justify-center items-start space-y-8"
+    >
       <PostListItem 
         v-for="hash in hashes" 
-        :dnaHash="dnaHash"
-        :postHash="hash"
-        class="w-full">
-      </PostListItem>
+        :key="encodeHashToBase64(hash)"
+        :dna-hash="dnaHash"
+        :post-hash="hash"
+        class="w-full"
+      />
     </div>
-    <div v-else class="flex flex-col items-center justify-center">
-      <div class="text-4xl font-bold mb-16 text-center">The herd was quiet...</div>
+    <div
+      v-else
+      class="flex flex-col items-center justify-center"
+    >
+      <div class="text-4xl font-bold mb-16 text-center">
+        The herd was quiet...
+      </div>
 
-      <RouterLink :to="`${$route.fullPath}/posts/create`" class="btn btn-neutral btn-lg">Call to Herd</RouterLink>
+      <RouterLink
+        :to="`${$route.fullPath}/posts/create`"
+        class="btn btn-neutral btn-lg"
+      >
+        Call to Herd
+      </RouterLink>
     </div>
   </div>
-
 </template>
 
 <script lang="ts">
 import { defineComponent, inject, ComputedRef, PropType } from 'vue';
-import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash } from '@holochain/client';
+import { AppAgentClient, ActionHash, encodeHashToBase64 } from '@holochain/client';
 import PostListItem from './PostListItem.vue';
 
 export default defineComponent({
@@ -36,6 +57,12 @@ export default defineComponent({
       type: Object as PropType<Uint8Array>,
       required: true
     },
+  },
+  setup() {
+    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
+    return {
+      client,
+    };
   },
   data(): { hashes: Array<ActionHash> | undefined; loading: boolean; error: any } {
     return {
@@ -64,13 +91,10 @@ export default defineComponent({
         this.error = e;
       }
       this.loading = false;
+    },
+    encodeHashToBase64(val: Uint8Array) {
+      return encodeHashToBase64(val);
     }
-  },
-  setup() {
-    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
-    return {
-      client,
-    };
   },
 })
 </script>

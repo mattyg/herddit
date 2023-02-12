@@ -2,22 +2,39 @@
   <div class="w-full flex justify-center">
     <div class="prose w-full md:max-w-screen-lg mx-4">
       <h1>Call to Herd</h1>
-      <mwc-textfield class="w-full mb-4" outlined label="Title" @input="title = $event.target.value" required></mwc-textfield>
-      <mwc-textarea ref="contentTextarea"  rows="10" class="w-full" outlined label="Content" @input="content = $event.target.value" required></mwc-textarea>
+      <mwc-textfield
+        class="w-full mb-4"
+        outlined
+        label="Title"
+        required
+        @input="title = $event.target.value"
+      />
+      <mwc-textarea
+        ref="contentTextarea"
+        rows="10"
+        class="w-full"
+        outlined
+        label="Content"
+        required
+        @input="content = $event.target.value"
+      />
       <span>Use markdown for rich text</span>
 
-    <div class="flex flex-row justify-end items-center space-x-4 mt-8">
-      <button class="btn bn-primary"
-        :disabled="!isPostValid"
-        @click="createPost"
-      >Call to Herd</button>
-    </div>
+      <div class="flex flex-row justify-end items-center space-x-4 mt-8">
+        <button
+          class="btn bn-primary"
+          :disabled="!isPostValid"
+          @click="createPost"
+        >
+          Call to Herd
+        </button>
+      </div>
     </div>
   </div>
 </template>
 <script lang="ts">
 import { defineComponent, inject, ComputedRef, PropType } from 'vue';
-import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash, encodeHashToBase64 } from '@holochain/client';
+import { AppAgentClient, Record, encodeHashToBase64 } from '@holochain/client';
 import { Post } from './types';
 import { toast } from 'vue3-toastify';
 export default defineComponent({
@@ -28,15 +45,22 @@ export default defineComponent({
       required: true
     },
   },
+  emits: ['post-created'],
+  setup() {
+    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
+    return {
+      client,
+    };
+  },
   data(): {
-    title: string | undefined;
-    content: string | undefined;
+    title: string;
+    content: string;
     record: Record | undefined;
     loading: boolean;
   } {
     return { 
-      title: undefined,
-      content: undefined,
+      title: "",
+      content: "",
       record: undefined,
       loading: false,
     }
@@ -48,9 +72,11 @@ export default defineComponent({
   },
   methods: {
     async createPost() {
+      if(!this.isPostValid) return;
+      
       const post: Post = { 
-        title: this.title!,
-        content: this.content!,
+        title: this.title,
+        content: this.content,
       };
 
       try {
@@ -69,13 +95,6 @@ export default defineComponent({
 
       }
     },
-  },
-  emits: ['post-created'],
-  setup() {
-    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
-    return {
-      client,
-    };
   },
 })
 </script>

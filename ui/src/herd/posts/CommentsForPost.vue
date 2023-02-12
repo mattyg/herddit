@@ -1,34 +1,52 @@
 
 <template>
-  <div v-if="loading" class="flex justify-center items-center w-full md:max-w-screen-md">
-    <mwc-circular-progress indeterminate></mwc-circular-progress>
+  <div
+    v-if="loading"
+    class="flex justify-center items-center w-full md:max-w-screen-md"
+  >
+    <mwc-circular-progress indeterminate />
   </div>
   
-  <div v-else class="w-full md:max-w-screen-md">
-    <CreateComment class="mb-8" :dnaHash="dnaHash" :postHash="postHash" @created="fetchComments"/>
+  <div
+    v-else
+    class="w-full md:max-w-screen-md"
+  >
+    <CreateComment
+      class="mb-8"
+      :dna-hash="dnaHash"
+      :post-hash="postHash"
+      @created="fetchComments"
+    />
 
-    <span v-if="error">Error fetching the comments: {{error.data.data}}.</span>
-    <div v-else-if="hashes && hashes.length > 0" class="w-full">
+    <span v-if="error">Error fetching the comments: {{ error.data.data }}.</span>
+    <div
+      v-else-if="hashes && hashes.length > 0"
+      class="w-full"
+    >
       <CommentDetail 
         v-for="hash in hashes" 
-        :dnaHash="dnaHash"
-        :commentHash="hash" 
-        :postAuthorHash="postAuthorHash"
+        :key="encodeHashToBase64(hash)"
+        :dna-hash="dnaHash"
+        :comment-hash="hash" 
+        :post-author-hash="postAuthorHash"
         class="mb-4"
         @deleted="fetchComments"
       />
     </div>
-    <div class="text-gray-400 font-bold text-center" v-else>No comments found for this post.</div>
+    <div
+      v-else
+      class="text-gray-400 font-bold text-center"
+    >
+      No comments found for this post.
+    </div>
   </div>
-
 </template>
 
 <script lang="ts">
 import { defineComponent, inject, ComputedRef, PropType } from 'vue';
-import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash } from '@holochain/client';
+import { AppAgentClient, ActionHash, encodeHashToBase64 } from '@holochain/client';
 import CommentDetail from './CommentDetail.vue';
 import CreateComment from './CreateComment.vue';
-import { error } from 'console';
 
 export default defineComponent({
   components: {
@@ -48,6 +66,12 @@ export default defineComponent({
       type: Object as PropType<Uint8Array>,
       required: true
     }
+  },
+  setup() {
+    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
+    return {
+      client,
+    };
   },
   data(): { hashes: Array<ActionHash> | undefined; loading: boolean; error: any } {
     return {
@@ -74,13 +98,10 @@ export default defineComponent({
       }
 
       this.loading = false;
+    },
+    encodeHashToBase64(val: Uint8Array) {
+      return encodeHashToBase64(val);
     }
-  },
-  setup() {
-    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
-    return {
-      client,
-    };
   },
 })
 </script>

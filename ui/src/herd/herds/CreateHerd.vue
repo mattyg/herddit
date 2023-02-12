@@ -2,41 +2,72 @@
   <div class="w-full flex justify-center my-12">
     <article class="prose w-full md:max-w-screen-lg mx-4">
       <h1>Gather a Herd</h1>
-      <mwc-textfield class="w-full" outlined label="Title" :value="title" @input="title = $event.target.value" required></mwc-textfield>
-      <div class="text-sm mt-1 mb-8">Letters, numbers and underscores only</div>
+      <mwc-textfield
+        class="w-full"
+        outlined
+        label="Title"
+        :value="title"
+        required
+        @input="title = $event.target.value"
+      />
+      <div class="text-sm mt-1 mb-8">
+        Letters, numbers and underscores only
+      </div>
 
-      <div class="flex flex-row justify-start items-center space-x-4 mb-8 cursor-pointer" @click="public = !public">
-        <mwc-checkbox class="w-full w-8" :checked="public"></mwc-checkbox>
-        <div class="flex-1">Announce at The Watering Hole</div>
+      <div
+        class="flex flex-row justify-start items-center space-x-4 mb-8 cursor-pointer"
+        @click="publish = !publish"
+      >
+        <mwc-checkbox
+          class="w-full w-8"
+          :checked="publish"
+        />
+        <div class="flex-1">
+          Announce at The Watering Hole
+        </div>
       </div>
 
       <div>
-      <button 
-        class="btn btn-primary"
-        :disabled="!isHerdValid || creatingHerd"
-        @click="createHerd"
-      >Gather a Herd</button>
-    </div>
-  </article>
+        <button 
+          class="btn btn-primary"
+          :disabled="!isHerdValid || creatingHerd"
+          @click="createHerd"
+        >
+          Gather a Herd
+        </button>
+      </div>
+    </article>
   </div>
-  <HerdPasswordModal :visible="showPasswordModal" :text="password" />
+  <HerdPasswordModal
+    :visible="showPasswordModal"
+    :text="password"
+  />
 </template>
 <script lang="ts">
-import { defineComponent, inject, ComputedRef, PropType, ref } from 'vue';
-import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash, InstalledCell, encodeHashToBase64, ClonedCell, randomByteArray } from '@holochain/client';
+import { defineComponent, inject, ComputedRef, ref } from 'vue';
+import { AppAgentClient, ActionHash, encodeHashToBase64, ClonedCell, randomByteArray } from '@holochain/client';
 import { toast } from 'vue3-toastify';
 import HerdPasswordModal from './HerdPasswordModal.vue';
-import { title } from 'process';
 import { Listing } from '../directory/types';
 
 export default defineComponent({
   components: {
     HerdPasswordModal
   },
+  emits: ['listing-created'],
+  setup() {
+    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
+    const checkboxModal = ref(null);
+
+    return {
+      checkboxModal,
+      client,
+    };
+  },
   data(): {
     title: string;
-    description: string | undefined;
-    public: boolean;
+    description: string;
+    publish: boolean;
     creatingHerd: boolean;
     password: string | undefined;
     showPasswordModal: boolean;
@@ -44,7 +75,7 @@ export default defineComponent({
     return { 
       title: '',
       description: '',
-      public: true,
+      publish: true,
       creatingHerd: false,
       password: undefined,
       showPasswordModal: false,
@@ -74,7 +105,7 @@ export default defineComponent({
           modifiers: {
             network_seed: network_seed,
             properties: {
-              title: this.title!
+              title: this.title
             },
           },
         };
@@ -84,13 +115,13 @@ export default defineComponent({
 
         // Publish Listing about cell
         const listing: Listing = { 
-            title: this.title!,
-            description: this.description!,
+            title: this.title,
+            description: this.description,
             network_seed,
             dna: cloneCell.cell_id[0]
         };
 
-        if(this.public) {   
+        if(this.publish) {   
           await this.createListing(listing);
         } else {
           await this.createPrivateListing(listing);
@@ -123,7 +154,7 @@ export default defineComponent({
   async createPrivateListing(listing: Listing) {
     // Publish listing to private entry
     try {
-      const listing_ah: ActionHash = await this.client.callZome({
+      await this.client.callZome({
         role_name: 'directory',
         zome_name: 'directory',
         fn_name: 'create_private_listing_idempotent',
@@ -150,16 +181,6 @@ export default defineComponent({
       toast.error('Error converting data to mnemonic', e);
     }
   },
-  },
-  emits: ['listing-created'],
-  setup() {
-    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
-    const checkboxModal = ref(null);
-
-    return {
-      checkboxModal,
-      client,
-    };
   },
 })
 </script>

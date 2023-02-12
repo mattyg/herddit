@@ -1,4 +1,4 @@
-import { Record, ActionHash, EntryHash, AgentPubKey } from '@holochain/client';
+import { ActionHash } from '@holochain/client';
 
 
 export interface Post { 
@@ -7,10 +7,8 @@ export interface Post {
 }
 
 
-
 export interface Comment { 
   content: string;
-
   post_ah: ActionHash;
 }
 

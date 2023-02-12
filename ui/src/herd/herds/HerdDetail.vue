@@ -1,41 +1,71 @@
 <template>
-    <div v-if="loading" style="display: flex; flex: 1; align-items: center; justify-content: center">
-        <mwc-circular-progress indeterminate></mwc-circular-progress>
+  <div
+    v-if="loading"
+    style="display: flex; flex: 1; align-items: center; justify-content: center"
+  >
+    <mwc-circular-progress indeterminate />
+  </div>
+
+  <div
+    v-else
+    class="w-full"
+  >
+    <div class="h-16 sticky top-0 w-full flex flex-row justify-between items-center shadow-md space-x-4 px-8 bg-base-100 z-30">
+      <div class="flex flex-row justify-start items-center space-x-2">
+        <mwc-icon
+          v-if="isPrivate"
+          class="text-gray-400 text-3xl"
+        >
+          visibility_off
+        </mwc-icon>
+        <RouterLink
+          :to="`/herds/${$route.params.listingHashString}`"
+          class="text-3xl"
+        >
+          h/{{ herdInfo?.title }}
+        </RouterLink>
+      </div>
+      <div class="flex-row justify-between items-center space-x-12">
+        <div
+          class="btn btn-secondary btn-xs"
+          @click="leaveHerd()"
+        >
+          Leave the Herd
+        </div>
+        <RouterLink
+          :to="`/herds/${$route.params.listingHashString}/posts/create`"
+          class="btn btn-primary btn-sm"
+        >
+          Call to {{ listing?.title }}
+        </RouterLink>
+      </div>
     </div>
 
-    <div v-else class="w-full">
-        <div class="h-16 sticky top-0 w-full flex flex-row justify-between items-center shadow-md space-x-4 px-8 bg-base-100 z-30">
-            <div class="flex flex-row justify-start items-center space-x-2">
-                <mwc-icon class="text-gray-400 text-3xl" v-if="isPrivate">visibility_off</mwc-icon>
-                <RouterLink :to="`/herds/${$route.params.listingHashString}`" class="text-3xl">h/{{ herdInfo?.title }}</RouterLink>
-            </div>
-            <div class="flex-row justify-between items-center space-x-12">
-                <div class="btn btn-secondary btn-xs" @click="leaveHerd()">Leave the Herd</div>
-                <RouterLink :to="`/herds/${$route.params.listingHashString}/posts/create`" class="btn btn-primary btn-sm">Call to {{listing?.title}}</RouterLink>
-            </div>
-        </div>
-
-        <div class="w-full flex justify-center" v-if="listing">
-            <div class="w-full md:max-w-screen-xl my-16 z-10">
-                <RouterView :dnaHash="listing.dna"></RouterView>
-             </div>
-        </div>
+    <div
+      v-if="listing"
+      class="w-full flex justify-center"
+    >
+      <div class="w-full md:max-w-screen-xl my-16 z-10">
+        <RouterView :dna-hash="listing.dna" />
+      </div>
     </div>
+  </div>
 </template>
 
 <script lang="ts">
 import { AppAgentClient, CellId, Record, encodeHashToBase64, decodeHashFromBase64, ClonedCell } from '@holochain/client';
 import { decode } from '@msgpack/msgpack';
-import { ComputedRef, defineComponent, inject, PropType } from 'vue'
+import { ComputedRef, defineComponent, inject } from 'vue'
 import { Listing } from '../directory/types';
-import AllPosts from '../posts/AllPosts.vue';
 import { isEqual } from 'lodash';
-import { RouterLink, RouterView } from 'vue-router';
 import { toast } from 'vue3-toastify';
 
 export default defineComponent({
-    components: {
-        AllPosts
+    setup() {
+        const client = (inject('client') as ComputedRef<AppAgentClient>).value;
+        return {
+          client,
+        };
     },
     data(): { record: Record | undefined; listing?: Listing; loading: boolean; editing: boolean; herdInfo: any; cellInstalled: boolean} {
         return {
@@ -124,7 +154,7 @@ export default defineComponent({
             if(!this.listing) return;
 
             const appInfo = await this.client.appInfo();
-            let cellInfo = appInfo.cell_info.herd.find((cell) => {  
+            const cellInfo = appInfo.cell_info.herd.find((cell) => {  
                 // @ts-ignore  
                 return cell.cloned && isEqual(cell.cloned.cell_id[0], this.listing?.dna)
             });
@@ -194,12 +224,6 @@ export default defineComponent({
 
             this.$router.push('/');
         }
-    },
-    setup() {
-        const client = (inject('client') as ComputedRef<AppAgentClient>).value;
-        return {
-          client,
-        };
     },
 })
 </script>

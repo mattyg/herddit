@@ -1,4 +1,4 @@
-import { Record, DnaHash, EntryHash, AgentPubKey } from '@holochain/client';
+import { DnaHash } from '@holochain/client';
 
 
 export interface Listing { 

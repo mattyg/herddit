@@ -1,31 +1,57 @@
 <template>
   <div v-if="record">
-    <div v-if="isDeleted" class="w-full bg-base-200 px-8 py-4 space-x-8 text-gray-400 font-bold">
+    <div
+      v-if="isDeleted"
+      class="w-full bg-base-200 px-8 py-4 space-x-8 text-gray-400 font-bold"
+    >
       <div>Call deleted by author</div>
     </div>
-    <div v-else-if="votesCount >= 0 || showIfVoteNegative" class="w-full flex flex-row justify-start items-center bg-base-200 px-8 py-4 space-x-8">
+    <div
+      v-else-if="votesCount >= 0 || showIfVoteNegative"
+      class="w-full flex flex-row justify-start items-center bg-base-200 px-8 py-4 space-x-8"
+    >
       <PostVotes 
         :votes="votesCount" 
-        :dnaHash="dnaHash" 
-        :postHash="postHash"
+        :dna-hash="dnaHash" 
+        :post-hash="postHash"
+        size="sm"
         @upvote="fetchPost()"
         @downvote="fetchPost()"
-        size="sm"
       />
-      <RouterLink :to="`${$route.fullPath}/posts/${postHashString}`" class="w-full flex flex-col space-y-1">
-        <div class="w-full text-3xl mb-4">{{ post?.title }}</div>
-        <div class="flex flex-row items-center justify-between" v-if="authorHash">
+      <RouterLink
+        :to="`${$route.fullPath}/posts/${postHashString}`"
+        class="w-full flex flex-col space-y-1"
+      >
+        <div class="w-full text-3xl mb-4">
+          {{ post?.title }}
+        </div>
+        <div
+          v-if="authorHash"
+          class="flex flex-row items-center justify-between"
+        >
           <div class="text-md text-gray-400 font-bold">
-            Submitted {{dateRelative}} 
+            Submitted {{ dateRelative }} 
           </div>
 
-          <AgentProfile :agentPubKey="authorHash" size="sm" :muted="true" /> 
+          <AgentProfile
+            :agent-pub-key="authorHash"
+            size="sm"
+            :muted="true"
+          /> 
         </div>
       </RouterLink>
     </div>
-    <div v-else class="w-full flex flex-row justify-between items-center bg-base-200 px-8 py-4 space-x-8 text-gray-400 font-bold">
+    <div
+      v-else
+      class="w-full flex flex-row justify-between items-center bg-base-200 px-8 py-4 space-x-8 text-gray-400 font-bold"
+    >
       <div>Call trampled by the herd</div>
-      <button class="btn btn-ghost btn-xs" @click="showIfVoteNegative = true">Take a look</button>
+      <button
+        class="btn btn-ghost btn-xs"
+        @click="showIfVoteNegative = true"
+      >
+        Take a look
+      </button>
     </div>
   </div>
 </template>
@@ -33,7 +59,7 @@
 <script lang="ts">
 import { defineComponent, inject, ComputedRef, PropType } from 'vue';
 import { decode } from '@msgpack/msgpack';
-import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash, encodeHashToBase64, decodeHashFromBase64 } from '@holochain/client';
+import { AppAgentClient, Record, encodeHashToBase64 } from '@holochain/client';
 import { Post } from './types';
 import PostVotes from './PostVotes.vue';
 import AgentProfile from '../profiles/AgentProfile.vue';
@@ -55,6 +81,12 @@ export default defineComponent({
       type: Object as PropType<Uint8Array>,
       required: true
     }
+  },
+  setup() {
+    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
+    return {
+      client
+    };
   },
   data(): { record: Record | undefined; loading: boolean; editing: boolean; votesCount: number; showIfVoteNegative: boolean; } {
     return {
@@ -118,12 +150,6 @@ export default defineComponent({
 
       this.loading = false;
     },
-  },
-  setup() {
-    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
-    return {
-      client
-    };
   },
 })
 </script>

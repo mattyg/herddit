@@ -1,7 +1,16 @@
 <template>
-  <RouterLink :to="`/herds/${listingHashString}`" v-if="!loading && listing" :class="{'bg-neutral-200 rounded-full py-1 px-3': isPrivate}">
+  <RouterLink
+    v-if="!loading && listing"
+    :to="`/herds/${listingHashString}`"
+    :class="{'bg-neutral-200 rounded-full py-1 px-3': isPrivate}"
+  >
     <div class="flex flex-row items-center space-x-1">
-      <mwc-icon class="text-gray-400 text-lg" v-if="isPrivate">visibility_off</mwc-icon>
+      <mwc-icon
+        v-if="isPrivate"
+        class="text-gray-400 text-lg"
+      >
+        visibility_off
+      </mwc-icon>
       <span class="text-lg no-underline hover:underline cursor-pointer">{{ listing.title }}</span>      
     </div>
   </RouterLink>
@@ -10,9 +19,8 @@
 <script lang="ts">
 import { defineComponent, inject, ComputedRef, PropType } from 'vue';
 import { decode } from '@msgpack/msgpack';
-import { AppAgentClient, Record, AgentPubKey, EntryHash, ActionHash, encodeHashToBase64, decodeHashFromBase64 } from '@holochain/client';
+import { AppAgentClient, Record, encodeHashToBase64 } from '@holochain/client';
 import { Listing } from './types';
-import { RouterLink } from 'vue-router';
 import { toast } from 'vue3-toastify';
 
 export default defineComponent({
@@ -21,6 +29,12 @@ export default defineComponent({
       type: Object as PropType<Uint8Array>,
       required: true
     }
+  },
+  setup() {
+    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
+    return {
+      client
+    };
   },
   data(): { record: Record | undefined; loading: boolean; editing: boolean; } {
     return {
@@ -63,17 +77,11 @@ export default defineComponent({
         payload: this.listingHash,
       });
       
-      } catch(e:any) {
+      } catch(e: any) {
         toast.error('Error getting listing: ', e.data.data)
       }
       this.loading = false;
     },
-  },
-  setup() {
-    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
-    return {
-      client
-    };
   },
 })
 </script>

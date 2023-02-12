@@ -4,9 +4,10 @@
       class="text-2xl font-bold text-gray-400"
       :class="{'text-lg': size === 'sm', 'text-blue-500': myVote === 1 }"
       icon="arrow_upward"
-      @click="$emit('upvote')">
-    </mwc-icon-button>
-    <div class="text-2xl text-gray-400 font-bold"
+      @click="$emit('upvote')"
+    />
+    <div
+      class="text-2xl text-gray-400 font-bold"
       :class="{'text-lg': size === 'sm'}"
     >
       {{ votes }}
@@ -15,8 +16,8 @@
       class="text-2xl font-bold text-gray-400"
       :class="{'text-lg': size === 'sm', 'text-blue-500': myVote === -1}"
       icon="arrow_downward"
-      @click="$emit('downvote')">
-    </mwc-icon-button>
+      @click="$emit('downvote')"
+    />
   </div>
 </template>
 
@@ -26,14 +27,18 @@ import { defineComponent } from 'vue'
 export default defineComponent({
   props: {
     votes: {
+      type: Number,
       default: 0
     },
     myVote: {
+      type: Number,
       default: 0
     },
     size: {
+      type: String,
       default: 'lg'
     }
-  }
+  },
+  emits: ['upvote', 'downvote']
 })
 </script>

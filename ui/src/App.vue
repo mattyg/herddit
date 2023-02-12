@@ -1,52 +1,91 @@
 <template>
-    <div v-if="loading" class="h-screen flex justify-center items-center">
-      <span class="h-16 w-16 block rounded-full border-t-4 border-white-300 animate-spin z-40"></span>
-    </div>
+  <div
+    v-if="loading"
+    class="h-screen flex justify-center items-center"
+  >
+    <span class="h-16 w-16 block rounded-full border-t-4 border-white-300 animate-spin z-40" />
+  </div>
 
-    <div v-else class="w-full">
-      <profiles-context :store="profilesStore" >
-        <HomeNavbar :profile="profile" />
+  <div
+    v-else
+    class="w-full"
+  >
+    <profiles-context :store="profilesStore">
+      <HomeNavbar :profile="profile" />
 
-        <div class="min-h-screen  w-full flex justify-center items-center" v-if="!profile">
-          <create-profile @profile-created="createProfile"/>
+      <div
+        v-if="!profile"
+        class="min-h-screen  w-full flex justify-center items-center"
+      >
+        <create-profile @profile-created="createProfile" />
+      </div>
+      <div
+        v-else
+        class="min-h-screen w-full"
+      >
+        <RouterView />
+      </div>
+
+      <footer class="footer p-10 bg-neutral text-neutral-content">
+        <div>
+          <div class="text-4xl font-bold">
+            herddit
+          </div> 
+          <div class="text-lg">
+            find your herd
+          </div> 
         </div>
-        <div v-else class="min-h-screen w-full">
-          <RouterView></RouterView>
-        </div>
-
-        <footer class="footer p-10 bg-neutral text-neutral-content">
-          <div>
-            <div class="text-4xl font-bold">herddit</div> 
-            <div class="text-lg">find your herd</div> 
-          </div>
-        </footer>
-      </profiles-context>
-    </div>
+      </footer>
+    </profiles-context>
+  </div>
   
-    <input type="checkbox" id="join-herd-modal" v-model="joinHerdModalVisible" className="modal-toggle" />
-    <label htmlFor="join-herd-modal" className="modal cursor-pointer">
-      <label className="modal-box relative" htmlFor="">
-        <div class="prose">
+  <input
+    id="join-herd-modal"
+    v-model="joinHerdModalVisible"
+    type="checkbox"
+    className="modal-toggle"
+  >
+  <label
+    htmlFor="join-herd-modal"
+    className="modal cursor-pointer"
+  >
+    <label
+      className="modal-box relative"
+      htmlFor=""
+    >
+      <div class="prose">
         <h3>Enter Secret Herd-Word:</h3>
-        <mwc-textarea class="w-full h-32" v-model="herd_password" outlined></mwc-textarea>
+        <mwc-textarea
+          v-model="herd_password"
+          class="w-full h-32"
+          outlined
+        />
         <div class="modal-action">
-          <button class="btn btn-primary bn-sm" @click="joinPrivateHerd">Join Secret Herd</button>
+          <button
+            class="btn btn-primary bn-sm"
+            @click="joinPrivateHerd"
+          >Join Secret Herd</button>
         </div>
       </div>
-      </label>
     </label>
+  </label>
 </template>
 <script lang="ts">
 import { defineComponent, computed } from 'vue';
-import { AppWebsocket, ActionHash, AppAgentClient, AppAgentWebsocket, decodeHashFromBase64 } from '@holochain/client';
+import { AppAgentClient, AppAgentWebsocket } from '@holochain/client';
 import HomeNavbar from './components/HomeNavbar.vue';
-import { ProfilesStore, ProfilesClient, ProfilePrompt, ProfilesContext, Profile } from "@holochain-open-dev/profiles";
-import { RouterView } from 'vue-router';
+import { ProfilesStore, ProfilesClient, Profile } from "@holochain-open-dev/profiles";
 import { toast } from 'vue3-toastify';
 
 export default defineComponent({
   components: {
     HomeNavbar
+  },
+  provide() {
+    return {
+      client: computed(() => this.client),
+      profilesStore: computed(() => this.profilesStore)
+    };
   },
   data(): {
     client?: AppAgentClient;
@@ -116,12 +155,6 @@ export default defineComponent({
         this.profile = profile;
       }
     }
-  },
-  provide() {
-    return {
-      client: computed(() => this.client),
-      profilesStore: computed(() => this.profilesStore)
-    };
   },
 });
 </script>

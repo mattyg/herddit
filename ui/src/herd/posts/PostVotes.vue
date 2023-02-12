@@ -2,9 +2,9 @@
   <BaseVoteInput 
     :size="size"
     :votes="votes"
-    :dnaHash="dnaHash"
-    :commentHash="postHash"
-    :myVote="myVote"
+    :dna-hash="dnaHash"
+    :comment-hash="postHash"
+    :my-vote="myVote"
     @upvote="upvote"
     @downvote="downvote"
   />
@@ -12,7 +12,6 @@
 
 <script lang="ts">
 import { AppAgentClient } from '@holochain/client';
-import { size } from 'lodash';
 import { ComputedRef, defineComponent, inject, PropType } from 'vue'
 import { toast } from 'vue3-toastify';
 import BaseVoteInput from '../../components/BaseVoteInput.vue';
@@ -31,11 +30,20 @@ export default defineComponent({
       required: true
     },
     votes: {
+      type: Number,
       default: 0
     },
     size: {
+      type: String,
       default: "lg"
     }
+  },
+  emits: ['upvote', 'downvote'],
+  setup() {
+    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
+    return {
+      client
+    };
   },
   data(): { myVote?: number; } {
     return {
@@ -99,13 +107,7 @@ export default defineComponent({
         toast.error(`Failed to downvote post: ${e.data.data}`);
       }
     },
-  },
-  setup() {
-    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
-    return {
-      client
-    };
-  },
+  }
 })
 </script>
 
