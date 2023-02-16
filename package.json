@@ -19,7 +19,7 @@
     "playground": "holochain-playground"
   },
   "devDependencies": {
-    "@holochain-playground/cli": "^0.1.0",
+    "@holochain-playground/cli": "^0.1.1",
     "@typescript-eslint/eslint-plugin": "^5.50.0",
     "concurrently": "^6.2.1",
     "eslint": "^8.33.0",
