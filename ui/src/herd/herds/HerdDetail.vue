@@ -4,7 +4,9 @@
     class="h-screen flex flex-col flex-1 justify-center items-center space-y-4"
   >
     <mwc-circular-progress indeterminate />
-    <p>Finding the herd...</p>
+    <p class="text-xl font-bold text-gray-400">
+      Wandering into the herd...
+    </p>
   </div>
 
   <div
