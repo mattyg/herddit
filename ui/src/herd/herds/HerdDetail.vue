@@ -1,9 +1,10 @@
 <template>
   <div
     v-if="loading"
-    style="display: flex; flex: 1; align-items: center; justify-content: center"
+    class="h-screen flex flex-col flex-1 justify-center items-center space-y-4"
   >
     <mwc-circular-progress indeterminate />
+    <p>Finding the herd...</p>
   </div>
 
   <div
