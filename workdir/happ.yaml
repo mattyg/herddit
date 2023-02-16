@@ -6,7 +6,7 @@ roles:
   - name: herd
     provisioning:
       strategy: create
-      deferred: false
+      deferred: true
     dna:
       bundled: "../dnas/herd/workdir/herd.dna"
       modifiers:
