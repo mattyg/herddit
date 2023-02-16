@@ -52,6 +52,7 @@ pub fn validate_agent_joining(
 #[hdk_extern]
 #[allow(dead_code)]
 pub fn validate(_op: Op) -> ExternResult<ValidateCallbackResult> {
+    // TODO: Re-enable validation after resolution of https://github.com/holochain/holochain/issues/1861
     /*
     match op.to_type::<EntryTypes, LinkTypes>()? {
         OpType::StoreEntry(store_entry) => {
