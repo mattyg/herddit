@@ -13,7 +13,7 @@
     <div v-else-if="record">
       <div
         v-if="upvotes - downvotes >= 0 || showIfVoteNegative"
-        class="flex flex-row items-center"
+        class="flex flex-row items-start"
       >
         <CommentVotes 
           :votes="upvotes - downvotes" 
@@ -23,10 +23,13 @@
           @downvote="fetchComment"
         />
         <div class="py-2 px-4 flex-1">
-          <div class="flex flex-row justify-start items-end mb-2">
-            <div class="flex flex-1 pre-line prose-2xl">
-              {{ comment?.content }}
-            </div>
+          <div class="flex flex-row justify-between items-start mb-2">
+            <!-- eslint-disable vue/no-v-html -->
+            <div
+              class="prose-sm md:prose-md"
+              v-html="commentContent"
+            />
+            <!-- eslint-enable vue/no-v-html -->
             <div v-if="isMyComment">
               <mwc-icon-button
                 class="text-gray-400"
@@ -96,6 +99,7 @@ import dayjs from 'dayjs';
 import { toast } from 'vue3-toastify';
 import { isEqual } from 'lodash';
 import CommentVotes from './CommentVotes.vue';
+import { marked } from 'marked';
 
 export default defineComponent({
   components: {
@@ -148,6 +152,11 @@ export default defineComponent({
     comment() {
       if (!this.record?.entry) return undefined;
       return decode((this.record.entry as any).Present.entry) as Comment;
+    },
+    commentContent() {
+      if(!this.comment?.content) return undefined;
+
+      return marked(this.comment?.content);
     },
     authorPubKey() {
       if (!this.record) return undefined;
