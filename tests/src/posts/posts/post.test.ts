@@ -37,9 +37,10 @@ test('create post', async t => {
     });
     t.assert(record);
 
-  });
+  },
+  true,
+  { timeout: 25000 });
 });
-
 
 test('create and read post', async t => {
   await runScenario(async scenario => {
@@ -82,7 +83,9 @@ test('create and read post', async t => {
       payload: record.signed_action.hashed.hash,
     });
     assert.deepEqual(createInput, decode((createReadOutput.entry as any).Present.entry) as any);
-  });
+  },
+  true,
+  { timeout: 25000 });
 });
 
 test('create and update post', async t => {
@@ -179,7 +182,9 @@ test('create and update post', async t => {
     });
     assert.deepEqual(contentUpdate, decode((readUpdatedOutput1.entry as any).Present.entry) as any);
 
-  });
+  },
+  true,
+  { timeout: 25000 });
 });
 
 test('create and delete post', async t => {
@@ -233,5 +238,130 @@ test('create and delete post', async t => {
     });
     assert.deepEqual(deletedRecord.signed_action.hashed.hash, deleteActionHash);
 
-  });
+  },
+  true,
+  { timeout: 25000 });
+});
+
+
+test('get_all_posts_sorted_by_votes sorts by number of votes desc, then timestamp asc', async t => {
+  await runScenario(async scenario => {
+
+    // Construct proper paths for your app.
+    // This assumes app bundle created by the `hc app pack` command.
+    const testAppPath = process.cwd() + '/' + "../workdir/herddit.happ";
+
+    // Set up the app to be installed 
+    const appSource = { appBundleSource: { path: testAppPath } };
+
+    // Add 2 players with the test app to the Scenario. The returned players
+    // can be destructured.
+    const [alice, bob, jane, john] = await scenario.addPlayersWithApps([appSource, appSource, appSource, appSource]);
+
+    // Shortcut peer discovery through gossip and register all agents in every
+    // conductor of the scenario.
+    await scenario.shareAllAgents();
+
+    const createInput = {
+      title: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec eros quis enim hendrerit aliquet.',
+      content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec eros quis enim hendrerit aliquet.',
+    };
+
+    // John creates a post
+    const record3: Record = await john.namedCells.get('herd').callZome({
+      zome_name: "posts",
+      fn_name: "create_post",
+      payload: createInput,
+    });
+    t.assert(record3);
+    
+    // Alice creates a post
+    const record: Record = await alice.namedCells.get('herd').callZome({
+      zome_name: "posts",
+      fn_name: "create_post",
+      payload: createInput,
+    });
+    t.assert(record);
+
+    // John creates a post
+    const record2: Record = await john.namedCells.get('herd').callZome({
+      zome_name: "posts",
+      fn_name: "create_post",
+      payload: createInput,
+    });
+    t.assert(record2);
+
+    // Bob creates a post
+    const record4: Record = await bob.namedCells.get('herd').callZome({
+      zome_name: "posts",
+      fn_name: "create_post",
+      payload: createInput,
+    });
+    t.assert(record4);
+
+    // Alice, bob, jane, john upvote alice's post
+    await alice.namedCells.get('herd').callZome({
+      zome_name: "posts",
+      fn_name: "upvote_post",
+      payload: record.signed_action.hashed.hash,
+    });
+    await bob.namedCells.get('herd').callZome({
+      zome_name: "posts",
+      fn_name: "upvote_post",
+      payload: record.signed_action.hashed.hash,
+    });
+    await jane.namedCells.get('herd').callZome({
+      zome_name: "posts",
+      fn_name: "upvote_post",
+      payload: record.signed_action.hashed.hash,
+    });
+    await john.namedCells.get('herd').callZome({
+      zome_name: "posts",
+      fn_name: "upvote_post",
+      payload: record.signed_action.hashed.hash,
+    });
+
+    // Alice, bob upvote bob's post
+    await alice.namedCells.get('herd').callZome({
+      zome_name: "posts",
+      fn_name: "upvote_post",
+      payload: record4.signed_action.hashed.hash,
+    });
+    await bob.namedCells.get('herd').callZome({
+      zome_name: "posts",
+      fn_name: "upvote_post",
+      payload: record4.signed_action.hashed.hash,
+    });
+
+    await pause(2000);
+    
+    // All agents see the same post ordering
+    const alice_posts_sorted = await alice.namedCells.get('herd').callZome({
+      zome_name: "posts",
+      fn_name: "get_all_posts_sorted_by_votes",
+    });
+    t.deepEqual(alice_posts_sorted, [record.signed_action.hashed.hash, record3.signed_action.hashed.hash, record2.signed_action.hashed.hash])
+    
+    const bob_posts_sorted = await bob.namedCells.get('herd').callZome({
+      zome_name: "posts",
+      fn_name: "get_all_posts_sorted_by_votes",
+    });
+    t.deepEqual(bob_posts_sorted, [record.signed_action.hashed.hash, record3.signed_action.hashed.hash, record2.signed_action.hashed.hash])
+
+    const jane_posts_sorted = await jane.namedCells.get('herd').callZome({
+      zome_name: "posts",
+      fn_name: "get_all_posts_sorted_by_votes",
+    });
+    t.deepEqual(jane_posts_sorted, [record.signed_action.hashed.hash, record3.signed_action.hashed.hash, record2.signed_action.hashed.hash])
+
+    const john_posts_sorted = await john.namedCells.get('herd').callZome({
+      zome_name: "posts",
+      fn_name: "get_all_posts_sorted_by_votes",
+    });
+    t.deepEqual(john_posts_sorted, [record.signed_action.hashed.hash, record3.signed_action.hashed.hash, record2.signed_action.hashed.hash])
+        
+  },
+  true,
+  { timeout: 100000 }
+  );
 });

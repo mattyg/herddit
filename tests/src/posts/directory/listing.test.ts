@@ -9,7 +9,6 @@ import {
   fakeDnaHash,
 } from "@holochain/client";
 import { decode } from "@msgpack/msgpack";
-import sleep from 'sleep-promise';
 
 test("create listing", async (t) => {
     await runScenario(

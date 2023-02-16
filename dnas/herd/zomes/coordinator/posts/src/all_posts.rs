@@ -40,8 +40,8 @@ pub fn get_all_posts_sorted_by_votes(_: ()) -> ExternResult<Vec<ActionHash>> {
         let b_value = (b.upvotes - b.downvotes) as isize;
         
         if a_value == b_value {
-            // If values equal, order by record timestamp, desc
-            return b.record.action().timestamp().cmp(&a.record.action().timestamp());
+            // If votes equal, order by record timestamp, asc
+            return a.record.action().timestamp().cmp(&b.record.action().timestamp());
         } else {
             // Order by highest value, desc
             return b_value.cmp(&a_value);
