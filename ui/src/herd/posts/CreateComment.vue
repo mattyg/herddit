@@ -76,6 +76,15 @@ export default defineComponent({
           fn_name: 'create_comment',
           payload: comment,
         });
+
+        // Upvote my comment
+        await this.client.callZome({
+          cell_id: [this.dnaHash, this.client.myPubKey],
+          zome_name: 'posts',
+          fn_name: 'upvote_comment',
+          payload: record.signed_action.hashed.hash,
+        });
+
         this.$emit('created', record.signed_action.hashed.hash);
         this.content = "";
       } catch (e: any) {

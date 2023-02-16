@@ -82,12 +82,19 @@ export default defineComponent({
       try {
         const record: Record = await this.client.callZome({
           cell_id: [this.dnaHash, this.client.myPubKey],
-          cap_secret: null,
           zome_name: 'posts',
           fn_name: 'create_post',
           payload: post,
         });
       
+        // Upvote my post
+        await this.client.callZome({
+          cell_id: [this.dnaHash, this.client.myPubKey],
+          zome_name: 'posts',
+          fn_name: 'upvote_post',
+          payload: record.signed_action.hashed.hash,
+        });
+
         this.$emit('post-created', record.signed_action.hashed.hash);
         this.$router.push(`/herds/${this.$route.params.listingHashString}/posts/${encodeHashToBase64(record.signed_action.hashed.hash)}`);
       } catch (e: any) {
