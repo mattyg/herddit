@@ -4,16 +4,32 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "foreach -g \"**/*.test.ts\" -x \"NODE_NO_WARNINGS=1 ts-node-test #{path}\" --no-C"
+    "test": "NODE_NO_WARNINGS=1 TRYORAMA_LOG_LEVEL=warn RUST_LOG=warn ava -s -c 1 --fail-fast --timeout=2m",
+    "test-ts-node": "foreach -g \"**/*.test.ts\" -x \"NODE_NO_WARNINGS=1 ts-node-test #{path}\" --no-C"
   },
   "author": "",
   "license": "CAL-1.0",
   "dependencies": {
+    "@holochain/client": "^0.12.2",
+    "@holochain/tryorama": "^0.11.2",
     "@msgpack/msgpack": "^2.7.0",
-    "@holochain/client": "^0.11.9",
-    "@holochain/tryorama": "^0.10.1",
     "foreach-cli": "^1.8.1",
+    "sleep-promise": "^9.1.0",
     "ts-node-test": "^0.2.0"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "@istanbuljs/esm-loader-hook": "^0.2.0",
+    "ava": "^5.2.0",
+    "bob-ts": "^4.1.1",
+    "tap": "^16.3.4"
+  },
+  "ava": {
+    "extensions": {
+      "ts": "module"
+    },
+    "nodeArguments": [
+      "--loader=ts-node/esm"
+    ]
+  }
 }

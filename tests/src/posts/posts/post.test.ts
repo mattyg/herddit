@@ -1,5 +1,4 @@
-
-import test from 'node:test';
+import test from 'ava';
 import assert from 'node:assert';
 
 import { runScenario, pause } from '@holochain/tryorama';
@@ -7,7 +6,7 @@ import { NewEntryAction, ActionHash, Record, AppBundleSource } from '@holochain/
 import { decode } from '@msgpack/msgpack';
 
 
-test('create post', { concurrency: 1 }, async t => {
+test('create post', async t => {
   await runScenario(async scenario => {
 
     // Construct proper paths for your app.
@@ -25,25 +24,24 @@ test('create post', { concurrency: 1 }, async t => {
     // conductor of the scenario.
     await scenario.shareAllAgents();
 
-
     const createInput = {
-  title: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec eros quis enim hendrerit aliquet.',
-  content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec eros quis enim hendrerit aliquet.',
-};
+      title: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec eros quis enim hendrerit aliquet.',
+      content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec eros quis enim hendrerit aliquet.',
+    };
 
     // Alice creates a post
-    const record: Record = await alice.cells[0].callZome({
+    const record: Record = await alice.namedCells.get('herd').callZome({
       zome_name: "posts",
       fn_name: "create_post",
       payload: createInput,
     });
-    assert.ok(record);
+    t.assert(record);
 
   });
 });
 
 
-test('create and read post', { concurrency: 1 }, async t => {
+test('create and read post', async t => {
   await runScenario(async scenario => {
 
     // Construct proper paths for your app.
@@ -67,18 +65,18 @@ test('create and read post', { concurrency: 1 }, async t => {
 };
 
     // Alice creates a post
-    const record: Record = await alice.cells[0].callZome({
+    const record: Record = await alice.namedCells.get('herd').callZome({
       zome_name: "posts",
       fn_name: "create_post",
       payload: createInput,
     });
-    assert.ok(record);
+    t.assert(record);
     
     // Wait for the created entry to be propagated to the other node.
-    await pause(800);
+    await pause(2000);
 
     // Bob gets the created post
-    const createReadOutput: Record = await bob.cells[0].callZome({
+    const createReadOutput: Record = await bob.namedCells.get('herd').callZome({
       zome_name: "posts",
       fn_name: "get_post",
       payload: record.signed_action.hashed.hash,
@@ -87,7 +85,7 @@ test('create and read post', { concurrency: 1 }, async t => {
   });
 });
 
-test('create and update post', { concurrency: 1 }, async t => {
+test('create and update post', async t => {
   await runScenario(async scenario => {
 
     // Construct proper paths for your app.
@@ -111,12 +109,12 @@ test('create and update post', { concurrency: 1 }, async t => {
 };
 
     // Alice creates a post
-    const record: Record = await alice.cells[0].callZome({
+    const record: Record = await alice.namedCells.get('herd').callZome({
       zome_name: "posts",
       fn_name: "create_post",
       payload: createInput,
     });
-    assert.ok(record);
+    t.assert(record);
         
     const originalActionHash = record.signed_action.hashed.hash;
  
@@ -131,19 +129,19 @@ test('create and update post', { concurrency: 1 }, async t => {
       updated_post: contentUpdate,
     };
 
-    let updatedRecord: Record = await alice.cells[0].callZome({
+    let updatedRecord: Record = await alice.namedCells.get('herd').callZome({
       zome_name: "posts",
       fn_name: "update_post",
       payload: updateInput,
     });
-    assert.ok(updatedRecord);
+    t.assert(updatedRecord);
 
 
     // Wait for the updated entry to be propagated to the other node.
-    await pause(800);
+    await pause(2000);
         
     // Bob gets the updated post
-    const readUpdatedOutput0: Record = await bob.cells[0].callZome({
+    const readUpdatedOutput0: Record = await bob.namedCells.get('herd').callZome({
       zome_name: "posts",
       fn_name: "get_post",
       payload: updatedRecord.signed_action.hashed.hash,
@@ -162,19 +160,19 @@ test('create and update post', { concurrency: 1 }, async t => {
       updated_post: contentUpdate,
     };
 
-    updatedRecord = await alice.cells[0].callZome({
+    updatedRecord = await alice.namedCells.get('herd').callZome({
       zome_name: "posts",
       fn_name: "update_post",
       payload: updateInput,
     });
-    assert.ok(updatedRecord);
+    t.assert(updatedRecord);
 
 
     // Wait for the updated entry to be propagated to the other node.
-    await pause(800);
+    await pause(2000);
         
     // Bob gets the updated post
-    const readUpdatedOutput1: Record = await bob.cells[0].callZome({
+    const readUpdatedOutput1: Record = await bob.namedCells.get('herd').callZome({
       zome_name: "posts",
       fn_name: "get_post",
       payload: updatedRecord.signed_action.hashed.hash,
@@ -184,7 +182,7 @@ test('create and update post', { concurrency: 1 }, async t => {
   });
 });
 
-test('create and delete post', { concurrency: 1 }, async t => {
+test('create and delete post', async t => {
   await runScenario(async scenario => {
 
     // Construct proper paths for your app.
@@ -203,37 +201,37 @@ test('create and delete post', { concurrency: 1 }, async t => {
     await scenario.shareAllAgents();
 
     const createInput = {
-  title: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec eros quis enim hendrerit aliquet.',
-  content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec eros quis enim hendrerit aliquet.',
-};
+      title: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec eros quis enim hendrerit aliquet.',
+      content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec eros quis enim hendrerit aliquet.',
+    };
 
     // Alice creates a post
-    const record: Record = await alice.cells[0].callZome({
+    const record: Record = await alice.namedCells.get('herd').callZome({
       zome_name: "posts",
       fn_name: "create_post",
       payload: createInput,
     });
-    assert.ok(record);
+    t.assert(record);
         
     // Alice deletes the post
-    const deleteActionHash = await alice.cells[0].callZome({
+    const deleteActionHash = await alice.namedCells.get('herd').callZome({
       zome_name: "posts",
       fn_name: "delete_post",
       payload: record.signed_action.hashed.hash,
     });
-    assert.ok(deleteActionHash);
+    t.assert(deleteActionHash);
 
 
     // Wait for the entry deletion to be propagated to the other node.
-    await pause(800);
+    await pause(2000);
         
     // Bob tries to get the deleted post
-    const readDeletedOutput = await bob.cells[0].callZome({
+    const deletedRecord: Record = await bob.namedCells.get('herd').callZome({
       zome_name: "posts",
       fn_name: "get_post",
       payload: record.signed_action.hashed.hash,
     });
-    assert.equal(readDeletedOutput, undefined);
+    assert.deepEqual(deletedRecord.signed_action.hashed.hash, deleteActionHash);
 
   });
 });
