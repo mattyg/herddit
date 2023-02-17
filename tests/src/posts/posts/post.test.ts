@@ -2,7 +2,7 @@ import test from 'ava';
 import assert from 'node:assert';
 
 import { runScenario, pause } from '@holochain/tryorama';
-import { NewEntryAction, ActionHash, Record, AppBundleSource } from '@holochain/client';
+import { Record } from '@holochain/client';
 import { decode } from '@msgpack/msgpack';
 
 
