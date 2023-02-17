@@ -54,8 +54,9 @@ pub enum LinkTypes {
     MyVotedComments,
     CommentVoteByAgent,
 }
-
 #[hdk_extern]
-pub fn genesis_self_check(_data: GenesisSelfCheckData) -> ExternResult<ValidateCallbackResult> {
+pub fn genesis_self_check(
+    _data: GenesisSelfCheckData,
+) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }
