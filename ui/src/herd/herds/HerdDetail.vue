@@ -210,7 +210,7 @@ export default defineComponent({
                     payload: null,
                 });
             } catch (e: any) {
-                toast.error(`Error creating the herd cell: ${e}`);
+                toast.error(`Error fetching the herd cell info: ${e?.data?.data}`);
             }
         },
         async leaveHerd() {
