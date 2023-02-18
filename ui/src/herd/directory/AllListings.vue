@@ -17,7 +17,7 @@
         
       <div
         v-if="hashes && hashes.length > 0"
-        clas="flex flex-wrap justify-center items-center"
+        class="text-center"
       >
         <ListingLink 
           v-for="hash in hashes" 
