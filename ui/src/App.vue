@@ -16,19 +16,14 @@
     <profiles-context :store="profilesStore">
       <HomeNavbar :profile="profile" />
 
-      <div
-        v-if="!profile"
-        class="min-h-screen  w-full flex justify-center items-center"
-      >
-        <create-profile @profile-created="createProfile" />
-      </div>
-      <div
-        v-else
-        class="min-h-screen w-full"
+      <profile-prompt
+        :class="{'min-h-screen w-full flex justify-center items-center': !profile, 
+                 'min-h-screen w-full': profile}"
+        @profile-created="createProfile"
       >
         <RouterView />
-      </div>
-
+      </profile-prompt>
+      
       <footer class="footer p-10 bg-neutral text-neutral-content">
         <div>
           <div class="text-4xl font-bold">
@@ -114,15 +109,16 @@ export default defineComponent({
   async mounted() {    
     try {
       // Setup conductor websocket
-      this.client = await AppAgentWebsocket.connect('', 'herddit', 12000);
+      const client = await AppAgentWebsocket.connect('', 'herddit', 15000);
 
       // Setup profiles store
-      const profilesClient = new ProfilesClient(this.client, 'directory', 'profiles');
+      const profilesClient = new ProfilesClient(client, 'directory', 'profiles');
       this.profilesStore = new ProfilesStore(profilesClient, {
         avatarMode: "avatar-required",
         additionalFields: ["Bio", "Location", "Website"],
       });
-      
+      this.client = client;
+
       await this.setProfile();
 
       this.profilesStore.myProfile.subscribe((data) => {
@@ -131,9 +127,9 @@ export default defineComponent({
           this.profile = data.value;
         }
       });
-      } catch (e: any) {
-        toast.error("Error setting up conductor websocket")
-      }
+    } catch (e: any) {
+      toast.error("Error setting up conductor websocket", e)
+    }
 
     this.loading = false;
   },

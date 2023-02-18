@@ -1,9 +1,16 @@
 <template>
-  <div>
-    <profile-detail :agent-pub-key="$route.params.agentPubKey" />
-
-    <div v-if="isAgent">
-      <update-profile />
+  <div class="w-full min-h-screen flex justify-center">
+    <div
+      v-if="isMyAgent"
+      class="w-full h-full flex justify-center items-center max-w-screen-md"
+    >
+      <my-profile />
+    </div>
+    <div
+      v-else
+      class="w-full h-full flex justify-center items-center max-w-screen-md"
+    >
+      <profile-detail :agentPubKey="agentPubKey" />
     </div>
   </div>
 </template>
@@ -12,7 +19,7 @@
 import { ComputedRef, defineComponent, inject } from 'vue'
 import { isEqual} from 'lodash';
 import { ProfilesStore } from '@holochain-open-dev/profiles';
-import { AppAgentClient } from '@holochain/client';
+import { AppAgentClient, decodeHashFromBase64 } from '@holochain/client';
 
 export default defineComponent({
   setup() {
@@ -24,13 +31,19 @@ export default defineComponent({
     };
   },
   computed: {
-    isAgent() {
-      return isEqual(this.client.myPubKey, this.$route.params.agentPubKey);
+    isMyAgent() {
+      if(!this.agentPubKey) return;
+
+      return isEqual(this.client.myPubKey, this.agentPubKey);
+    },
+    agentPubKey() {
+      if(!this.$route.params.agentPubKeyString) return;
+
+      return decodeHashFromBase64(this.$route.params.agentPubKeyString as string);
     }
   },
   mounted() {
-    console.log('agent pub key', this.$route.params.agentPubKey);
-
+    console.log('agentPubKeyString', this.$route.params.agentPubKeyString)
   },
 })
 </script>

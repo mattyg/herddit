@@ -1,12 +1,13 @@
 <template>
   <div
     v-if="profile"
-    class="inline-block"
-    :class="{'opacity-60': muted}"
+    class="relative"
+    @mouseenter="() => { detailsVisible = true; }"
+    @mouseleave="() => { detailsVisible = false; }"
   >
     <div 
       class="flex flex-row items-center" 
-      :class="{'space-x-3': size === 'lg', 'space-x-2': size === 'md' || size === 'sm'}"
+      :class="{'space-x-3': size === 'lg', 'space-x-2': size === 'md' || size === 'sm', 'opacity-60': muted}"
     >
       <img 
         class="rounded-full" 
@@ -18,14 +19,29 @@
       >
         {{ profile.nickname }}
       </div>
-      <slot />
+    </div>
+
+    <div
+      v-if="hoverForDetails"
+      v-show="detailsVisible"
+      class="absolute z-30 bg-gray-200 p-4 rounded-md flex flex-col justify-center w-96"
+    >
+      <profile-detail
+        :agentPubKey="agentPubKey"
+      />
+      <RouterLink
+        :to="`/agents/${agentPubKeyString}`"
+        class="btn btn-ghost btn-sm mt-4 f"
+      >
+        More
+      </RouterLink>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Profile, ProfilesStore } from '@holochain-open-dev/profiles';
-import { AppAgentClient } from '@holochain/client';
+import { AppAgentClient, encodeHashToBase64 } from '@holochain/client';
 import { ComputedRef, defineComponent, inject, PropType } from 'vue'
 import { toast } from 'vue3-toastify';
 
@@ -42,6 +58,10 @@ export default defineComponent({
     muted: {
       type: Boolean,
       default: false
+    },
+    hoverForDetails: {
+      type: Boolean,
+      default: true
     }
   },
   setup() {
@@ -52,9 +72,15 @@ export default defineComponent({
       profilesStore
     };
   },
-  data() : { profile?: Profile } {
+  data() : { profile?: Profile; detailsVisible: boolean } {
     return {
       profile: undefined,
+      detailsVisible: false,
+    }
+  },
+  computed: {
+    agentPubKeyString() {
+      return encodeHashToBase64(this.agentPubKey);
     }
   },
   async mounted() {

@@ -10,7 +10,7 @@
     </div>
     <div>
       <div
-        v-if="profile === undefined"
+        v-if="!profile"
         class="mx-4 text-2xl font-bold "
       >
         find your herd
@@ -29,7 +29,8 @@
         <li tabIndex="{0}">
           <div class="flex flex-row justify-center">
             <AgentProfile
-              :agent-pub-key="client.myPubKey"
+              :agentPubKey="client.myPubKey"
+              :hoverForDetails="false"
               size="lg"
             />
             <svg
@@ -41,8 +42,11 @@
             ><path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" /></svg>
           </div>
           <ul class="p-2 bg-base-100 z-40 w-full bg-base-200 text-base-content">
-            <!-- TODO waiting on fix to profiles components-->
-            <!-- <li><RouterLink :to="`/agents/${client.myPubKey}`">Edit Profile</RouterLink></li> -->
+            <li>
+              <RouterLink :to="`/agents/${myPubKeyBase64}`">
+                Edit Profile
+              </RouterLink>
+            </li>
             
             <li><label htmlFor="join-herd-modal">Join Secret Herd</label></li>
           </ul>
@@ -53,9 +57,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ComputedRef, inject, PropType } from 'vue';
-import { AppAgentClient } from '@holochain/client';
-import { Profile } from "@holochain-open-dev/profiles";
+import { defineComponent, ComputedRef, inject, PropType, toRaw } from 'vue';
+import { AppAgentClient, encodeHashToBase64 } from '@holochain/client';
+import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import AgentProfile from '../herd/profiles/AgentProfile.vue';
 
 export default defineComponent({
@@ -71,9 +75,18 @@ export default defineComponent({
   },
   setup() {
     const client = (inject('client') as ComputedRef<AppAgentClient>).value;
+    const profilesStore = (inject('profilesStore') as ComputedRef<ProfilesStore>).value;
     return {
       client,
+      profilesStore,
     };
+  },
+  computed: {
+    myPubKeyBase64() {
+      if(!this.client?.myPubKey) return;
+      
+      return encodeHashToBase64(this.client.myPubKey);
+    },
   },
 });
 </script>

@@ -43,7 +43,7 @@ const herd_routes = [
 ];
 const routes = [
     { path: '', component: WateringHole },
-    { path: '/agents/:agentPubKey', component: AgentProfileDetail },
+    { path: '/agents/:agentPubKeyString', component: AgentProfileDetail },
     { path: '/herds/create', component: CreateHerd },
     { path: '/herds/private/:password', component: HerdDetail, children: herd_routes },
     { path: '/herds/:listingHashString', component: HerdDetail, children: herd_routes },

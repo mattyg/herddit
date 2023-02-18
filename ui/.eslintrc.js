@@ -18,6 +18,7 @@ module.exports = {
     'vue'
   ],
   rules: {
+    'vue/attribute-hyphenation': 'off'
   },
   root: true
 }
