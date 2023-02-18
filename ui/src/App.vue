@@ -1,9 +1,12 @@
 <template>
   <div
     v-if="loading"
-    class="h-screen flex justify-center items-center"
+    class="h-screen flex flex-col flex-1 justify-center items-center space-y-4"
   >
-    <span class="h-16 w-16 block rounded-full border-t-4 border-white-300 animate-spin z-40" />
+    <mwc-circular-progress indeterminate />
+    <p class="text-xl font-bold text-gray-400">
+      Heading to water...
+    </p>
   </div>
 
   <div
