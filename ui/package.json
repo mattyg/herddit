@@ -25,6 +25,7 @@
     "dayjs": "^1.11.7",
     "lodash": "^4.17.21",
     "marked": "^4.2.5",
+    "pinia": "^2.0.32",
     "random-word-slugs": "^0.1.6",
     "theme-change": "^2.3.0",
     "vue": "^3.2.25",
