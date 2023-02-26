@@ -6,7 +6,7 @@
     "tests"
   ],
   "scripts": {
-    "start": "AGENTS=2 WEBKIT_DISABLE_COMPOSITING_MODE=1 npm run network",
+    "start": "AGENTS=1 WEBKIT_DISABLE_COMPOSITING_MODE=1 npm run network",
     "start:path": "AGENTS=2 WEBKIT_DISABLE_COMPOSITING_MODE=1 npm run network:path",
     "network": "hc s clean && npm run build:happ && UI_PORT=8888 concurrently \"npm start -w ui\" \"npm run launch:happ\"",
     "network:path": "hc s clean && npm run build:happ && concurrently \"npm run build:watch -w ui\" \"npm run launch:happ:path\"",

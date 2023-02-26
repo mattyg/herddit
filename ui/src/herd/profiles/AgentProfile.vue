@@ -24,7 +24,7 @@
     <div
       v-if="hoverForDetails"
       v-show="detailsVisible"
-      class="absolute z-30 bg-gray-200 p-4 rounded-md flex flex-col justify-center w-96"
+      class="absolute z-30 bg-base-200 text-base-content-200 p-4 rounded-md flex flex-col justify-center w-96"
     >
       <profile-detail
         :agentPubKey="agentPubKey"

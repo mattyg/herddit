@@ -2,12 +2,11 @@
   <RouterLink
     v-if="!loading && listing"
     :to="`/herds/${listingHashString}`"
-    :class="{'bg-neutral-200 rounded-full py-1 px-3': isPrivate}"
   >
     <div class="flex flex-row items-center space-x-1">
       <mwc-icon
         v-if="isPrivate"
-        class="text-gray-400 text-lg"
+        class="text-tertiary-content-200 text-lg"
       >
         visibility_off
       </mwc-icon>

@@ -13,7 +13,7 @@
     v-else
     class="w-full"
   >
-    <div class="h-16 sticky top-0 w-full flex flex-row justify-between items-center shadow-md space-x-4 px-8 bg-base-100 z-30">
+    <div class="h-16 sticky top-0 w-full flex flex-row justify-between items-center shadow-md space-x-4 px-8 bg-base text-base z-30">
       <div class="text-3xl my-4">
         The Watering Hole
       </div>

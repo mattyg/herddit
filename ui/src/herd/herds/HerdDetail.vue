@@ -1,10 +1,10 @@
 <template>
   <div
     v-if="loading"
-    class="h-screen flex flex-col flex-1 justify-center items-center space-y-4"
+    class="h-screen flex flex-col flex-1 justify-center items-center space-y-4 bg-neutral"
   >
     <mwc-circular-progress indeterminate />
-    <p class="text-xl font-bold text-gray-400">
+    <p class="text-xl font-bold text-neutral-content">
       Wandering into the herd...
     </p>
   </div>
@@ -13,11 +13,11 @@
     v-else
     class="w-full"
   >
-    <div class="h-16 sticky top-0 w-full flex flex-row justify-between items-center shadow-md space-x-4 px-8 bg-base-100 z-30">
+    <div class="h-16 sticky top-0 w-full flex flex-row justify-between items-center shadow-md space-x-4 px-8 bg-base text-base-content z-30">
       <div class="flex flex-row justify-start items-center space-x-2">
         <mwc-icon
           v-if="isPrivate"
-          class="text-gray-400 text-3xl"
+          class="text-3xl"
         >
           visibility_off
         </mwc-icon>

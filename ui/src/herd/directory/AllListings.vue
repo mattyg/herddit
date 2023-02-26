@@ -5,11 +5,11 @@
   >
     <div>
       <div class="flex justify-center items-center space-x-4 my-8">
-        <div class="text-gray-400 font-bold">
+        <div class="text-base-content font-bold">
           Private Herds
         </div>
         <mwc-switch
-          class="text-gray-400 font-bold"
+          class="text-base-content font-bold"
           :selected="showPrivate"
           @click="showPrivate = $event.target.selected"
         />

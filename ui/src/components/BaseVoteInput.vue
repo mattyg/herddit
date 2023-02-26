@@ -1,20 +1,20 @@
 <template>
-  <div class="flex flex-col justify-center items-center">
+  <div class="flex flex-col justify-center items-center text-base-300">
     <mwc-icon-button
-      class="text-2xl font-bold text-gray-400"
-      :class="{'text-lg': size === 'sm', 'text-blue-500': myVote === 1 }"
+      class="text-2xl font-bold"
+      :class="{'text-lg': size === 'sm', 'text-primary': myVote === 1 }"
       icon="arrow_upward"
       @click="$emit('upvote')"
     />
     <div
-      class="text-2xl text-gray-400 font-bold"
+      class="text-2xl font-bold text-primary"
       :class="{'text-lg': size === 'sm'}"
     >
       {{ votes }}
     </div>
     <mwc-icon-button
-      class="text-2xl font-bold text-gray-400"
-      :class="{'text-lg': size === 'sm', 'text-blue-500': myVote === -1}"
+      class="text-2xl font-bold"
+      :class="{'text-lg': size === 'sm', 'text-primary': myVote === -1}"
       icon="arrow_downward"
       @click="$emit('downvote')"
     />

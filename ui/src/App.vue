@@ -4,7 +4,7 @@
     class="h-screen flex flex-col flex-1 justify-center items-center space-y-4"
   >
     <mwc-circular-progress indeterminate />
-    <p class="text-xl font-bold text-gray-400">
+    <p class="text-xl font-bold">
       Heading to water...
     </p>
   </div>
@@ -14,7 +14,10 @@
     class="w-full"
   >
     <profiles-context :store="profilesStore">
-      <HomeNavbar :profile="profile" />
+      <HomeNavbar
+        :profile="profile"
+        class="bg-neutral text-neutral-content"
+      />
 
       <profile-prompt
         :class="{'min-h-screen w-full flex justify-center items-center': !profile, 
@@ -24,7 +27,7 @@
         <RouterView />
       </profile-prompt>
       
-      <footer class="footer p-10 bg-neutral text-neutral-content">
+      <footer class="footer p-10 bg-accent text-accent-content">
         <div>
           <div class="text-4xl font-bold">
             herddit
@@ -106,7 +109,7 @@ export default defineComponent({
       profile: undefined,
     };
   },
-  async mounted() {    
+  async mounted() {        
     try {
       // Setup conductor websocket
       const client = await AppAgentWebsocket.connect('', 'herddit', 15000);

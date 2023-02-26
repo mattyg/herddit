@@ -4,7 +4,7 @@
   "scripts": {
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src",
     "format": "prettier .  --write",
-    "start": "vite --port $UI_PORT --clearScreen false",
+    "start": "vite --port $UI_PORT --clearScreen false --open false",
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "build:watch": "concurrently \"vue-tsc --noEmit --watch\" \"vite build --watch --clearScreen false\"",
@@ -37,6 +37,7 @@
     "lodash": "^4.17.21",
     "marked": "^4.2.5",
     "random-word-slugs": "^0.1.6",
+    "theme-change": "^2.3.0",
     "vue": "^3.2.25",
     "vue-router": "^4.1.6",
     "vue3-toastify": "^0.0.5"

@@ -1,5 +1,5 @@
 <template>
-  <div class="navbar h-13 bg-neutral-200 text-neutral-content-200">
+  <div class="navbar h-13">
     <div class="flex-1">
       <RouterLink
         to="/"
@@ -19,9 +19,11 @@
         v-else
         class="menu menu-horizontal px-1 flex items-center"
       >
+        <BaseThemeSelect class="mx-4" />
+
         <RouterLink
           :to="`/herds/create`"
-          class="btn btn-ghost btn-sm"
+          class="btn btn-tertiary btn-sm"
         >
           Gather a Herd
         </RouterLink>
@@ -41,7 +43,7 @@
               viewBox="0 0 24 24"
             ><path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" /></svg>
           </div>
-          <ul class="p-2 bg-base-100 z-40 w-full bg-base-200 text-base-content">
+          <ul class="p-2 z-40 w-full bg-base-200 text-base-content-200">
             <li>
               <RouterLink :to="`/agents/${myPubKeyBase64}`">
                 Edit Profile
@@ -57,14 +59,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ComputedRef, inject, PropType, toRaw } from 'vue';
+import { defineComponent, ComputedRef, inject, PropType } from 'vue';
 import { AppAgentClient, encodeHashToBase64 } from '@holochain/client';
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import AgentProfile from '../herd/profiles/AgentProfile.vue';
+import BaseThemeSelect from './BaseThemeSelect.vue';
 
 export default defineComponent({
   components: {
-    AgentProfile
+    AgentProfile,
+    BaseThemeSelect
   },
   props: {
     profile: {
@@ -87,7 +91,7 @@ export default defineComponent({
       
       return encodeHashToBase64(this.client.myPubKey);
     },
-  },
+  }
 });
 </script>
 
