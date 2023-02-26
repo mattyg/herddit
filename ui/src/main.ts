@@ -8,7 +8,6 @@ import { createPinia } from 'pinia';
 import routes from './routes';
 
 // Profiles custom elements
-import "@webcomponents/scoped-custom-element-registry";
 import "@holochain-open-dev/profiles/profiles-context";
 import "@holochain-open-dev/profiles/create-profile";
 import "@holochain-open-dev/profiles/agent-avatar";

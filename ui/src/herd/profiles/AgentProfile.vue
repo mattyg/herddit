@@ -9,8 +9,10 @@
       class="flex flex-row items-center" 
       :class="{'space-x-3': size === 'lg', 'space-x-2': size === 'md' || size === 'sm', 'opacity-60': muted}"
     >
-      <agent-avatar
-        :agentPubKey="agentPubKey"
+      <div 
+        class="h-9 w-9 rounded-full bg-cover bg-center"
+        :style="`background-image: url(${profile.fields.avatar})`"
+        :class="{'h-9 w-9': size === 'lg', 'h-7 w-7': size === 'md', 'h-5 w-5': size === 'sm'}"
       />
       <div 
         :class="{'text-3xl font-bold': size === 'lg', 'text-2xl font-bold': size === 'md', 'text-lg': size === 'sm'}"
