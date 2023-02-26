@@ -36,7 +36,6 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { themeChange } from 'theme-change'
 import { useThemeStore } from '../stores/theme'
 
 
@@ -45,9 +44,6 @@ export default defineComponent({
     const store = useThemeStore();
 
     return { store };
-  },
-  mounted() {
-    themeChange(false);
   }
 })
 </script>

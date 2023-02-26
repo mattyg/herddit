@@ -74,6 +74,7 @@ import HomeNavbar from './components/HomeNavbar.vue';
 import { ProfilesStore, ProfilesClient, Profile } from "@holochain-open-dev/profiles";
 import { toast } from 'vue3-toastify';
 import BaseSpinner from './components/BaseSpinner.vue';
+import { useThemeStore } from './stores/theme';
 
 export default defineComponent({
   components: {
@@ -86,12 +87,15 @@ export default defineComponent({
       profilesStore: computed(() => this.profilesStore)
     };
   },
+  setup() {
+    const themeStore = useThemeStore();
+
+    return { themeStore };
+  },
   data(): {
     client?: AppAgentClient;
     profilesStore?: ProfilesStore;
     loading: boolean;
-    herd_name: string;
-    theme: string;
     herd_password: string;
     joinHerdModalVisible: boolean;
     profile?: Profile
@@ -100,14 +104,15 @@ export default defineComponent({
       client: undefined,
       profilesStore: undefined,
       loading: true,
-      herd_name: 'SupaHerd',
-      theme: 'dark',
       herd_password: "",
       joinHerdModalVisible: false,
       profile: undefined,
     };
   },
-  async mounted() {        
+  async mounted() {   
+    // Apply active theme
+    this.themeStore.apply(); 
+
     try {
       // Setup conductor websocket
       const client = await AppAgentWebsocket.connect('', 'herddit', 15000);

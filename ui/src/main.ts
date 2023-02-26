@@ -5,6 +5,7 @@ import App from './App.vue';
 import Vue3Toastify, { type ToastContainerOptions } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 import { createPinia } from 'pinia';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import routes from './routes';
 
 // Profiles custom elements
@@ -21,6 +22,7 @@ const router = createRouter({
     routes, // short for `routes: routes`,
 });
 const pinia = createPinia();
+pinia.use(piniaPluginPersistedstate);
 const app = createApp(App);
 
 app.use(pinia);

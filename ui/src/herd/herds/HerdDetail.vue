@@ -108,8 +108,6 @@ export default defineComponent({
         }
     },
     async mounted() {
-        this.loading = true;
-
         if(this.$route.params.password) {
             await this.decodePasswordToListing(this.$route.params.password as string);
         } else {

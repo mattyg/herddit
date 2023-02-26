@@ -7,6 +7,7 @@ export interface Theme {
 }
 
 export const useThemeStore = defineStore('theme', {
+  persist: true,
   state: () => ({ 
     active: 'light', 
     themes: ["light", "dark", "cyberpunk", "corporate", "retro",  "wireframe", "black", "luxury", "cupcake", "valentine", "synthwave", "halloween", "garden", "forest", "aqua", "lofi", "pastel", "fantasy", "dracula", "cmyk", "autumn", "business", "acid", "lemonade", "night", "coffee", "winter"] 
@@ -21,8 +22,11 @@ export const useThemeStore = defineStore('theme', {
   },
   actions: {
     set(theme: string) {
-      document.documentElement.setAttribute("data-theme", theme);
       this.active = theme;
+      this.apply();
+    },
+    apply() {
+      document.documentElement.setAttribute("data-theme", this.active);
     }
   },
 });
