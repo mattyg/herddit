@@ -1,6 +1,5 @@
 <template>
   <BaseVoteInput 
-    :size="size"
     :votes="votes"
     :dna-hash="dnaHash"
     :comment-hash="postHash"

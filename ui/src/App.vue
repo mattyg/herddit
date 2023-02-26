@@ -3,10 +3,7 @@
     v-if="loading"
     class="h-screen flex flex-col flex-1 justify-center items-center space-y-4"
   >
-    <mwc-circular-progress indeterminate />
-    <p class="text-xl font-bold">
-      Heading to water...
-    </p>
+    <BaseSpinner>Heading to water...</BaseSpinner>
   </div>
 
   <div
@@ -54,12 +51,11 @@
       className="modal-box relative"
       htmlFor=""
     >
-      <div class="prose">
+      <div class="prose form-control">
         <h3>Enter Secret Herd-Word:</h3>
-        <mwc-textarea
+        <textarea
           v-model="herd_password"
-          class="w-full h-32"
-          outlined
+          class="textarea textarea-bordered textarea-sm w-full h-32"
         />
         <div class="modal-action">
           <button
@@ -77,10 +73,12 @@ import { AppAgentClient, AppAgentWebsocket } from '@holochain/client';
 import HomeNavbar from './components/HomeNavbar.vue';
 import { ProfilesStore, ProfilesClient, Profile } from "@holochain-open-dev/profiles";
 import { toast } from 'vue3-toastify';
+import BaseSpinner from './components/BaseSpinner.vue';
 
 export default defineComponent({
   components: {
-    HomeNavbar
+    HomeNavbar,
+    BaseSpinner,
   },
   provide() {
     return {
@@ -118,7 +116,7 @@ export default defineComponent({
       const profilesClient = new ProfilesClient(client, 'directory', 'profiles');
       this.profilesStore = new ProfilesStore(profilesClient, {
         avatarMode: "avatar-required",
-        additionalFields: ["Bio", "Location", "Website"],
+        additionalFields: ["Location", "Bio", "Website"],
       });
       this.client = client;
 
@@ -130,11 +128,11 @@ export default defineComponent({
           this.profile = data.value;
         }
       });
+      this.loading = false;
     } catch (e: any) {
       toast.error("Error setting up conductor websocket", e)
     }
 
-    this.loading = false;
   },
   methods: {
     joinPrivateHerd() {

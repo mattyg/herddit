@@ -16,6 +16,7 @@
           class="flex flex-row justify-center items-start space-x-4"
         >
           <PostVotes 
+            class="mr-2"
             :votes="upvotes - downvotes" 
             :dna-hash="dnaHash" 
             :post-hash="postHash"
@@ -23,7 +24,7 @@
             @downvote="fetchPost"
           />
 
-          <div class="my-4 w-full pr-8">
+          <div class="w-full pr-8">
             <div class="flex flex-col justify-start items-center space-y-4 mb-4">
               <div class="w-full text-5xl">
                 {{ post?.title }}
@@ -41,28 +42,19 @@
               </div>
             </div>
 
-            <div class="relative w-full bg-base-200 p-12 shadow-sm mb-24 flex flex-col items-center">
+            <div class="relative w-full bg-base-200 p-12 shadow-sm flex flex-col items-center mb-12">
               <!-- eslint-disable vue/no-v-html -->
               <div
                 class="w-full pb-4 prose md:prose-md lg:prose-xl"
                 v-html="postContent"
               /> 
               <!-- eslint-enable vue/no-v-html -->
-              <div
+              <BaseEditDeleteButtons
                 v-if="myPost"
-                class="w-full absolute left-0 bottom-0 flex flex-row justify-end items-center space-x-2"
-              >
-                <mwc-icon-button
-                  class="text-bold text-gray-600"
-                  icon="edit"
-                  @click="editing = true"
-                />
-                <mwc-icon-button
-                  class="text-bold text-gray-600"
-                  icon="delete"
-                  @click="deletePost()"
-                />
-              </div>
+                class="absolute right-0 bottom-0 p-4"
+                @edit="editing = true"
+                @delete="deletePost()"
+              />
             </div>
             
             <div class="w-full flex justify-center">
@@ -82,7 +74,7 @@
         v-else
         style="display: flex; flex: 1; align-items: center; justify-content: center"
       >
-        <mwc-circular-progress indeterminate />
+        <BaseSpinner />
       </div>
     </div>
   </div>
@@ -93,7 +85,6 @@ import { defineComponent, inject, ComputedRef, PropType } from 'vue';
 import { decode } from '@msgpack/msgpack';
 import { AppAgentClient, Record, AppInfo, encodeHashToBase64, decodeHashFromBase64 } from '@holochain/client';
 import { Post } from './types';
-import PostListItem from './PostListItem.vue';
 import PostVotes from './PostVotes.vue';
 import CommentsForPost from './CommentsForPost.vue';
 import AgentProfile from '../profiles/AgentProfile.vue';
@@ -102,7 +93,7 @@ import {marked} from 'marked';
 import dayjs from 'dayjs';
 import { isEqual } from 'lodash';
 import { toast } from 'vue3-toastify';
-
+import BaseEditDeleteButtons from '../../components/BaseEditDeleteButtons.vue';
 // Override function
 const renderer = {
   link(href: string) {
@@ -117,7 +108,8 @@ export default defineComponent({
     PostVotes,
     CommentsForPost,
     EditPost,
-    AgentProfile
+    AgentProfile,
+    BaseEditDeleteButtons,
   },
   props: {
     dnaHash: {

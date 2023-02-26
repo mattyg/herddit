@@ -12,28 +12,14 @@ import AgentProfileDetail from './herd/profiles/AgentProfileDetail.vue';
 import Vue3Toastify, { type ToastContainerOptions } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 
-// Material custom elements
-import "@webcomponents/scoped-custom-element-registry";
-import '@material/mwc-button';
-import '@material/mwc-icon';
-import '@material/mwc-icon-button';
-import '@material/mwc-checkbox';
-import '@material/mwc-formfield';
-import '@material/mwc-textarea';
-import '@material/mwc-textfield';
-import '@material/mwc-circular-progress';
-import '@material/mwc-switch';
-
 // Profiles custom elements
-import { CreateProfile, AgentAvatar, MyProfile, ProfilesContext, ProfilePrompt, ProfileDetail } from "@holochain-open-dev/profiles";
-import { DisplayError } from "@holochain-open-dev/elements";
-customElements.define("profiles-context", ProfilesContext);
-customElements.define('display-error', DisplayError);
-customElements.define("create-profile", CreateProfile);
-customElements.define("agent-avatar", AgentAvatar);
-customElements.define("my-profile", MyProfile);
-customElements.define("profile-prompt", ProfilePrompt);
-customElements.define("profile-detail", ProfileDetail);
+import "@webcomponents/scoped-custom-element-registry";
+import "@holochain-open-dev/profiles/profiles-context";
+import "@holochain-open-dev/profiles/create-profile";
+import "@holochain-open-dev/profiles/agent-avatar";
+import "@holochain-open-dev/profiles/my-profile";
+import "@holochain-open-dev/profiles/profile-prompt";
+import "@holochain-open-dev/profiles/profile-detail";
 
 // Routes
 const herd_routes = [

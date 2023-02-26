@@ -1,6 +1,5 @@
 <template>
   <BaseVoteInput 
-    :size="size"
     :votes="votes"
     :dna-hash="dnaHash"
     :comment-hash="commentHash"
@@ -32,10 +31,6 @@ export default defineComponent({
     votes: {
       type: Number,
       default: 0
-    },
-    size: {
-      type: String,
-      default: "lg"
     }
   },
   emits: ['upvote', 'downvote'],

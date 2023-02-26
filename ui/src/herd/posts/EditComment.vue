@@ -1,17 +1,13 @@
 <template>
-  <mwc-snackbar ref="update-error" />
-
   <div class="flex flex-col w-full">
     <div class="mb-4">
       Edit Response
     </div>
-    <mwc-textarea
-      class="w-full mb-4"
+    <textarea
+      v-model="content"
+      class="w-full mb-4 textarea textarea-bordered"
       outlined
       label="Content"
-      :value="content"
-      required
-      @input="content = $event.target.value"
     />
 
     <div class="flex flex-row justify-end items-center space-x-4">

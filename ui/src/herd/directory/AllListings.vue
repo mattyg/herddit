@@ -1,5 +1,11 @@
 <template>
   <div
+    v-if="loading"
+    class="flex w-full h-screen justify-center items-center"
+  >
+    <BaseSpinner>Heading to water...</BaseSpinner>
+  </div>
+  <div
     v-if="!loading"
     class="flex justify-center"
   >
@@ -8,11 +14,12 @@
         <div class="text-base-content font-bold">
           Private Herds
         </div>
-        <mwc-switch
-          class="text-base-content font-bold"
-          :selected="showPrivate"
-          @click="showPrivate = $event.target.selected"
-        />
+        <input
+          v-model="showPrivate"
+          type="checkbox"
+          class="toggle toggle-md"
+          :checked="showPrivate"
+        >
       </div>
         
       <div

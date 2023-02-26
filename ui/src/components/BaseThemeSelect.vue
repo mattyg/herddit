@@ -1,17 +1,12 @@
 <template>
   <select
     data-choose-theme
-    class="select select-ghost max-w-xs"
+    class="select select-ghost select-sm max-w-xs py-0"
   >
-    <option
-      disabled
-      selected
-    >
-      Theme
-    </option>
     <option
       v-for="theme in themes"
       :key="theme"
+      class="text-xs"
       :value="theme"
     >
       {{ `${theme[0].toUpperCase()}${theme.slice(1)}` }}
@@ -32,7 +27,7 @@ export default defineComponent({
   },
   data() {
     return {
-      themes: ["light", "dark", "cyberpunk", "cupcake", "corporate", "valentine", "synthwave", "retro",  "halloween", "garden", "forest", "aqua", "lofi", "pastel", "fantasy", "wireframe", "black", "luxury", "dracula", "cmyk", "autumn", "business", "acid", "lemonade", "night", "coffee", "winter"],
+      themes: ["light", "dark", "cyberpunk", "corporate", "retro",  "wireframe", "black", "luxury", "cupcake", "valentine", "synthwave", "halloween", "garden", "forest", "aqua", "lofi", "pastel", "fantasy", "dracula", "cmyk", "autumn", "business", "acid", "lemonade", "night", "coffee", "winter"],
     };
   },
   mounted() {

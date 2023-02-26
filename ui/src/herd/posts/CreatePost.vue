@@ -2,27 +2,32 @@
   <div class="w-full flex justify-center">
     <div class="prose w-full md:max-w-screen-lg mx-4">
       <h1>Call to Herd</h1>
-      <mwc-textfield
-        class="w-full mb-4"
-        outlined
-        label="Title"
-        required
-        @input="title = $event.target.value"
-      />
-      <mwc-textarea
-        ref="contentTextarea"
-        rows="10"
-        class="w-full"
-        outlined
-        label="Content"
-        required
-        @input="content = $event.target.value"
-      />
-      <span>Use markdown for rich text</span>
-
-      <div class="flex flex-row justify-end items-center space-x-4 mt-8">
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text">Title</span>
+        </label>
+        <input
+          v-model="title"
+          type="text"
+          class="input mb-4 input-md input-primary"
+        >
+      </div>
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text">Message</span>
+        </label>
+        <textarea
+          ref="contentTextarea"
+          v-model="content"
+          rows="10"
+          class="w-full textarea textarea-primary"
+          label="Content"
+        />
+        <label class="label text-sm">Use markdown for rich text</label>
+      </div>
+      <div class="form-control my-12">
         <button
-          class="btn bn-primary"
+          class="btn btn-primary"
           :disabled="!isPostValid"
           @click="createPost"
         >

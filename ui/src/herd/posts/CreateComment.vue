@@ -3,14 +3,16 @@
     class="w-full"
     v-bind="$attrs"
   >
-    <mwc-textarea
-      class="w-full mb-2"
-      outlined
-      contenteditable
-      label="Respond to Call"
-      :value="content"
-      @input="content = $event.target.value"
-    />
+    <div class="form-control">
+      <label class="label text-sm text-gray-400 font-bold">
+        Respond to Call
+      </label>
+      <textarea
+        v-model="content"
+        class="textarea textarea-primary w-full mb-2"
+      />
+    </div>
+
   
     <button
       v-if="content?.length > 0 "

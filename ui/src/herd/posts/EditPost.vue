@@ -2,26 +2,31 @@
   <div class="w-full flex justify-center">
     <div class="prose w-full md:max-w-screen-lg mx-4">
       <h1>Edit Call</h1>
-      <mwc-textfield
-        class="w-full mb-4"
-        outlined
-        label="Title"
-        :value="title"
-        required
-        @input="title = $event.target.value"
-      />
-      <mwc-textarea
-        ref="contentTextarea"
-        rows="10"
-        class="w-full"
-        outlined
-        label="Content"
-        :value="content"
-        required
-        @input="content = $event.target.value"
-      />
-      <span>Use markdown for rich text</span>
-      
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text">Title</span>
+        </label>
+        <input
+          v-model="title"
+          type="text"
+          class="input input-md input-primary mb-4"
+        >
+      </div>
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text">Message</span>
+        </label>
+        <textarea
+          ref="contentTextarea"
+          v-model="content"
+          rows="10"
+          class="w-full textarea textarea-primary"
+          label="Content"
+        />
+        <label class="label">
+          <span>Use markdown for rich text</span>
+        </label>
+      </div>
       <div class="flex flex-row justify-end items-center space-x-4 mt-8">
         <button
           class="btn btn-ghost btn-sm"

@@ -9,11 +9,9 @@
       class="flex flex-row items-center" 
       :class="{'space-x-3': size === 'lg', 'space-x-2': size === 'md' || size === 'sm', 'opacity-60': muted}"
     >
-      <img 
-        class="rounded-full" 
-        :class="{'h-9': size === 'lg', 'h-7': size === 'md', 'h-5': size === 'sm'}"
-        :src="profile.fields.avatar" 
-      >
+      <agent-avatar
+        :agentPubKey="agentPubKey"
+      />
       <div 
         :class="{'text-3xl font-bold': size === 'lg', 'text-2xl font-bold': size === 'md', 'text-lg': size === 'sm'}"
       >
@@ -24,7 +22,7 @@
     <div
       v-if="hoverForDetails"
       v-show="detailsVisible"
-      class="absolute z-30 bg-base-200 text-base-content-200 p-4 rounded-md flex flex-col justify-center w-96"
+      class="absolute z-30 bg-neutral text-neutral-content p-4 rounded-md flex flex-col justify-center w-64"
     >
       <profile-detail
         :agentPubKey="agentPubKey"

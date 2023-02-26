@@ -41,18 +41,12 @@
         </div>
       </RouterLink>
     </div>
-    <div
+    <BaseContentHidden
       v-else
-      class="w-full flex flex-row justify-between items-center bg-base-200 px-8 py-4 space-x-8 text-gray-400 font-bold"
+      @show="showIfVoteNegative = true"
     >
-      <div>Call trampled by the herd</div>
-      <button
-        class="btn btn-ghost btn-xs"
-        @click="showIfVoteNegative = true"
-      >
-        Take a look
-      </button>
-    </div>
+      Call trampled by the herd
+    </BaseContentHidden>
   </div>
 </template>
 
@@ -63,6 +57,7 @@ import { AppAgentClient, Record, encodeHashToBase64 } from '@holochain/client';
 import { Post } from './types';
 import PostVotes from './PostVotes.vue';
 import AgentProfile from '../profiles/AgentProfile.vue';
+import BaseContentHidden from '../../components/BaseContentHidden.vue';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
@@ -71,6 +66,7 @@ export default defineComponent({
   components: {
     PostVotes,
     AgentProfile,
+    BaseContentHidden,
   },
   props: {
     dnaHash: {

@@ -1,26 +1,34 @@
 <template>
   <div
     v-if="loading"
-    class="h-screen flex flex-col flex-1 justify-center items-center space-y-4 bg-neutral"
+    class="h-screen flex flex-col flex-1 justify-center items-center space-y-4 bg-base"
   >
-    <mwc-circular-progress indeterminate />
-    <p class="text-xl font-bold text-neutral-content">
+    <BaseSpinner>
       Wandering into the herd...
-    </p>
+    </BaseSpinner>
   </div>
 
   <div
     v-else
     class="w-full"
   >
-    <div class="h-16 sticky top-0 w-full flex flex-row justify-between items-center shadow-md space-x-4 px-8 bg-base text-base-content z-30">
+    <div class="h-16 sticky top-0 w-full flex flex-row justify-between items-center shadow-md space-x-4 px-8 bg-neutral text-neutral-content z-30">
       <div class="flex flex-row justify-start items-center space-x-2">
-        <mwc-icon
+        <div
           v-if="isPrivate"
-          class="text-3xl"
+          class="text-3xl mr-2"
+          title="This herd is not published to the Watering Hole"
         >
-          visibility_off
-        </mwc-icon>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="42"
+            height="42"
+            viewBox="0 0 256 256"
+          ><path
+            fill="currentColor"
+            d="M247.3 131.3c-.4.9-10.5 23.3-33.3 43.8a8.6 8.6 0 0 1-5.4 2a8 8 0 0 1-5.9-2.6L101.4 63.1a8.1 8.1 0 0 1 4.6-13.3a132.4 132.4 0 0 1 22-1.8c34.9 0 66.6 13.3 91.7 38.3c18.8 18.9 27.3 37.7 27.6 38.5a8.2 8.2 0 0 1 0 6.5Zm-33.4 79.3a7.9 7.9 0 0 1-.5 11.3a8.2 8.2 0 0 1-5.4 2.1a8 8 0 0 1-5.9-2.6l-22-24.2A128.6 128.6 0 0 1 128 208c-34.9 0-66.6-13.3-91.7-38.3C17.5 150.8 9 132 8.7 131.3a8.2 8.2 0 0 1 0-6.5c.7-1.6 16.3-36 52.6-58.3L42.1 45.4a8 8 0 0 1 11.8-10.8Zm-68.2-51.3l-47.2-51.9a36 36 0 0 0 47.2 51.9Z"
+          /></svg>
+        </div>
         <RouterLink
           :to="`/herds/${$route.params.listingHashString}`"
           class="text-3xl"
@@ -62,8 +70,12 @@ import { ComputedRef, defineComponent, inject } from 'vue'
 import { Listing } from '../directory/types';
 import { isEqual } from 'lodash';
 import { toast } from 'vue3-toastify';
+import BaseSpinner from '../../components/BaseSpinner.vue';
 
 export default defineComponent({
+    components: {
+      BaseSpinner,
+    },
     setup() {
         const client = (inject('client') as ComputedRef<AppAgentClient>).value;
         return {
@@ -176,24 +188,31 @@ export default defineComponent({
                 }
                 catch(e: any) {
                    toast.error("Error enabling cloned cell", e.data.data)
+                   this.$router.push('/');
                 }
                 
                 return clonedCell.cell_id;
             } else if(!clonedCell) {
                 console.log("Cell not found, installing");
                 // If cell not found, install it
-                const cloneCell: ClonedCell = await this.client.createCloneCell({
-                    role_name: 'herd',
-                    modifiers: {
-                        network_seed: this.listing?.network_seed,
-                        properties: {
-                            title: this.listing?.title,
-                        },
-                    }
-                });
+                try {
+                  const cloneCell: ClonedCell = await this.client.createCloneCell({
+                      role_name: this.listing?.title,
+                      modifiers: {
+                          network_seed: this.listing?.network_seed,
+                          properties: {
+                              title: this.listing?.title,
+                          },
+                      }
+                  });
 
-                this.cellInstalled = true;
-                return cloneCell.cell_id;
+                  this.cellInstalled = true;
+                  return cloneCell.cell_id;
+                }
+                catch(e: any) {
+                  toast.error("Error installing cell", e.data.data)
+                  this.$router.push('/');
+                }
             } else {
                 console.log('Cell installed & enabled, do nothing')
                 this.cellInstalled = true;

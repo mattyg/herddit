@@ -1,33 +1,36 @@
 <template>
   <div class="w-full flex justify-center my-12">
-    <article class="prose w-full md:max-w-screen-lg mx-4">
+    <article class="prose w-full  md:max-w-screen-lg mx-4">
       <h1>Gather a Herd</h1>
-      <mwc-textfield
-        class="w-full"
-        outlined
-        label="Title"
-        :value="title"
-        required
-        @input="title = $event.target.value"
-      />
-      <div class="text-sm mt-1 mb-8">
-        Letters, numbers and underscores only
-      </div>
 
-      <div
-        class="flex flex-row justify-start items-center space-x-4 mb-8 cursor-pointer"
-        @click="publish = !publish"
-      >
-        <mwc-checkbox
-          class="w-full w-8"
-          :checked="publish"
-        />
-        <div class="flex-1">
-          Announce at The Watering Hole
-        </div>
+      <div class="form-control my-4">
+        <label class="label">
+          <span class="label-text">Title</span>
+        </label>
+        <input
+          v-model="title"
+          type="text"
+          class="input w-full input-lg input-bordered"
+        >
+        <label class="label">
+          <span class="label-text">
+            Letters, numbers and underscores only
+          </span>
+        </label>
       </div>
-
-      <div>
+      <div class="form-control my-4 max-w-sm">
+        <label class="label cursor-pointer">
+          <input
+            v-model="publish"
+            type="checkbox"
+            :checked="publish"
+            class="checkbox checkbox-md"
+          >
+          <span class="label-text text-2xl">Announce to the Watering Hole</span> 
+        </label>
+      </div>
+        
+      <div class="form-control my-12">
         <button 
           class="btn btn-primary"
           :disabled="!isHerdValid || creatingHerd"

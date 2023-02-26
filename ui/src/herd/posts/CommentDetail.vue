@@ -16,32 +16,26 @@
         class="flex flex-row items-start"
       >
         <CommentVotes 
+          class="mr-2"
           :votes="upvotes - downvotes" 
           :dna-hash="dnaHash" 
           :comment-hash="commentHash"
           @upvote="fetchComment"
           @downvote="fetchComment"
         />
-        <div class="py-2 px-4 flex-1">
-          <div class="flex flex-row justify-between items-start mb-2">
+        <div class="px-4 flex-1">
+          <div class="flex flex-row justify-between items-start mb-2 min-h-12">
             <!-- eslint-disable vue/no-v-html -->
             <div
-              class="prose-sm md:prose-md"
+              class="prose-sm md:prose-md flex-1"
               v-html="commentContent"
             />
             <!-- eslint-enable vue/no-v-html -->
-            <div v-if="isMyComment">
-              <mwc-icon-button
-                class="text-gray-400"
-                icon="edit"
-                @click="editing = true"
-              />
-              <mwc-icon-button
-                class="text-gray-400"
-                icon="delete"
-                @click="deleteComment()"
-              />
-            </div>
+            <BaseEditDeleteButtons
+              v-if="isMyComment"
+              @edit="editing = true"
+              @delete="deleteComment()"
+            />
           </div>
           <div class="flex flex-row justify-between items-center">
             <div
@@ -72,18 +66,12 @@
         </div>   
       </div>
 
-      <div
+      <BaseContentHidden
         v-else
-        class="w-full flex flex-row justify-between items-center bg-base-200 px-8 py-4 space-x-8 text-gray-400 font-bold"
+        @show="showIfVoteNegative = true"
       >
-        <div>Response trampled by the herd</div>
-        <button
-          class="btn btn-ghost btn-xs"
-          @click="showIfVoteNegative = true"
-        >
-          Take a look
-        </button>
-      </div>
+        Response trampled by the herd
+      </BaseContentHidden>
     </div>
   </div>
 </template>
@@ -100,12 +88,16 @@ import { toast } from 'vue3-toastify';
 import { isEqual } from 'lodash';
 import CommentVotes from './CommentVotes.vue';
 import { marked } from 'marked';
+import BaseEditDeleteButtons from '../../components/BaseEditDeleteButtons.vue';
+import BaseContentHidden from '../../components/BaseContentHidden.vue';
 
 export default defineComponent({
   components: {
     EditComment,
     AgentProfile,
-    CommentVotes
+    CommentVotes,
+    BaseEditDeleteButtons,
+    BaseContentHidden,
   },
   props: {
     dnaHash: {

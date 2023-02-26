@@ -3,7 +3,7 @@
     v-if="loading"
     style="display: flex; flex: 1; align-items: center; justify-content: center"
   >
-    <mwc-circular-progress indeterminate />
+    <BaseSpinner>Tracking down the herd...</BaseSpinner>
   </div>
 
   <div

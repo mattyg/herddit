@@ -1,3 +1,22 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+html {
+  font-size: 20px;
+}
+
+
+/* Not sure why I need to include this, 
+  since it should be included in tailwind already
+  but it wasn't working in Tauri without it */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

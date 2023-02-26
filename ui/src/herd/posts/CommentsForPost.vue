@@ -4,7 +4,7 @@
     v-if="loading"
     class="flex justify-center items-center w-full md:max-w-screen-md"
   >
-    <mwc-circular-progress indeterminate />
+    <BaseSpinner />
   </div>
   
   <div
@@ -12,7 +12,7 @@
     class="w-full md:max-w-screen-md"
   >
     <CreateComment
-      class="mb-8"
+      class="mb-12"
       :dna-hash="dnaHash"
       :post-hash="postHash"
       @created="fetchComments"
@@ -29,7 +29,7 @@
         :dna-hash="dnaHash"
         :comment-hash="hash" 
         :post-author-hash="postAuthorHash"
-        class="mb-4"
+        class="my-8"
         @deleted="fetchComments"
       />
     </div>
