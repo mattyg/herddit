@@ -23,7 +23,6 @@
           <input
             v-model="publish"
             type="checkbox"
-            :checked="publish"
             class="checkbox checkbox-lg"
           >
         </label>

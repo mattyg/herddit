@@ -28,7 +28,6 @@
               v-model="showPrivate"
               type="checkbox"
               class="toggle toggle-md"
-              :checked="showPrivate"
             >
           </div>
         </div>
