@@ -102,18 +102,18 @@ export default defineComponent({
         const network_seed = encodeHashToBase64(entropy);
 
         // Prepare herd cloned cell
-        const cloneCellParams = {
+
+        // Clone herd cell
+        const cloneCell: ClonedCell = await this.client.createCloneCell({
           role_name: 'herd',
+          name: this.title,
           modifiers: {
             network_seed: network_seed,
             properties: {
               title: this.title
             },
           },
-        };
-
-        // Clone herd cell
-        const cloneCell: ClonedCell = await this.client.createCloneCell(cloneCellParams);
+        });
 
         // Publish Listing about cell
         const listing: Listing = { 

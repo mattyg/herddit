@@ -165,14 +165,21 @@ export default defineComponent({
             if(!this.listing) return;
 
             const appInfo = await this.client.appInfo();
-            const cellInfo = appInfo.cell_info.herd.find((cell) => {  
-                // @ts-ignore  
-                return cell.cloned && isEqual(cell.cloned.cell_id[0], this.listing?.dna)
+            const cellInfo = appInfo.cell_info.herd.find((cell) => {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              if(!cell.cloned) return false;
+
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              return isEqual(cell.cloned.cell_id[0], this.listing.dna);
             });
+
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             const clonedCell = cellInfo?.cloned;
 
-            if(cellInfo && !clonedCell.enabled) {
+            if(clonedCell && !clonedCell.enabled) {
                 // If cell is disabled, enable it again
                 try {
                     await this.client.enableCloneCell({
@@ -180,13 +187,12 @@ export default defineComponent({
                     });
 
                     this.cellInstalled = true;
+                    return clonedCell.cell_id;
                 }
                 catch(e: any) {
                    toast.error("Error enabling cloned cell", e.data.data)
                    this.$router.push('/');
                 }
-                
-                return clonedCell.cell_id;
             } else if(!clonedCell) {
                 // If cell not found, install it
                 try {
@@ -205,7 +211,7 @@ export default defineComponent({
                   return cloneCell.cell_id;
                 }
                 catch(e: any) {
-                  toast.error("Error installing cell", e.data.data)
+                  toast.error("Error installing cloned cell", e.data.data)
                   this.$router.push('/');
                 }
             } else {
@@ -217,7 +223,6 @@ export default defineComponent({
             try {
                 this.herdInfo = await this.client.callZome({
                     cell_id,
-                    cap_secret: null,
                     zome_name: 'herd',
                     fn_name: 'get_info',
                     payload: null,
