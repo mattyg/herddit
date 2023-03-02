@@ -14,6 +14,19 @@
       <div class="text-3xl my-4">
         The Watering Hole
       </div>
+      <div>
+        <div class="flex justify-center items-center space-x-4 my-8">
+          <div class="text-neutrl-content font-bold">
+            Show Private Herds
+          </div>
+          <input
+            v-model="showPrivate"
+            type="checkbox"
+            class="toggle toggle-md"
+            :checked="showPrivate"
+          >
+        </div>
+      </div>
     </div>
         
     <AllListings

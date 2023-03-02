@@ -9,28 +9,16 @@
     v-if="!loading"
     class="flex justify-center"
   >
-    <div>
-      <div class="flex justify-center items-center space-x-4 my-8">
-        <div class="text-base-content font-bold">
-          Private Herds
-        </div>
-        <input
-          v-model="showPrivate"
-          type="checkbox"
-          class="toggle toggle-md"
-          :checked="showPrivate"
-        >
-      </div>
-        
+    <div>        
       <div
         v-if="hashes && hashes.length > 0"
-        class="text-center"
+        class="flex flex-wrap justify-center items-center h-screen"
       >
         <ListingLink 
           v-for="hash in hashes" 
           :key="encodeHashToBase64(hash)"
           :listing-hash="hash"
-          class="mx-8 my-4 inline-block"
+          class="mx-8 my-4 inline-block  w-1/4"
         />
       </div>
       <div

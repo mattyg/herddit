@@ -3,9 +3,9 @@
     <article class="prose w-full  md:max-w-screen-lg mx-4">
       <h1>Gather a Herd</h1>
 
-      <div class="form-control my-4">
+      <div class="form-control my-4 font-bold">
         <label class="label">
-          <span class="label-text">Title</span>
+          <span class="label-text">Herd Name</span>
         </label>
         <input
           v-model="title"
@@ -18,15 +18,15 @@
           </span>
         </label>
       </div>
-      <div class="form-control my-4 max-w-sm">
+      <div class="form-control my-4 max-w-md">
         <label class="label cursor-pointer">
           <input
             v-model="publish"
             type="checkbox"
             :checked="publish"
-            class="checkbox checkbox-md"
+            class="checkbox checkbox-lg"
           >
-          <span class="label-text text-2xl">Announce to the Watering Hole</span> 
+          <span class="label-text text-2xl">Share at the Watering Hole</span> 
         </label>
       </div>
         

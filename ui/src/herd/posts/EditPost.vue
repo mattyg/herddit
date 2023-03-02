@@ -4,7 +4,7 @@
       <h1>Edit Call</h1>
       <div class="form-control w-full">
         <label class="label">
-          <span class="label-text">Title</span>
+          <span class="label-text font-bold">Title</span>
         </label>
         <input
           v-model="title"
@@ -14,7 +14,7 @@
       </div>
       <div class="form-control w-full">
         <label class="label">
-          <span class="label-text">Message</span>
+          <span class="label-text font-bold">Message</span>
         </label>
         <textarea
           ref="contentTextarea"
