@@ -18,7 +18,7 @@
           </span>
         </label>
       </div>
-      <div class="form-control my-4 max-w-md">
+      <div class="form-control my-4 flex flex-row justify-start items-center space-x-4">
         <label class="label cursor-pointer">
           <input
             v-model="publish"
@@ -26,8 +26,8 @@
             :checked="publish"
             class="checkbox checkbox-lg"
           >
-          <span class="label-text text-2xl">Share at the Watering Hole</span> 
         </label>
+        <span class="label-text text-2xl">Share at the Watering Hole</span> 
       </div>
         
       <div class="form-control my-12">
