@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="loading"
-    style="display: flex; flex: 1; align-items: center; justify-content: center"
+    class="h-full flex flex-1 justify-center items-center"
   >
     <BaseSpinner>Tracking down the herd...</BaseSpinner>
   </div>
@@ -45,10 +45,12 @@ import { defineComponent, inject, ComputedRef, PropType } from 'vue';
 import { AppAgentClient, ActionHash, encodeHashToBase64 } from '@holochain/client';
 import PostListItem from './PostListItem.vue';
 import { toast } from 'vue3-toastify';
+import BaseSpinner from '../../components/BaseSpinner.vue';
 
 export default defineComponent({
   components: {
-    PostListItem
+    PostListItem,
+    BaseSpinner,
   },
   props: {
     dnaHash: {

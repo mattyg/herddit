@@ -69,13 +69,6 @@
         
         <span v-else>The requested post was not found.</span>
       </div>
-
-      <div
-        v-else
-        style="display: flex; flex: 1; align-items: center; justify-content: center"
-      >
-        <BaseSpinner />
-      </div>
     </div>
   </div>
 </template>

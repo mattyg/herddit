@@ -1,13 +1,6 @@
 <template>
   <div
-    v-if="loading"
-    class="h-screen flex flex-col flex-1 justify-center items-center bg-base-100 text-base-content"
-  >
-    <BaseSpinner>Heading to water...</BaseSpinner>
-  </div>
-  
-  <div
-    v-else
+    v-if="!loading"
     class="flex justify-center w-full"
   >
     <div

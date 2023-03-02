@@ -1,14 +1,7 @@
 
-<template>
+<template>  
   <div
-    v-if="loading"
-    class="flex justify-center items-center w-full md:max-w-screen-md"
-  >
-    <BaseSpinner />
-  </div>
-  
-  <div
-    v-else
+    v-if="!loading"
     class="w-full md:max-w-screen-md"
   >
     <CreateComment

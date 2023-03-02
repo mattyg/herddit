@@ -4,13 +4,13 @@
     class="h-screen flex flex-col flex-1 justify-center items-center space-y-4 bg-base-10 text-base-content"
   >
     <BaseSpinner>
-      Wandering into the herd...
+      Tracking down the herd...
     </BaseSpinner>
   </div>
 
   <div
-    v-else
-    class="w-full"
+    v-if="!loading"
+    class="w-full h-full"
   >
     <div class="h-16 sticky top-0 w-full flex flex-row justify-between items-center shadow-md space-x-4 px-8 bg-neutral text-neutral-content z-30">
       <div class="flex flex-row justify-start items-center space-x-2">
@@ -54,11 +54,12 @@
 
     <div
       v-if="listing"
-      class="w-full flex justify-center"
+      class="w-full h-full flex justify-center"
     >
-      <div class="w-full md:max-w-screen-xl my-16 z-10">
-        <RouterView :dna-hash="listing.dna" />
-      </div>
+      <RouterView
+        :dna-hash="listing.dna"
+        class="w-full md:max-w-screen-lg my-16 z-10"
+      />
     </div>
   </div>
 </template>
