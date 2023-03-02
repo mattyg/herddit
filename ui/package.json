@@ -9,7 +9,7 @@
     "build": "vue-tsc --noEmit && vite build",
     "build:watch": "concurrently \"vue-tsc --noEmit --watch\" \"vite build --watch --clearScreen false\"",
     "preview": "vite preview",
-    "package": "npm run build && cd dist && bestzip ../dist.zip *"
+    "package": "rm -rf ./dist && npm run build && cd dist && bestzip ../dist.zip *"
   },
   "dependencies": {
     "@babel/types": "^7.20.2",
