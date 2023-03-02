@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="loading"
-    class="h-screen flex flex-col flex-1 justify-center items-center space-y-4 bg-base"
+    class="h-screen flex flex-col flex-1 justify-center items-center space-y-4 bg-base-10 text-base-content"
   >
     <BaseSpinner>
       Wandering into the herd...
@@ -142,12 +142,11 @@ export default defineComponent({
                 this.listing = listing;
                 
             } catch (e: any) {
-                console.log('error', e);
-                toast.error('Error converting data to mnemonic', e);
+                toast.error('Invalid Secret Herd-Word', e);
+                this.$router.push('/');
             }
         },
         async fetchListing() {
-            console.log('fetching listing', this.$route.params.listingHashString);
             try {
                 this.record = await this.client.callZome({
                     cap_secret: null,
@@ -158,7 +157,6 @@ export default defineComponent({
                 });
 
                 this.listing = decode((this.record?.entry as any).Present.entry) as Listing;
-                console.log('listing is', this.listing);
             } catch(e: any) {
                 toast.error('Error fetching listing:', e.data.data);
             }
@@ -176,7 +174,6 @@ export default defineComponent({
 
             if(cellInfo && !clonedCell.enabled) {
                 // If cell is disabled, enable it again
-                console.log("Cell is disabled, enabling");
                 try {
                     await this.client.enableCloneCell({
                         clone_cell_id: [this.listing?.dna, this.client.myPubKey]
@@ -191,7 +188,6 @@ export default defineComponent({
                 
                 return clonedCell.cell_id;
             } else if(!clonedCell) {
-                console.log("Cell not found, installing");
                 // If cell not found, install it
                 try {
                   const cloneCell: ClonedCell = await this.client.createCloneCell({
@@ -212,7 +208,6 @@ export default defineComponent({
                   this.$router.push('/');
                 }
             } else {
-                console.log('Cell installed & enabled, do nothing')
                 this.cellInstalled = true;
                 return clonedCell.cell_id;
             }

@@ -3,16 +3,17 @@
     v-if="!loading && listing"
     :to="`/herds/${listingHashString}`"
   >
-    <div class="flex flex-col items-center space-x-1">
+    <div class="flex flex-row items-center space-x-1">
       <div
         v-if="isPrivate"
         class="text-3xl mr-2"
         title="This herd is not published to the watering hole"
       >
         <svg
+          class="h-8 w-8"
           xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
+          width="256"
+          height="256"
           viewBox="0 0 256 256"
         ><path
           fill="currentColor"

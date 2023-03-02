@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="loading"
-    class="h-screen flex flex-col flex-1 justify-center items-center space-y-4"
+    class="h-screen flex flex-col flex-1 justify-center items-center bg-neutral text-neutral-content"
   >
     <BaseSpinner>Heading to water...</BaseSpinner>
   </div>
@@ -36,36 +36,6 @@
       </footer>
     </profiles-context>
   </div>
-  
-  <input
-    id="join-herd-modal"
-    v-model="joinHerdModalVisible"
-    type="checkbox"
-    className="modal-toggle"
-  >
-  <label
-    htmlFor="join-herd-modal"
-    className="modal cursor-pointer"
-  >
-    <label
-      className="modal-box relative"
-      htmlFor=""
-    >
-      <div class="prose form-control">
-        <h3>Enter Secret Herd-Word:</h3>
-        <textarea
-          v-model="herd_password"
-          class="textarea textarea-bordered textarea-sm w-full h-32"
-        />
-        <div class="modal-action">
-          <button
-            class="btn btn-primary bn-sm"
-            @click="joinPrivateHerd"
-          >Join Secret Herd</button>
-        </div>
-      </div>
-    </label>
-  </label>
 </template>
 <script lang="ts">
 import { defineComponent, computed } from 'vue';
@@ -140,11 +110,6 @@ export default defineComponent({
 
   },
   methods: {
-    joinPrivateHerd() {
-      this.$router.push(`/herds/private/${this.herd_password}`);
-      this.herd_password = "";
-      this.joinHerdModalVisible = false;
-    },
     async createProfile() {
       try {
         await this.setProfile();

@@ -1,5 +1,5 @@
 <template>
-  <div class="navbar h-13">
+  <div class="navbar h-13 z-20">
     <div class="flex-1">
       <RouterLink
         to="/"
@@ -69,10 +69,6 @@
                 /></svg>
                 Edit Profile
               </RouterLink>
-            </li>
-            
-            <li>
-              <label htmlFor="join-herd-modal">Join Secret Herd</label>
             </li>
           </ul>
         </li>
