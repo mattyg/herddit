@@ -191,7 +191,8 @@ export default defineComponent({
                 // If cell not found, install it
                 try {
                   const cloneCell: ClonedCell = await this.client.createCloneCell({
-                      role_name: this.listing?.title,
+                      role_name: 'herd',
+                      name: this.listing?.title,
                       modifiers: {
                           network_seed: this.listing?.network_seed,
                           properties: {

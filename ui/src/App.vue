@@ -85,7 +85,7 @@ export default defineComponent({
 
     try {
       // Setup conductor websocket
-      const client = await AppAgentWebsocket.connect('', 'herddit', 15000);
+      const client = await AppAgentWebsocket.connect('', 'herddit', 25000);
 
       // Setup profiles store
       const profilesClient = new ProfilesClient(client, 'directory', 'profiles');
