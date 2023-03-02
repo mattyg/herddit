@@ -198,7 +198,6 @@ export default defineComponent({
                 try {
                   const cloneCell: ClonedCell = await this.client.createCloneCell({
                       role_name: 'herd',
-                      name: this.listing?.title,
                       modifiers: {
                           network_seed: this.listing?.network_seed,
                           properties: {
