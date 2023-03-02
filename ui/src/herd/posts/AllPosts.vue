@@ -10,11 +10,8 @@
     v-else
     class="w-full flex justify-center"
   >
-    <div v-if="error">
-      Error fetching the posts: {{ error.data.data }}.
-    </div>
     <div
-      v-else-if="hashes && hashes.length > 0"
+      v-if="hashes && hashes.length > 0"
       class="w-full md:max-w-screen-md flex flex-col justify-center items-start space-y-8"
     >
       <PostListItem 
@@ -47,6 +44,7 @@
 import { defineComponent, inject, ComputedRef, PropType } from 'vue';
 import { AppAgentClient, ActionHash, encodeHashToBase64 } from '@holochain/client';
 import PostListItem from './PostListItem.vue';
+import { toast } from 'vue3-toastify';
 
 export default defineComponent({
   components: {
@@ -64,11 +62,10 @@ export default defineComponent({
       client,
     };
   },
-  data(): { hashes: Array<ActionHash> | undefined; loading: boolean; error: any } {
+  data(): { hashes: Array<ActionHash> | undefined; loading: boolean } {
     return {
       hashes: undefined,
       loading: true,
-      error: undefined
     }
   },
   async mounted() {
@@ -87,8 +84,9 @@ export default defineComponent({
         console.log('post hashes received is',response);
 
         this.hashes = response;
-      } catch (e) {
-        this.error = e;
+      } catch (e: any) {
+        toast.error('Error fetching herd calls', e.data.data);
+        this.$router.back();
       }
       this.loading = false;
     },
