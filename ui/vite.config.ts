@@ -14,8 +14,5 @@ export default defineConfig({
       },
     }),
     tailwindcss(),
-  ],
-  server: {
-    open: true,
-  },
+  ]
 });

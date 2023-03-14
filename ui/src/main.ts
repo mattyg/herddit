@@ -19,7 +19,7 @@ import "@holochain-open-dev/profiles/profile-detail";
 // Initialize Vue App
 const router = createRouter({
     history: createWebHashHistory(),
-    routes, // short for `routes: routes`,
+    routes,
 });
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
