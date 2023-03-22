@@ -53,7 +53,7 @@
     </div>
 
     <div
-      v-if="listing"
+      v-if="listing && cellInstalled"
       class="w-full h-full flex justify-center"
     >
       <RouterView

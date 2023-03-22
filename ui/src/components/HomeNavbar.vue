@@ -3,9 +3,10 @@
     <div class="flex-1">
       <RouterLink
         to="/"
-        class="mx-4 btn btn-ghost normal-case text-3xl"
       >
-        herddit
+        <span class="px-4 btn btn-ghost normal-case text-3xl">
+          herddit
+        </span>
       </RouterLink>
     </div>
     <div>
