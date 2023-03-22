@@ -87,6 +87,8 @@ import dayjs from 'dayjs';
 import { isEqual } from 'lodash';
 import { toast } from 'vue3-toastify';
 import BaseEditDeleteButtons from '../../components/BaseEditDeleteButtons.vue';
+import DOMPurify from 'dompurify';
+
 // Override function
 const renderer = {
   link(href: string) {

@@ -90,6 +90,7 @@ import CommentVotes from './CommentVotes.vue';
 import { marked } from 'marked';
 import BaseEditDeleteButtons from '../../components/BaseEditDeleteButtons.vue';
 import BaseContentHidden from '../../components/BaseContentHidden.vue';
+import DOMPurify from 'dompurify';
 
 export default defineComponent({
   components: {
@@ -148,7 +149,7 @@ export default defineComponent({
     commentContent() {
       if(!this.comment?.content) return undefined;
 
-      return marked(this.comment?.content);
+      return DOMPurify.sanitize(marked(this.comment?.content));
     },
     authorPubKey() {
       if (!this.record) return undefined;
