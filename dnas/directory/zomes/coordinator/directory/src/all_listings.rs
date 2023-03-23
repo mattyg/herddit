@@ -1,4 +1,4 @@
-use hdk::prelude::*;
+use hdk::prelude::{*, holo_hash::DnaHash};
 use directory_integrity::*;
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
@@ -8,7 +8,7 @@ pub struct GetListingsInput {
 }
 
 #[hdk_extern]
-pub fn get_listings(input: GetListingsInput) -> ExternResult<Vec<ActionHash>> {
+pub fn get_listings(input: GetListingsInput) -> ExternResult<Vec<(DnaHash, ActionHash)>> {
     let mut records: Vec<Record> = vec!();
 
     if input.include_public {
@@ -23,9 +23,22 @@ pub fn get_listings(input: GetListingsInput) -> ExternResult<Vec<ActionHash>> {
 
     records.sort_by_key(|r| r.action_hashed().timestamp());
 
-    let hashes: Vec<ActionHash> = records
+    let listing_dna_hashes: Vec<DnaHash> = records.clone()
+        .into_iter()
+        .filter_map(|r| r.entry.to_app_option().ok())
+        .filter_map(|r| r)
+        .map(|listing: Listing| listing.dna)
+        .collect();
+
+    let listing_action_hashes: Vec<ActionHash> = records
         .into_iter()
         .map(|r| r.action_address().clone())
+        .collect();
+
+    let hashes = listing_dna_hashes
+        .iter()
+        .zip(listing_action_hashes.iter())
+        .map(|(a, b)| (a.clone(), b.clone()))
         .collect();
 
     Ok(hashes)
