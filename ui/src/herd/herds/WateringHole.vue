@@ -1,6 +1,12 @@
 <template>
   <div
-    v-if="!loading"
+    v-if="loading"
+    class="h-screen flex flex-col flex-1 justify-center items-center bg-neutral text-neutral-content"
+  >
+    <BaseSpinner>Heading to water...</BaseSpinner>
+  </div>
+  <div
+    v-else
     class="w-full h-full bg-base-100 text-base-content"
   >
     <div class="h-16 sticky top-0 w-full flex flex-row justify-between items-center shadow-md space-x-4 px-8 z-30 bg-neutral text-neutral-content">
@@ -27,13 +33,9 @@
       </div>
     </div>
 
-    <h1 class="text-5xl font-bold text-center my-12">
-      Find Your Herd
-    </h1>
     <AllListings
       :show-empty-message="true"
       :show-private="showPrivate"
-      class="my-12 z-0"
     />
   </div>
   <input
