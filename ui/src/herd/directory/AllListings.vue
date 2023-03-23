@@ -34,7 +34,7 @@
           v-for="hash in installedListingHashes" 
           :key="encodeHashToBase64(hash)"
           :listing-hash="hash"
-          class="inline-block px-4 my-2 truncate flex justify-center"
+          class="inline-block px-4 my-4 mx-2 truncate flex justify-center"
         />
       </div>
     </div>
@@ -54,7 +54,7 @@
           v-for="hash in notInstalledListingHashes" 
           :key="encodeHashToBase64(hash)"
           :listing-hash="hash"
-          class="inline-block px-4 my-2 truncate flex justify-center"
+          class="inline-block px-4 my-4 mx-2 truncate flex justify-center"
         />
       </div>
     </div>

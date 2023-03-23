@@ -27,6 +27,7 @@
       class="absolute z-30 bg-neutral text-neutral-content p-4 rounded-md flex flex-col justify-center min-w-64 max-w-92 break-words"
     >
       <profile-detail
+        class="sl-theme-dark"
         :agentPubKey="agentPubKey"
       />
       <RouterLink

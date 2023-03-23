@@ -9,12 +9,18 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import routes from './routes';
 
 // Profiles custom elements
-import "@holochain-open-dev/profiles/profiles-context";
-import "@holochain-open-dev/profiles/create-profile";
-import "@holochain-open-dev/profiles/agent-avatar";
-import "@holochain-open-dev/profiles/my-profile";
-import "@holochain-open-dev/profiles/profile-prompt";
-import "@holochain-open-dev/profiles/profile-detail";
+import "@holochain-open-dev/profiles/elements/profiles-context.js";
+import "@holochain-open-dev/profiles/elements/create-profile.js";
+import "@holochain-open-dev/profiles/elements/agent-avatar.js";
+import "@holochain-open-dev/profiles/elements/my-profile.js";
+import "@holochain-open-dev/profiles/elements/profile-prompt.js";
+import "@holochain-open-dev/profiles/elements/profile-detail.js";
+
+// Shoelace
+import '@shoelace-style/shoelace/dist/themes/light.css';
+import '@shoelace-style/shoelace/dist/themes/dark.css';
+import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path';
+setBasePath('shoelace');
 
 // Initialize Vue App
 const router = createRouter({
