@@ -24,6 +24,7 @@ pub fn create_comment(comment: Comment) -> ExternResult<Record> {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CommentMetadata {
+    pub original_action_hash: ActionHash,
     pub record: Record,
     pub upvotes: usize,
     pub downvotes: usize,
@@ -73,6 +74,7 @@ pub fn get_comment_metadata(
     let record = get_latest_record(original_action_hash.clone())?;
     
     let comment_metadata = CommentMetadata {
+        original_action_hash,
         record: record,
         upvotes: upvotes,
         downvotes: downvotes,
@@ -85,7 +87,6 @@ pub fn get_comment_metadata(
 #[derive(Serialize, Deserialize, Debug)]
 pub struct UpdateCommentInput {
     pub original_comment_hash: ActionHash,
-    pub previous_comment_hash: ActionHash,
     pub updated_comment: Comment,
 }
 
@@ -132,10 +133,10 @@ pub fn get_comments_for_post(post_hash: ActionHash) -> ExternResult<Vec<ActionHa
         }
     });
 
-    // Return hashes
+    // Return original action hashes
     let hashes: Vec<ActionHash> = comments_metadata
         .into_iter()
-        .map(|r| r.record.action_address().clone())
+        .map(|r| r.original_action_hash)
         .collect();
 
     Ok(hashes)

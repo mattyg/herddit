@@ -1,8 +1,6 @@
 <template>
   <BaseVoteInput 
     :votes="votes"
-    :dna-hash="dnaHash"
-    :comment-hash="commentHash"
     :my-vote="myVote"
     @upvote="upvote"
     @downvote="downvote"
@@ -24,7 +22,7 @@ export default defineComponent({
       type: Object as PropType<Uint8Array>,
       required: true
     },
-    commentHash: {
+    originalActionHash: {
       type: Object as PropType<Uint8Array>,
       required: true
     },
@@ -53,17 +51,16 @@ export default defineComponent({
       try {
         const vote_tag = await this.client.callZome({
           cell_id: [this.dnaHash, this.client.myPubKey],
-          cap_secret: null,
           zome_name: 'posts',
           fn_name: 'get_my_vote_on_comment',
-          payload: this.commentHash,
+          payload: this.originalActionHash,
         });
         
         if(vote_tag) {
           this.myVote = vote_tag.value;
         }
       } catch (e: any) {
-        toast.error("Failed to vote on post: ", e.data.data);
+        toast.error(`Failed to fetch post votes count: ${e.data.data}`);
       }
     },
     async upvote() {
@@ -72,15 +69,14 @@ export default defineComponent({
       try {
         await this.client.callZome({
           cell_id: [this.dnaHash, this.client.myPubKey],
-          cap_secret: null,
           zome_name: 'posts',
           fn_name: 'upvote_comment',
-          payload: this.commentHash,
+          payload: this.originalActionHash,
         });
         this.$emit('upvote');
         this.getMyVote();
       } catch (e: any) {
-        toast.error("Failed to vote on post: ", e.data.data);
+        toast.error(`Failed to vote on post: ${e.data.data}`);
       }
     },
     async downvote() {
@@ -89,10 +85,9 @@ export default defineComponent({
       try {
         await this.client.callZome({
           cell_id: [this.dnaHash, this.client.myPubKey],
-          cap_secret: null,
           zome_name: 'posts',
           fn_name: 'downvote_comment',
-          payload: this.commentHash,
+          payload: this.originalActionHash,
         });
         this.$emit('downvote');
         this.getMyVote();
