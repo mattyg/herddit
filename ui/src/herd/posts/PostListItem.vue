@@ -8,7 +8,7 @@
     </div>
     <div
       v-else-if="votesCount >= 0 || showIfVoteNegative"
-      class="w-full flex flex-row justify-start items-center bg-base-200 px-8 py-4 space-x-8"
+      class="w-full flex flex-row justify-start items-center bg-base-200 text-base-content px-8 py-4 space-x-8"
     >
       <PostVotes 
         :votes="votesCount" 

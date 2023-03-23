@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full flex justify-center">
+  <div class="w-full flex justify-center text-base-content">
     <div class="w-full md:max-w-screen-xl">
       <div v-if="!loading">
         <div v-if="editing && record">
