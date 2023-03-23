@@ -85,13 +85,30 @@ export default defineComponent({
 
     try {
       // Setup conductor websocket
-      const client = await AppAgentWebsocket.connect('', 'herddit', 25000);
+      const client = await AppAgentWebsocket.connect('', 'herddit', 60000);
 
       // Setup profiles store
       const profilesClient = new ProfilesClient(client, 'directory', 'profiles');
       this.profilesStore = new ProfilesStore(profilesClient, {
         avatarMode: "avatar-required",
-        additionalFields: ["Location", "Bio", "Website"],
+          // Custom app level profile fields
+        additionalFields: [
+          {
+            name: "location",
+            label: "Location",
+            required: false, 
+          },
+          {
+            name: "bio",
+            label: "Bio",
+            required: false,
+          },
+          {
+            name: "website",
+            label: "Website",
+            required: false,
+          }
+        ], 
       });
       this.client = client;
 
