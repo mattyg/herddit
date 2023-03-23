@@ -20,7 +20,7 @@
         v-for="hash in hashes" 
         :key="encodeHashToBase64(hash)"
         :dna-hash="dnaHash"
-        :comment-hash="hash" 
+        :original-action-hash="hash" 
         :post-author-hash="postAuthorHash"
         class="my-8"
         @deleted="fetchComments"
@@ -40,6 +40,7 @@ import { defineComponent, inject, ComputedRef, PropType } from 'vue';
 import { AppAgentClient, ActionHash, encodeHashToBase64 } from '@holochain/client';
 import CommentDetail from './CommentDetail.vue';
 import CreateComment from './CreateComment.vue';
+import { toast } from 'vue3-toastify';
 
 export default defineComponent({
   components: {
@@ -86,8 +87,8 @@ export default defineComponent({
           fn_name: 'get_comments_for_post',
           payload: this.postHash,
         });
-      } catch (e) {
-        this.error = e;
+      } catch (e: any) {
+        toast.error(`Failed to fetch comments: ${e.data.data}`);
       }
 
       this.loading = false;

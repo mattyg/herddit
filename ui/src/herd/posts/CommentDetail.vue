@@ -3,7 +3,7 @@
     <div v-if="editing && record">
       <EditComment
         :dna-hash="dnaHash"
-        :original-comment-hash="commentHash"
+        :original-action-hash="originalActionHash"
         :current-record="record"
         class="flex flex-1"
         @updated="editing = false; fetchComment();"
@@ -19,7 +19,7 @@
           class="mr-2"
           :votes="upvotes - downvotes" 
           :dna-hash="dnaHash" 
-          :comment-hash="commentHash"
+          :original-action-hash="originalActionHash"
           @upvote="fetchComment"
           @downvote="fetchComment"
         />
@@ -105,7 +105,7 @@ export default defineComponent({
       type: Object as PropType<Uint8Array>,
       required: true
     },
-    commentHash: {
+    originalActionHash: {
       type: Object as PropType<Uint8Array>,
       required: true
     },
@@ -167,13 +167,11 @@ export default defineComponent({
       return isEqual(this.authorPubKey, this.postAuthorHash);
     },
     isMyComment() {
-      if (!this.commentHash) return false;
-
       return isEqual(this.authorPubKey, this.client.myPubKey);
     }
   },
   watch: {
-    commentHash() {
+    originalActionHash() {
       this.fetchComment();
     }
   },
@@ -183,12 +181,11 @@ export default defineComponent({
   methods: {
     async fetchComment() {
       try {
-        console.log('fetching comment with this comment hash', this.commentHash)
         const comment_metadata = await this.client.callZome({
           cell_id: [this.dnaHash, this.client.myPubKey],
           zome_name: 'posts',
           fn_name: 'get_comment_metadata',
-          payload: this.commentHash,
+          payload: this.originalActionHash,
         });
 
         this.record = comment_metadata.record;
@@ -206,9 +203,9 @@ export default defineComponent({
           cell_id: [this.dnaHash, this.client.myPubKey],
           zome_name: 'posts',
           fn_name: 'delete_comment',
-          payload: this.commentHash,
+          payload: this.originalActionHash,
         });
-        this.$emit('deleted', this.commentHash);
+        this.$emit('deleted', this.originalActionHash);
         this.record = undefined;
       } catch (e: any) {
         toast.error(`Error deleting the comment: ${e.data.data}`);

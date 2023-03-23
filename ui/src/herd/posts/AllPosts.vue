@@ -83,7 +83,6 @@ export default defineComponent({
           fn_name: 'get_all_posts_sorted_by_votes',
           payload: null,
         });
-        console.log('post hashes received is',response);
 
         this.hashes = response;
       } catch (e: any) {

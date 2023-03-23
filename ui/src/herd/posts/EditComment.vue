@@ -40,7 +40,7 @@ export default defineComponent({
       type: Object as PropType<Uint8Array>,
       required: true,
     },
-    originalCommentHash: {
+    originalActionHash: {
       type: Object as PropType<Uint8Array>,
       required: true,
     },
@@ -86,8 +86,7 @@ export default defineComponent({
           zome_name: 'posts',
           fn_name: 'update_comment',
           payload: {
-            original_comment_hash: this.originalCommentHash,
-            previous_comment_hash: this.currentRecord.signed_action.hashed.hash,
+            original_comment_hash: this.originalActionHash,
             updated_comment: comment
           }
         });
