@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, ComputedRef, defineProps, computed } from 'vue';
+import { inject, ComputedRef, computed } from 'vue';
 import { decode } from '@msgpack/msgpack';
 import { AppAgentClient, Record, encodeHashToBase64 } from '@holochain/client';
 import { Listing } from './types';

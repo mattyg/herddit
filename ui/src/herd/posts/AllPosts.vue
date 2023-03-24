@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, ComputedRef, defineProps } from 'vue';
+import { inject, ComputedRef } from 'vue';
 import { AppAgentClient,encodeHashToBase64 } from '@holochain/client';
 import PostListItem from './PostListItem.vue';
 import { toast } from 'vue3-toastify';
