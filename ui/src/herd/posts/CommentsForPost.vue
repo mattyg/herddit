@@ -1,19 +1,14 @@
 
 <template>  
-  <div
-    v-if="!loading"
-    class="w-full md:max-w-screen-md"
-  >
+  <div class="w-full md:max-w-screen-md">
     <CreateComment
       class="mb-12"
       :dna-hash="dnaHash"
       :post-hash="postHash"
-      @created="fetchComments"
+      @created="runFetchComments"
     />
-
-    <span v-if="error">Error fetching the comments: {{ error.data.data }}.</span>
     <div
-      v-else-if="hashes && hashes.length > 0"
+      v-if="hashes && hashes.length > 0"
       class="w-full"
     >
       <CommentDetail 
@@ -23,7 +18,7 @@
         :original-action-hash="hash" 
         :post-author-hash="postAuthorHash"
         class="my-8"
-        @deleted="fetchComments"
+        @deleted="runFetchComments"
       />
     </div>
     <div
@@ -35,67 +30,36 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, inject, ComputedRef, PropType } from 'vue';
-import { AppAgentClient, ActionHash, encodeHashToBase64 } from '@holochain/client';
+<script lang="ts" setup>
+import { inject, ComputedRef } from 'vue';
+import { AppAgentClient, encodeHashToBase64 } from '@holochain/client';
 import CommentDetail from './CommentDetail.vue';
 import CreateComment from './CreateComment.vue';
 import { toast } from 'vue3-toastify';
+import { useRequest } from 'vue-request';
 
-export default defineComponent({
-  components: {
-    CreateComment,
-    CommentDetail,
-  },
-  props: {
-    dnaHash: {
-      type: Object as PropType<Uint8Array>,
-      required: true
-    },
-    postHash: {
-      type: Object as PropType<Uint8Array>,
-      required: true
-    },
-    postAuthorHash: {
-      type: Object as PropType<Uint8Array>,
-      required: true
-    }
-  },
-  setup() {
-    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
-    return {
-      client,
-    };
-  },
-  data(): { hashes: Array<ActionHash> | undefined; loading: boolean; error: any } {
-    return {
-      hashes: undefined,
-      loading: true,
-      error: undefined
-    }
-  },
-  async mounted() {
-    await this.fetchComments()
-  },
-  methods: {
-    async fetchComments() {   
-      console.log('fetching comments again');   
-      try {
-        this.hashes = await this.client.callZome({
-          cell_id: [this.dnaHash, this.client.myPubKey],
-          zome_name: 'posts',
-          fn_name: 'get_comments_for_post',
-          payload: this.postHash,
-        });
-      } catch (e: any) {
-        toast.error(`Failed to fetch comments: ${e.data.data}`);
-      }
+const props = defineProps<{
+  dnaHash: Uint8Array,
+  postHash: Uint8Array,
+  postAuthorHash: Uint8Array
+}>();
+const client = (inject('client') as ComputedRef<AppAgentClient>).value;
 
-      this.loading = false;
-    },
-    encodeHashToBase64(val: Uint8Array) {
-      return encodeHashToBase64(val);
-    }
-  },
-})
+const fetchComments = async () => {   
+  const res = await client.callZome({
+    cell_id: [props.dnaHash, client.myPubKey],
+    zome_name: 'posts',
+    fn_name: 'get_comments_for_post',
+    payload: props.postHash,
+  });
+
+  return res;
+};
+
+const { data: hashes, run: runFetchComments } = useRequest(fetchComments, {
+  pollingInterval: 1000,
+  onError: (e: any) => {
+    toast.error(`Failed to fetch comments: ${e.data.data}`);
+  }
+});
 </script>
