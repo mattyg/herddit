@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="loading"
+    v-if="!allListings && !appInfo"
     class="h-screen flex flex-col flex-1 justify-center items-center bg-base-100 base-neutral-content"
   >
     <BaseSpinner>Finding Herds...</BaseSpinner>
@@ -10,7 +10,7 @@
     class="flex justify-center w-full flex-wrap"
   >
     <div
-      v-if="installedListingHashes.length == 0 && notInstalledListingHashes.length === 0 && showEmptyMessage"
+      v-if="installedListingHashes.length === 0 && notInstalledListingHashes.length === 0 && showEmptyMessage"
       class="flex flex-col justify-center items-center space-y-8"
     >
       <div class="text-2xl my-16">
@@ -37,8 +37,8 @@
         class="w-full flex flex-wrap justify-center items-center"
       >
         <ListingLink 
-          v-for="hash in installedListingHashes" 
-          :key="encodeHashToBase64(hash)"
+          v-for="(hash,i) in installedListingHashes" 
+          :key="i"
           :listing-hash="hash"
           class="inline-block px-4 my-4 mx-2 truncate flex justify-center"
         />
@@ -57,8 +57,8 @@
         class="w-full flex flex-wrap justify-center items-center"
       >
         <ListingLink 
-          v-for="hash in notInstalledListingHashes" 
-          :key="encodeHashToBase64(hash)"
+          v-for="(hash,i) in notInstalledListingHashes" 
+          :key="i"
           :listing-hash="hash"
           class="inline-block px-4 my-4 mx-2 truncate flex justify-center"
         />
@@ -68,76 +68,90 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, ComputedRef, PropType, defineProps, ref, watch } from 'vue';
-import { AppAgentClient, ActionHash, encodeHashToBase64 } from '@holochain/client';
+import { inject, ComputedRef, defineProps, watch, computed } from 'vue';
+import { AppAgentClient, encodeHashToBase64 } from '@holochain/client';
 import ListingLink from './ListingLink.vue';
 import BaseSpinner from '../../components/BaseSpinner.vue';
+import { useRequest } from 'vue-request';
 import { toast } from 'vue3-toastify';
 
-const props = defineProps({
-  dnaHash: {
-      type: Object as PropType<Uint8Array> | undefined,
-      default: undefined,
-    },
-    showEmptyMessage: {
-      type: Boolean,
-      default: false,
-    },
-    showPrivate: {
-      type: Boolean,
-      default: true,
-    }
-});
-
-const installedListingHashes = ref<Array<ActionHash>>([]);
-const notInstalledListingHashes = ref<Array<ActionHash>>([]);
-const loading = ref<boolean>(true);
+const props = defineProps<{
+  dnaHash: Uint8Array,
+  showEmptyMessage?: boolean,
+  showPrivate?: boolean,
+}>();
 
 const client = (inject('client') as ComputedRef<AppAgentClient>).value;
 
 const fetchListings = async () =>  {
-  console.log('fetching listings');
   const cellArgs = props.dnaHash ? {
     cell_id: [props.dnaHash, client.myPubKey]
   } : {
     role_name: 'directory'
   };
 
-  try {
-    const input = {
-      include_public: true,
-      include_private: props.showPrivate,
-    };
+  const input = {
+    include_public: true,
+    include_private: props.showPrivate,
+  };
 
-    // @ts-ignore
-    const allListings = await client.callZome({
-      ...cellArgs,
-      zome_name: 'directory',
-      fn_name: 'get_listings',
-      payload: input
-    });
-
-    // Compare listings to installed herd cells
-    const appInfo = await client.appInfo();
+  // @ts-ignore
+  const allListings = await client.callZome({
+    ...cellArgs,
+    zome_name: 'directory',
+    fn_name: 'get_listings',
+    payload: input
+  });
     
-    // @ts-ignore
-    const installedHerdDnaHashes = appInfo.cell_info.herd.filter(cell => cell.cloned && cell.cloned.enabled).map((cell) => cell.cloned.cell_id[0]);
-    const installedHerdDnaHashStrings = installedHerdDnaHashes.map(h => encodeHashToBase64(h));
-    
-    const installedListings = allListings.filter(([listingDnaHash, ]: [Uint8Array, ]) => installedHerdDnaHashStrings.includes(encodeHashToBase64(listingDnaHash)));
-    const notInstalledListings = allListings.filter(([listingDnaHash, ]: [Uint8Array, ]) => !installedHerdDnaHashStrings.includes(encodeHashToBase64(listingDnaHash)));
-
-    installedListingHashes.value = installedListings.map((l: [Uint8Array, Uint8Array]) => l[1]);
-    notInstalledListingHashes.value = notInstalledListings.map((l: [Uint8Array, Uint8Array]) => l[1]);
-  } catch (e: any) {
-    toast.error('Failed to get listings', e.data.data)
-  }
-  loading.value = false;
+  return allListings;
 };
 
-fetchListings();
+const fetchAppInfo = async () => {
+  const res = await client.appInfo();
+
+  return res;
+}
+
+const installedHerdDnaHashStrings = computed((): Array<string> => {
+  if(!appInfo.value) return [];
+
+  // @ts-ignore
+  const hashStrings = appInfo.value.cell_info.herd.filter(cell => cell.cloned && cell.cloned.enabled).map((cell) => encodeHashToBase64(cell.cloned.cell_id[0]));
+  return hashStrings;
+});
+
+const installedListingHashes = computed((): Array<Uint8Array> => {
+  if(!allListings.value || !appInfo.value) return [];
+  
+  const hashes: Uint8Array[] = allListings.value
+    .filter(([listingDnaHash, ]: [Uint8Array, ]) => installedHerdDnaHashStrings.value.includes(encodeHashToBase64(listingDnaHash)))
+    .map(([, actionHash]: [Uint8Array, Uint8Array]) => actionHash);
+  return hashes;
+});
+
+const notInstalledListingHashes = computed((): Array<Uint8Array> => {
+  if(!allListings.value || !appInfo.value) return [];
+  
+  const hashes: Uint8Array[]  = allListings.value
+    .filter(([listingDnaHash, ]: [Uint8Array, ]) => !installedHerdDnaHashStrings.value.includes(encodeHashToBase64(listingDnaHash)))
+    .map(([, actionHash]: [Uint8Array, Uint8Array]) => actionHash);
+  return hashes;
+});
+
+const { data: allListings, run: runFetchListings } = useRequest(fetchListings, {
+  pollingInterval: 1000,
+  onError: (e: any) => {
+    toast.error(`Failed to fetch listings ${e.data.data}`)
+  }
+});
+const { data: appInfo } = useRequest(fetchAppInfo, {
+  pollingInterval: 1000,
+  onError: (e: any) => {
+    toast.error(`Failed to fetch appInfo ${e.data.data}`)
+  }
+});
 
 watch(props, () => {
-  fetchListings();
+  runFetchListings();
 });
 </script>
