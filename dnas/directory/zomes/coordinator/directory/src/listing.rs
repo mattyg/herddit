@@ -21,7 +21,8 @@ pub fn create_private_listing_idempotent(listing: PrivateListing) -> ExternResul
 pub fn create_listing(listing: Listing) -> ExternResult<ActionHash> {
     let listing_hash = create_entry(&EntryTypes::Listing(listing.clone()))?;
 
-    let path = Path::from("all_listings");
+    let path = Path::from("all_listings").typed(LinkTypes::AllListings)?;
+    path.ensure()?;
     create_link(path.path_entry_hash()?, listing_hash.clone(), LinkTypes::AllListings, ())?;
 
     Ok(listing_hash)
