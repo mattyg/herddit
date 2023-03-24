@@ -27,7 +27,7 @@
       class="absolute z-30 bg-neutral text-neutral-content p-4 rounded-md flex flex-col justify-center min-w-64 max-w-92 break-words"
     >
       <profile-detail
-        class="sl-theme-dark"
+        style="color: hsl(var(--nc)); --sl-input-help-text-color: hsl(var(--nc)); --sl-input-label-color: hsl(var(--nc));"
         :agentPubKey="agentPubKey"
       />
       <RouterLink

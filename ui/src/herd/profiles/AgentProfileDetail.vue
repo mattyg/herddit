@@ -1,16 +1,26 @@
 <template>
-  <div class="w-full min-h-screen flex justify-center">
+  <div
+    class="w-full min-h-screen flex justify-center bg-base-100"
+    style="color: hsl(var(--bc)); --sl-input-help-text-color: hsl(var(--bc)); --sl-input-label-color: hsl(var(--bc));"
+  >
     <div
       v-if="isMyAgent"
       class="w-full h-full flex justify-center items-center max-w-screen-md"
     >
-      <my-profile />
+      <my-profile
+        class="p-8 bg-base-200 text-base-content "
+        style="color: hsl(var(--bc)) !important; --sl-input-help-text-color: hsl(var(--bc)); --sl-input-label-color: hsl(var(--bc));"
+      />
     </div>
     <div
       v-else
       class="w-full h-full flex justify-center items-center max-w-screen-md"
     >
-      <profile-detail :agentPubKey="agentPubKey" />
+      <profile-detail
+        :agentPubKey="agentPubKey"
+        class="p-8 bg-neutral text-neutral-content "
+        style="color: hsl(var(--bc)) !important; --sl-input-help-text-color: hsl(var(--bc)); --sl-input-label-color: hsl(var(--bc));"
+      />
     </div>
   </div>
 </template>
