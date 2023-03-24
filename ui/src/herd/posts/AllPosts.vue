@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="loading"
+    v-if="!hashes && loading"
     class="h-full flex flex-1 justify-center items-center"
   >
     <BaseSpinner>Tracking down the herd...</BaseSpinner>
@@ -40,60 +40,37 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, inject, ComputedRef, PropType } from 'vue';
-import { AppAgentClient, ActionHash, encodeHashToBase64 } from '@holochain/client';
+<script lang="ts" setup>
+import { inject, ComputedRef, defineProps } from 'vue';
+import { AppAgentClient,encodeHashToBase64 } from '@holochain/client';
 import PostListItem from './PostListItem.vue';
 import { toast } from 'vue3-toastify';
 import BaseSpinner from '../../components/BaseSpinner.vue';
+import { useRequest } from 'vue-request';
 
-export default defineComponent({
-  components: {
-    PostListItem,
-    BaseSpinner,
-  },
-  props: {
-    dnaHash: {
-      type: Object as PropType<Uint8Array>,
-      required: true
-    },
-  },
-  setup() {
-    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
-    return {
-      client,
-    };
-  },
-  data(): { hashes: Array<ActionHash> | undefined; loading: boolean } {
-    return {
-      hashes: undefined,
-      loading: true,
-    }
-  },
-  async mounted() {
-    await this.fetchAllPosts();
-  },
-  methods: {
-    async fetchAllPosts() {
-      try {
-        const response = await this.client.callZome({
-          cell_id: [this.dnaHash, this.client.myPubKey],
-          cap_secret: null,
-          zome_name: 'posts',
-          fn_name: 'get_all_posts_sorted_by_votes',
-          payload: null,
-        });
+const client = (inject('client') as ComputedRef<AppAgentClient>).value;
 
-        this.hashes = response;
-      } catch (e: any) {
-        toast.error('Error fetching herd calls', e.data.data);
-        this.$router.back();
-      }
-      this.loading = false;
-    },
-    encodeHashToBase64(val: Uint8Array) {
-      return encodeHashToBase64(val);
-    }
-  },
+const props = defineProps<{
+  dnaHash: Uint8Array
+}>();
+
+const fetchAllPosts = async () => {
+  console.log('fetching');
+  const response = await client.callZome({
+    cell_id: [props.dnaHash, client.myPubKey],
+    zome_name: 'posts',
+    fn_name: 'get_all_posts_sorted_by_votes',
+    payload: null,
+  });
+
+  return response;
+};
+
+const { data: hashes, loading } = useRequest(fetchAllPosts, {
+  pollingInterval: 1000,
+  onError: (e: any) => {
+    toast.error(`Error fetching calls ${e.data.data}`);
+  }
 })
+
 </script>
