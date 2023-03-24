@@ -55,7 +55,6 @@ const props = defineProps<{
 }>();
 
 const fetchAllPosts = async () => {
-  console.log('fetching');
   const response = await client.callZome({
     cell_id: [props.dnaHash, client.myPubKey],
     zome_name: 'posts',
