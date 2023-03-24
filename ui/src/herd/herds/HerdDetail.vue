@@ -153,7 +153,10 @@ const installHerdCell = async () => {
 
     const appInfo = await client.appInfo();
     const cellInfo = appInfo.cell_info.herd.find((cell) => {
+      //@ts-ignore
       if(!cell.cloned) return false;
+
+      //@ts-ignore
       return isEqual(cell.cloned.cell_id[0], listing.value.dna);
     });
 

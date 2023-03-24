@@ -55,6 +55,7 @@ const listingHashString = computed(() => {
 const isPrivate = computed(() => {
   if(!record.value) return;
   
+  //@ts-ignore
   return Object.keys(record.value.signed_action.hashed.content.entry_type.App.visibility).includes('Private');
 })
 

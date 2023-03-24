@@ -76,7 +76,7 @@ import { useRequest } from 'vue-request';
 import { toast } from 'vue3-toastify';
 
 const props = defineProps<{
-  dnaHash: Uint8Array,
+  dnaHash?: Uint8Array,
   showEmptyMessage?: boolean,
   showPrivate?: boolean,
 }>();
