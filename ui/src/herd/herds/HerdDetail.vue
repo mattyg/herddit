@@ -64,191 +64,171 @@
   </div>
 </template>
 
-<script lang="ts">
-import { AppAgentClient, CellId, Record, encodeHashToBase64, decodeHashFromBase64, ClonedCell } from '@holochain/client';
+<script lang="ts" setup>
+import { AppAgentClient, CellId, decodeHashFromBase64, ClonedCell } from '@holochain/client';
 import { decode } from '@msgpack/msgpack';
-import { ComputedRef, defineComponent, inject } from 'vue'
+import { ComputedRef, inject, ref, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { Listing } from '../directory/types';
 import { isEqual } from 'lodash';
 import { toast } from 'vue3-toastify';
 import BaseSpinner from '../../components/BaseSpinner.vue';
 
-export default defineComponent({
-    components: {
-      BaseSpinner,
-    },
-    setup() {
-        const client = (inject('client') as ComputedRef<AppAgentClient>).value;
-        return {
-          client,
-        };
-    },
-    data(): { record: Record | undefined; listing?: Listing; loading: boolean; editing: boolean; herdInfo: any; cellInstalled: boolean} {
-        return {
-            record: undefined,
-            listing: undefined,
-            loading: true,
-            editing: false,
-            herdInfo: undefined,
-            cellInstalled: false,
-        };
-    },
-    computed: {
-        dnaHashString() {
-            if (!this.listing) return undefined;
+const client = (inject('client') as ComputedRef<AppAgentClient>).value;
+const route = useRoute();
+const router = useRouter();
 
-            return encodeHashToBase64(this.listing.dna);
-        },
-        isPrivate() {
-            if(this.$route.params.password) return true;
+const record = ref();
+const listing = ref();
+const herdInfo = ref();
+const loading = ref(true);
+const cellInstalled = ref(false);
+
+const isPrivate = computed(() => {
+  if(route.params.password) return true;
+  if(!record.value) return false;
             
-            if(!this.record) return false;
-            
-            // @ts-ignore
-            return Object.keys(this.record?.signed_action.hashed.content.entry_type.App.visibility).includes('Private');
-        }
-    },
-    async mounted() {
-        if(this.$route.params.password) {
-            await this.decodePasswordToListing(this.$route.params.password as string);
-        } else {
-            await this.fetchListing();
-        }
+  return Object.keys(record.value.signed_action.hashed.content.entry_type.App.visibility).includes('Private');
+});
 
-        const cell_id = await this.installHerdCell();
-        await this.fetchHerdInfo(cell_id);
+onMounted(async () => {
+  await saveListing()
+  const cell_id = await installHerdCell();
+  await fetchHerdInfo(cell_id);
 
-        this.loading = false;    
-    },
-    methods: {
-        async decodePasswordToListing(password: string) {
-            try {
-                // Deserialize Listing from Bubble Babble string
-                const listing: Listing = await this.client.callZome({
-                    role_name: 'directory',
-                    zome_name: 'directory',
-                    fn_name: 'bubble_babble_to_listing',
-                    payload: password,
-                });
+  loading.value = false;    
+})
 
-                // Save PrivateListing to source chain
-                await this.client.callZome({
-                    cap_secret: null,
-                    role_name: 'directory',
-                    zome_name: 'directory',
-                    fn_name: 'create_private_listing_idempotent',
-                    payload: listing,
-                });
+const saveListing = async () => {
+  if(route.params.password) {
+    listing.value = await decodePasswordToListing(route.params.password as string);
+  } else if(route.params.listingHashString) {
+    record.value = await fetchListing(decodeHashFromBase64(route.params.listingHashString as string));
+    listing.value = decode((record.value.entry as any).Present.entry) as Listing;
+  } else {
+    toast.error('Listing password or action hash must be provided');
+    router.push('/');
+  }
+};
 
-                this.listing = listing;
-                
-            } catch (e: any) {
-                toast.error('Invalid Secret Herd-Word', e);
-                this.$router.push('/');
-            }
-        },
-        async fetchListing() {
-            try {
-                this.record = await this.client.callZome({
-                    cap_secret: null,
-                    role_name: 'directory',
-                    zome_name: 'directory',
-                    fn_name: 'get_listing',
-                    payload: decodeHashFromBase64(this.$route.params.listingHashString as string),
-                });
+const decodePasswordToListing = async (password: string) => {
+  try {
+    // Deserialize Listing from Bubble Babble string
+    const res: Listing = await client.callZome({
+        role_name: 'directory',
+        zome_name: 'directory',
+        fn_name: 'bubble_babble_to_listing',
+        payload: password,
+    });
 
-                this.listing = decode((this.record?.entry as any).Present.entry) as Listing;
-            } catch(e: any) {
-                toast.error('Error fetching listing:', e.data.data);
-            }
-        },
-        async installHerdCell() {  
-            if(!this.listing) return;
+    // Save PrivateListing to source chain
+    await client.callZome({
+        cap_secret: null,
+        role_name: 'directory',
+        zome_name: 'directory',
+        fn_name: 'create_private_listing_idempotent',
+        payload: res,
+    });
 
-            const appInfo = await this.client.appInfo();
-            const cellInfo = appInfo.cell_info.herd.find((cell) => {
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
-              if(!cell.cloned) return false;
+    return res;
+  } catch (e: any) {
+      toast.error('Invalid Secret Herd-Word', e);
+      router.push('/');
+  }
+};
 
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
-              return isEqual(cell.cloned.cell_id[0], this.listing.dna);
+const fetchListing = async (listingActionHash: Uint8Array) => {  
+  const res = await client.callZome({
+    role_name: 'directory',
+    zome_name: 'directory',
+    fn_name: 'get_listing',
+    payload: listingActionHash,
+  });
+
+  return res;
+};
+
+const installHerdCell = async () => {  
+    if(!listing.value) return;
+
+    const appInfo = await client.appInfo();
+    const cellInfo = appInfo.cell_info.herd.find((cell) => {
+      //@ts-ignore
+      if(!cell.cloned) return false;
+
+      //@ts-ignore
+      return isEqual(cell.cloned.cell_id[0], listing.value.dna);
+    });
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const clonedCell = cellInfo?.cloned;
+
+    if(clonedCell && !clonedCell.enabled) {
+        // If cell is disabled, enable it again
+        try {
+            await client.enableCloneCell({
+                clone_cell_id: [listing.value.dna, client.myPubKey]
             });
 
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            const clonedCell = cellInfo?.cloned;
-
-            if(clonedCell && !clonedCell.enabled) {
-                // If cell is disabled, enable it again
-                try {
-                    await this.client.enableCloneCell({
-                        clone_cell_id: [this.listing?.dna, this.client.myPubKey]
-                    });
-
-                    this.cellInstalled = true;
-                    return clonedCell.cell_id;
-                }
-                catch(e: any) {
-                   toast.error("Error enabling cloned cell", e.data.data)
-                   this.$router.push('/');
-                }
-            } else if(!clonedCell) {
-                // If cell not found, install it
-                try {
-                  const cloneCell: ClonedCell = await this.client.createCloneCell({
-                      role_name: 'herd',
-                      modifiers: {
-                          network_seed: this.listing?.network_seed,
-                          properties: {
-                              title: this.listing?.title,
-                          },
-                      }
-                  });
-
-                  this.cellInstalled = true;
-                  return cloneCell.cell_id;
-                }
-                catch(e: any) {
-                  toast.error("Error installing cloned cell", e.data.data)
-                  this.$router.push('/');
-                }
-            } else {
-                this.cellInstalled = true;
-                return clonedCell.cell_id;
-            }
-        },
-        async fetchHerdInfo(cell_id: CellId) {
-            try {
-                this.herdInfo = await this.client.callZome({
-                    cell_id,
-                    zome_name: 'herd',
-                    fn_name: 'get_info',
-                    payload: null,
-                });
-            } catch (e: any) {
-                toast.error(`Error fetching the herd cell info: ${e?.data?.data}`);
-            }
-        },
-        async leaveHerd() {
-            if(!this.listing) return;
-
-            try {
-                await this.client.disableCloneCell({
-                    clone_cell_id: [this.listing.dna, this.client.myPubKey]
-                });
-                toast.success(`Disabled cloned cell for herd ${this.listing.title}`);
-            } catch (e: any) {
-                toast.error(`Error disabling the herd cell: ${e.data.data}`);
-            }
-
-            this.$router.push('/');
+            cellInstalled.value = true;
+            return clonedCell.cell_id;
         }
-    },
-})
+        catch(e: any) {
+            toast.error(`Error enabling cloned cell ${e.data.data}`)
+            router.push('/');
+        }
+    } else if(!clonedCell) {
+        // If cell not found, install it
+        try {
+          const cloneCell: ClonedCell = await client.createCloneCell({
+              role_name: 'herd',
+              modifiers: {
+                  network_seed: listing.value.network_seed,
+                  properties: {
+                      title: listing.value.title,
+                  },
+              }
+          });
+
+          cellInstalled.value = true;
+          return cloneCell.cell_id;
+        }
+        catch(e: any) {
+          toast.error(`Error installing cloned cell ${e.data.data}`)
+          router.push('/');
+        }
+    } else {
+        cellInstalled.value = true;
+        return clonedCell.cell_id;
+    }
+};
+
+const fetchHerdInfo = async (cell_id: CellId) => {
+  try {
+    herdInfo.value = await client.callZome({
+      cell_id,
+      zome_name: 'herd',
+      fn_name: 'get_info',
+      payload: null,
+    });
+  } catch (e: any) {
+    toast.error(`Error fetching the herd cell info: ${e.data.data}`);
+  }
+};
+
+const leaveHerd = async () => {
+  if(!listing.value) return;
+
+  try {
+    await client.disableCloneCell({
+        clone_cell_id: [listing.value.dna, client.myPubKey]
+    });
+    toast.success(`Disabled cloned cell for herd ${listing.value.title}`);
+  } catch (e: any) {
+    toast.error(`Error disabling the herd cell: ${e.data.data}`);
+  }
+
+  router.push('/');
+};
 </script>
-
-<style scoped>
-
-</style>

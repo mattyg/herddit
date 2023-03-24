@@ -1,6 +1,6 @@
 <template>
   <RouterLink
-    v-if="!loading && listing"
+    v-if="listing"
     :to="`/herds/${listingHashString}`"
   >
     <div class="flex flex-row items-center space-x-1">
@@ -28,72 +28,52 @@
   </RouterLink>
 </template>
 
-<script lang="ts">
-import { defineComponent, inject, ComputedRef, PropType } from 'vue';
+<script lang="ts" setup>
+import { inject, ComputedRef, defineProps, computed } from 'vue';
 import { decode } from '@msgpack/msgpack';
 import { AppAgentClient, Record, encodeHashToBase64 } from '@holochain/client';
 import { Listing } from './types';
+import { useRequest } from 'vue-request';
 import { toast } from 'vue3-toastify';
 
-export default defineComponent({
-  props: {
-    listingHash: {
-      type: Object as PropType<Uint8Array>,
-      required: true
-    }
-  },
-  setup() {
-    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
-    return {
-      client
-    };
-  },
-  data(): { record: Record | undefined; loading: boolean; editing: boolean; } {
-    return {
-      record: undefined,
-      loading: true,
-      editing: false,
-    }
-  },
-  computed: {
-    listing() {
-      if (!this.record) return undefined;
-      return decode((this.record.entry as any).Present.entry) as Listing;
-    },
-    listingHashString() {
-      if (!this.listing) return undefined;
+const props = defineProps<{
+  listingHash: Uint8Array
+}>();
 
-      return encodeHashToBase64(this.listingHash);
-    },
-    isPrivate() {
-      if(!this.record) return;
-      // @ts-ignore
-      return Object.keys(this.record?.signed_action.hashed.content.entry_type.App.visibility).includes('Private');
-    }
-  },
-  async mounted() {
-    await this.fetchListing();
-  },
-  methods: {
-    async fetchListing() {
-      this.loading = true;
-      this.record = undefined;
+const client = (inject('client') as ComputedRef<AppAgentClient>).value;
 
-      try {
+const listing = computed(() => {
+  if (!record.value) return undefined;
+  
+  return decode((record.value.entry as any).Present.entry) as Listing;
+});
 
-      this.record = await this.client.callZome({
-        cap_secret: null,
-        role_name: 'directory',
-        zome_name: 'directory',
-        fn_name: 'get_listing',
-        payload: this.listingHash,
-      });
-      
-      } catch(e: any) {
-        toast.error('Error getting listing: ', e.data.data)
-      }
-      this.loading = false;
-    },
-  },
+const listingHashString = computed(() => {
+  return encodeHashToBase64(props.listingHash);
+});
+
+const isPrivate = computed(() => {
+  if(!record.value) return;
+  
+  //@ts-ignore
+  return Object.keys(record.value.signed_action.hashed.content.entry_type.App.visibility).includes('Private');
 })
+
+const fetchListing = async (): Promise<Record> => {
+  const res =  await client.callZome({
+      cap_secret: null,
+      role_name: 'directory',
+      zome_name: 'directory',
+      fn_name: 'get_listing',
+      payload: props.listingHash,
+    });
+ 
+  return res;
+};
+
+const { data: record } = useRequest(fetchListing, {
+  onError: (e: any) => {
+    toast.error(`Failed to fetch listing ${e.data.data}`)
+  }
+});
 </script>

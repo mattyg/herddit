@@ -1,23 +1,23 @@
 <template>
   <div class="w-full flex justify-center text-base-content">
     <div class="w-full md:max-w-screen-xl">
-      <div v-if="!loading">
-        <div v-if="editing && record">
+      <div v-if="post_metadata">
+        <div v-if="editing && post_metadata.record">
           <EditPost 
             :dna-hash="dnaHash" 
             :post-hash="postHash" 
-            :current-record="record" 
-            @updated="() => { editing = false; fetchPost(); }" 
+            :current-record="post_metadata.record" 
+            @updated="() => { editing = false; runFetchPost(); }" 
             @cancelled="() => {editing = false;}"
           />
         </div>
         <div
-          v-else-if="record && postContent && authorHash"
+          v-else-if="post_metadata.record && postContent && authorHash"
           class="flex flex-row justify-center items-start space-x-4"
         >
           <PostVotes 
             class="mr-2"
-            :votes="upvotes - downvotes" 
+            :votes="post_metadata.upvotes - post_metadata.downvotes" 
             :dna-hash="dnaHash" 
             :post-hash="postHash"
             @upvote="fetchPost"
@@ -73,10 +73,10 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, inject, ComputedRef, PropType } from 'vue';
+<script lang="ts" setup>
+import { inject, ComputedRef, ref, computed } from 'vue';
 import { decode } from '@msgpack/msgpack';
-import { AppAgentClient, Record, AppInfo, encodeHashToBase64, decodeHashFromBase64 } from '@holochain/client';
+import { AppAgentClient, decodeHashFromBase64, Record } from '@holochain/client';
 import { Post } from './types';
 import PostVotes from './PostVotes.vue';
 import CommentsForPost from './CommentsForPost.vue';
@@ -88,121 +88,91 @@ import { isEqual } from 'lodash';
 import { toast } from 'vue3-toastify';
 import BaseEditDeleteButtons from '../../components/BaseEditDeleteButtons.vue';
 import DOMPurify from 'dompurify';
+import { useRoute, useRouter } from 'vue-router';
+import { useRequest } from 'vue-request';
 
-// Override function
-const renderer = {
-  link(href: string) {
-    return href;
+const route = useRoute();
+const router = useRouter();
+const props = defineProps<{
+  dnaHash: Uint8Array
+}>();
+const emit = defineEmits(['post-deleted'])
+const editing = ref(false);
+const client = (inject('client') as ComputedRef<AppAgentClient>).value;
+
+const post = computed(() => {
+  if (!post_metadata.value?.record) return undefined;
+
+  return decode((post_metadata.value.record.entry as any).Present.entry) as Post;
+});
+
+const postHash = computed(() => {
+  return decodeHashFromBase64(route.params.postHashString as string);
+});
+
+const postContent = computed(() => {
+  if(!post.value?.content) return undefined;
+  return DOMPurify.sanitize(marked(post.value?.content));
+});
+
+const myPost = computed(() => {
+  if(!post_metadata.value?.record || !appInfo.value) return false;
+  return isEqual(post_metadata.value.record.signed_action.hashed.content.author, client.myPubKey);
+});
+
+const authorHash = computed(() => {
+  if (!post_metadata.value?.record) return undefined;
+
+  return post_metadata.value?.record.signed_action.hashed.content.author;
+});
+
+const dateRelative = computed(() => {
+  if(!post_metadata.value?.record?.signed_action.hashed.content.timestamp) return;
+
+  return dayjs(post_metadata.value?.record.signed_action.hashed.content.timestamp/1000).fromNow();
+});
+
+const fetchPost = async (): Promise<{ upvotes: number, downvotes: number, record: Record }> => {
+  const post_metadata = await client.callZome({
+    cell_id: [props.dnaHash, client.myPubKey],
+    zome_name: 'posts',
+    fn_name: 'get_post_metadata',
+    payload: postHash.value,
+  });
+
+  return post_metadata;
+};
+
+const fetchAppInfo = async () => {
+  const res = await client.appInfo();
+  return res;
+}
+ 
+const deletePost = async() => {
+  try {
+    await client.callZome({
+      cell_id: [props.dnaHash, client.myPubKey],
+      cap_secret: null,
+      zome_name: 'posts',
+      fn_name: 'delete_post',
+      payload: postHash.value,
+    });
+    emit('post-deleted', postHash.value);
+    router.push(`/herds/${route.params.listingHashString}`);
+  } catch (e: any) {
+    toast.error(`Error deleting the post: ${e.data.data}`);
   }
 };
 
-marked.use({ renderer });
-
-export default defineComponent({
-  components: {
-    PostVotes,
-    CommentsForPost,
-    EditPost,
-    AgentProfile,
-    BaseEditDeleteButtons,
-  },
-  props: {
-    dnaHash: {
-      // @ts-ignore
-      type: Object as PropType<Uint8Array>,
-      required: true
-    }
-  },
-  emits: ['post-deleted'],
-  setup() {
-    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
-    return {
-      client
-    };
-  },
-  data(): { record: Record | undefined; upvotes: number; downvotes: number; my_vote?: number; loading: boolean; editing: boolean; appInfo?: AppInfo} {
-    return {
-      record: undefined,
-      upvotes: 0,
-      downvotes: 0,
-      my_vote: undefined,
-      loading: true,
-      editing: false,
-      appInfo: undefined,
-    }
-  },
-  computed: {
-    post() {
-      if (!this.record) return undefined;
-      return decode((this.record.entry as any).Present.entry) as Post;
-    },
-    postHash() {
-      return decodeHashFromBase64(this.$route.params.postHashString as string);
-    },
-    postContent() {
-      if(!this.post?.content) return undefined;
-
-      return marked(this.post?.content);
-    },
-    myPost() {
-      if(!this.record || !this.appInfo) return false;
-      return isEqual(this.record.signed_action.hashed.content.author, this.client.myPubKey);
-    },
-    authorHash() {
-      if (!this.record) return undefined;
-
-      return this.record.signed_action.hashed.content.author;
-    },
-    authorHashString() {
-      if(!this.authorHash) return;
-      
-      return encodeHashToBase64(this.authorHash);
-    },
-    dateRelative() {
-      if(!this.record?.signed_action.hashed.content.timestamp) return;
-
-      return dayjs(this.record.signed_action.hashed.content.timestamp/1000).fromNow();
-    },
-  },
-  async mounted() {
-    await this.fetchPost();
-    this.appInfo = await this.client.appInfo();
-  },
-  methods: {
-    async fetchPost() {
-      try {
-        const post_metadata = await this.client.callZome({
-          cell_id: [this.dnaHash, this.client.myPubKey],
-          zome_name: 'posts',
-          fn_name: 'get_post_metadata',
-          payload: this.postHash,
-        });
-
-        console.log('post_metadata', post_metadata)
-        this.upvotes = post_metadata.upvotes;
-        this.downvotes = post_metadata.downvotes;
-        this.record = post_metadata.record;
-      } catch (e: any) {
-         toast.error(`Error fetching the post: ${e.data.data}`);
-      }
-
-      this.loading = false;
-    },
-    async deletePost() {
-      try {
-        await this.client.callZome({
-          cell_id: [this.dnaHash, this.client.myPubKey],
-          cap_secret: null,
-          zome_name: 'posts',
-          fn_name: 'delete_post',
-          payload: this.postHash,
-        });
-        this.$emit('post-deleted', this.postHash);
-        this.$router.push(`/herds/${this.$route.params.listingHashString}`);
-      } catch (e: any) {
-        toast.error(`Error deleting the post: ${e.data.data}`);
-      }
-    },
+const { data: post_metadata, run: runFetchPost } = useRequest(fetchPost, {
+  onError: (e: any) => {
+    toast.error(`Error fetching the post: ${e.data.data}`);
   }
-})
+});
+
+const { data: appInfo } = useRequest(fetchAppInfo, {
+  onError: (e: any) => {
+    toast.error(`Failed to fetch appInfo ${e.data.data}`)
+  }
+});
 </script>
