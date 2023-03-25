@@ -92,7 +92,7 @@ const isPrivate = computed(() => {
 });
 
 onMounted(async () => {
-  await saveListing()
+  await saveListing();
   const cell_id = await installHerdCell();
   await fetchHerdInfo(cell_id);
 

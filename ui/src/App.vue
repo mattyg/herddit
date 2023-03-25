@@ -115,7 +115,6 @@ export default defineComponent({
       await this.setProfile();
 
       this.profilesStore.myProfile.subscribe((data) => {
-        console.log('profile store', data);
         if (data.status === 'complete') {
           this.profile = data.value;
         }
