@@ -1,27 +1,27 @@
 <template>
-  <div v-if="!loading && !isDeleted">
-    <div v-if="editing && record">
+  <div v-if="!isDeleted">
+    <div v-if="editing">
       <EditComment
         :dna-hash="dnaHash"
         :original-action-hash="originalActionHash"
-        :current-record="record"
+        :current-record="comment_metadata.record"
         class="flex flex-1"
-        @updated="editing = false; fetchComment();"
+        @updated="editing = false; runFetchComment();"
         @cancelled="editing = false"
       />
     </div>
-    <div v-else-if="record">
+    <div v-else-if="comment_metadata">
       <div
-        v-if="upvotes - downvotes >= 0 || showIfVoteNegative"
+        v-if="comment_metadata.upvotes - comment_metadata.downvotes >= 0 || showIfVoteNegative"
         class="flex flex-row items-start"
       >
         <CommentVotes 
           class="mr-2"
-          :votes="upvotes - downvotes" 
+          :votes="comment_metadata.upvotes - comment_metadata.downvotes" 
           :dna-hash="dnaHash" 
           :original-action-hash="originalActionHash"
-          @upvote="fetchComment"
-          @downvote="fetchComment"
+          @upvote="runFetchComment"
+          @downvote="runFetchComment"
         />
         <div class="px-4 flex-1">
           <div class="flex flex-row justify-between items-start mb-2 min-h-12">
@@ -74,12 +74,15 @@
       </BaseContentHidden>
     </div>
   </div>
+  <BaseContentHidden v-else-if="isDeleted">
+    Response deleted by author
+  </BaseContentHidden>
 </template>
 
-<script lang="ts">
-import { defineComponent, inject, ComputedRef, PropType } from 'vue';
+<script lang="ts" setup>
+import { inject, ComputedRef, ref, computed, watch} from 'vue';
 import { decode } from '@msgpack/msgpack';
-import { AppAgentClient, Record } from '@holochain/client';
+import { AppAgentClient } from '@holochain/client';
 import { Comment } from './types';
 import EditComment from './EditComment.vue';
 import AgentProfile from '../profiles/AgentProfile.vue';
@@ -91,127 +94,91 @@ import { marked } from 'marked';
 import BaseEditDeleteButtons from '../../components/BaseEditDeleteButtons.vue';
 import BaseContentHidden from '../../components/BaseContentHidden.vue';
 import DOMPurify from 'dompurify';
+import { useRequest } from 'vue-request';
 
-export default defineComponent({
-  components: {
-    EditComment,
-    AgentProfile,
-    CommentVotes,
-    BaseEditDeleteButtons,
-    BaseContentHidden,
-  },
-  props: {
-    dnaHash: {
-      type: Object as PropType<Uint8Array>,
-      required: true
-    },
-    originalActionHash: {
-      type: Object as PropType<Uint8Array>,
-      required: true
-    },
-    postAuthorHash: {
-      type: Object as PropType<Uint8Array>,
-      required: true
-    }
-  },
-  emits: ['deleted'],
-  setup() {
-    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
-    return {
-      client
-    };
-  },
-  data(): { record?: Record; upvotes: number; downvotes: number; loading: boolean; editing: boolean; showIfVoteNegative: boolean;} {
-    return {
-      record: undefined,
-      upvotes: 0,
-      downvotes: 0,
-      loading: true,
-      editing: false,
-      showIfVoteNegative: false
-    }
-  },
-  computed: {
-    isUpdated() {
-      if (!this.record) return undefined;
+const props = defineProps<{
+  dnaHash: Uint8Array,
+  originalActionHash: Uint8Array,
+  postAuthorHash: Uint8Array
+}>();
 
-      return this.record.signed_action.hashed.content.type === 'Update';
-    },
-    isDeleted() {
-      if (!this.record) return undefined;
+const emit = defineEmits(['deleted']);
 
-      return this.record.signed_action.hashed.content.type === 'Delete';
-    },
-    comment() {
-      if (!this.record?.entry) return undefined;
-      return decode((this.record.entry as any).Present.entry) as Comment;
-    },
-    commentContent() {
-      if(!this.comment?.content) return undefined;
+const client = (inject('client') as ComputedRef<AppAgentClient>).value;
 
-      return DOMPurify.sanitize(marked(this.comment?.content));
-    },
-    authorPubKey() {
-      if (!this.record) return undefined;
+const editing = ref(false);
+const showIfVoteNegative = ref(false);
 
-      return this.record.signed_action.hashed.content.author;
-    },
-    dateRelative() {
-      if(!this.record?.signed_action.hashed.content.timestamp) return;
+const isUpdated = computed(() => {
+  if (!comment_metadata.value?.record) return undefined;
 
-      return dayjs(this.record.signed_action.hashed.content.timestamp/1000).fromNow();
-    },
-    isPostAuthor() {
-      if (!this.record) return undefined;
+  return comment_metadata.value.record.signed_action.hashed.content.type === 'Update';
+});
+const isDeleted = computed(() => {
+  if (!comment_metadata.value?.record) return false;
 
-      return isEqual(this.authorPubKey, this.postAuthorHash);
-    },
-    isMyComment() {
-      return isEqual(this.authorPubKey, this.client.myPubKey);
-    }
-  },
-  watch: {
-    originalActionHash() {
-      this.fetchComment();
-    }
-  },
-  async mounted() {
-    await this.fetchComment();
-  },
-  methods: {
-    async fetchComment() {
-      try {
-        const comment_metadata = await this.client.callZome({
-          cell_id: [this.dnaHash, this.client.myPubKey],
-          zome_name: 'posts',
-          fn_name: 'get_comment_metadata',
-          payload: this.originalActionHash,
-        });
+  return comment_metadata.value.record.signed_action.hashed.content.type === 'Delete';
+});
+const comment = computed(() => {
+  if (!comment_metadata.value?.record.entry) return undefined;
 
-        this.record = comment_metadata.record;
-        this.upvotes = comment_metadata.upvotes;
-        this.downvotes = comment_metadata.downvotes;
-      } catch(e: any) {
-        toast.error(`Error fetching the comment: ${e.data.data}`);
-      }
+  return decode((comment_metadata.value.record.entry as any).Present.entry) as Comment;
+});
+const commentContent = computed(() => {
+  if(!comment.value?.content) return undefined;
 
-      this.loading = false;
-    },
-    async deleteComment() {
-      try {
-        await this.client.callZome({
-          cell_id: [this.dnaHash, this.client.myPubKey],
-          zome_name: 'posts',
-          fn_name: 'delete_comment',
-          payload: this.originalActionHash,
-        });
-        this.$emit('deleted', this.originalActionHash);
-        this.record = undefined;
-      } catch (e: any) {
-        toast.error(`Error deleting the comment: ${e.data.data}`);
+  return DOMPurify.sanitize(marked(comment.value?.content));
+});
+const authorPubKey = computed(() => {
+  if (!comment_metadata.value?.record) return undefined;
 
-      }
-    }
-  },
-})
+  return comment_metadata.value.record.signed_action.hashed.content.author;
+});
+const dateRelative = computed(() => {
+  if(!comment_metadata.value?.record.signed_action.hashed.content.timestamp) return;
+
+  return dayjs(comment_metadata.value.record.signed_action.hashed.content.timestamp/1000).fromNow();
+});
+const isPostAuthor = computed(() => {
+  return isEqual(authorPubKey.value, props.postAuthorHash);
+});
+const isMyComment = computed(() => {
+  return isEqual(authorPubKey.value, client.myPubKey);
+});
+
+const fetchComment = async () => {
+  const res = await client.callZome({
+    cell_id: [props.dnaHash, client.myPubKey],
+    zome_name: 'posts',
+    fn_name: 'get_comment_metadata',
+    payload: props.originalActionHash,
+  });
+
+  return res;
+};
+
+const deleteComment = async () => {
+  try {
+    await client.callZome({
+      cell_id: [props.dnaHash, client.myPubKey],
+      zome_name: 'posts',
+      fn_name: 'delete_comment',
+      payload: props.originalActionHash
+    });
+
+    emit('deleted', props.originalActionHash);
+  } catch (e: any) {
+    toast.error(`Error deleting the comment: ${e.data.data}`);
+  }
+};
+
+const { data: comment_metadata, run: runFetchComment } = useRequest(fetchComment, {
+  onError: (e: any) => {
+    toast.error(`Error fetching the comment: ${e.data.data}`);
+  }
+});
+
+watch(props, () => {
+  runFetchComment();
+});
 </script>
