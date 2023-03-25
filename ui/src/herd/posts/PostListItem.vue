@@ -43,6 +43,7 @@
     </div>
     <BaseContentHidden
       v-else
+      :allowPeeking="true"
       @show="showIfVoteNegative = true"
     >
       Call trampled by the herd

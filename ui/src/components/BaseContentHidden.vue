@@ -8,6 +8,7 @@
       </slot>
     </div>
     <button
+      v-if="allowPeeking"
       class="btn btn-ghost btn-xs"
       @click="$emit('show')"
     >
@@ -26,10 +27,12 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
+import { defineEmits } from 'vue'
 
-export default defineComponent({
-  emits: ['show']
-})
+defineEmits(['show']);
+
+defineProps<{
+  allowPeeking?: boolean
+}>();
 </script>

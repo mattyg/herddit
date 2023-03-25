@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!isDeleted">
+  <div v-if="!isDeleted || showIfDeleted">
     <div v-if="editing">
       <EditComment
         :dna-hash="dnaHash"
@@ -68,13 +68,17 @@
 
       <BaseContentHidden
         v-else
+        :allowPeeking="true"
         @show="showIfVoteNegative = true"
       >
         Response trampled by the herd
       </BaseContentHidden>
     </div>
   </div>
-  <BaseContentHidden v-else-if="isDeleted">
+  <BaseContentHidden
+    v-else-if="isDeleted"
+    @show="showIfDeleted = true"
+  >
     Response deleted by author
   </BaseContentHidden>
 </template>
@@ -108,6 +112,7 @@ const client = (inject('client') as ComputedRef<AppAgentClient>).value;
 
 const editing = ref(false);
 const showIfVoteNegative = ref(false);
+const showIfDeleted = ref(false);
 
 const isUpdated = computed(() => {
   if (!comment_metadata.value?.record) return undefined;
