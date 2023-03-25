@@ -507,7 +507,7 @@ dependencies = [
 
 [[package]]
 name = "directory"
-version = "0.0.1"
+version = "0.2.0"
 dependencies = [
  "boba",
  "directory_integrity",
@@ -1232,7 +1232,7 @@ checksum = "e0a7ae3ac2f1173085d398531c705756c94a4c56843785df85a60c1a0afac116"
 
 [[package]]
 name = "posts"
-version = "0.0.1"
+version = "0.2.0"
 dependencies = [
  "hdk",
  "posts_integrity",
@@ -1282,7 +1282,7 @@ dependencies = [
 
 [[package]]
 name = "profiles"
-version = "0.0.1"
+version = "0.1.2"
 dependencies = [
  "hc_zome_profiles_coordinator",
  "hdk",
