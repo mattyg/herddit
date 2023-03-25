@@ -74,43 +74,24 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ComputedRef, inject, PropType } from 'vue';
+<script lang="ts" setup>
+import { ComputedRef, inject, computed, ref } from 'vue';
 import { AppAgentClient, encodeHashToBase64 } from '@holochain/client';
-import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
+import { ProfilesStore, Profile } from "@holochain-open-dev/profiles";
 import AgentProfile from '../herd/profiles/AgentProfile.vue';
 import BaseThemeSelect from './BaseThemeSelect.vue';
 
-export default defineComponent({
-  components: {
-    AgentProfile,
-    BaseThemeSelect
-  },
-  props: {
-    profile: {
-      type: Object as PropType<Profile> | undefined,
-      default: undefined,
-      required: false,
-    }
-  },
-  setup() {
-    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
-    const profilesStore = (inject('profilesStore') as ComputedRef<ProfilesStore>).value;
-    return {
-      client,
-      profilesStore,
-    };
-  },
-  computed: {
-    myPubKeyBase64() {
-      if(!this.client?.myPubKey) return;
-      
-      return encodeHashToBase64(this.client.myPubKey);
-    },
-  }
-});
+const client = (inject('client') as ComputedRef<AppAgentClient>).value;
+const profilesStore = (inject('profilesStore') as ComputedRef<ProfilesStore>).value;
+const profile = ref<Profile>();
+
+profilesStore.myProfile.subscribe(res => {
+  if(res.status === 'complete') profile.value = res.value;
+})
+
+const myPubKeyBase64 = computed(() => {
+  if(!client.myPubKey) return;
+  
+  return encodeHashToBase64(client.myPubKey);
+})
 </script>
-
-<style scoped>
-
-</style>
