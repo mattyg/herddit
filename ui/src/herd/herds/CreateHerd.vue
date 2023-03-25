@@ -173,7 +173,6 @@ export default defineComponent({
         fn_name: 'listing_to_bubble_babble',
         payload: listing,
       });
-      console.log('words', listing_babble);
       
       this.password = listing_babble;
       this.showPasswordModal = true;

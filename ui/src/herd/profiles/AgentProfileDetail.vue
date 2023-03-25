@@ -51,10 +51,7 @@ export default defineComponent({
 
       return decodeHashFromBase64(this.$route.params.agentPubKeyString as string);
     }
-  },
-  mounted() {
-    console.log('agentPubKeyString', this.$route.params.agentPubKeyString)
-  },
+  }
 })
 </script>
 
