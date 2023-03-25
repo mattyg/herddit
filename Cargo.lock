@@ -1282,7 +1282,7 @@ dependencies = [
 
 [[package]]
 name = "profiles"
-version = "0.0.1"
+version = "0.1.2"
 dependencies = [
  "hc_zome_profiles_coordinator",
  "hdk",
