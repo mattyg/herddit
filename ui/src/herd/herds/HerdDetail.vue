@@ -9,7 +9,7 @@
   </div>
 
   <div
-    v-if="!loading"
+    v-else
     class="w-full h-full"
   >
     <div class="h-16 sticky top-0 w-full flex flex-row justify-between items-center shadow-md space-x-4 px-8 bg-neutral text-neutral-content z-30">

@@ -70,6 +70,5 @@ const { data: hashes, loading } = useRequest(fetchAllPosts, {
   onError: (e: any) => {
     toast.error(`Error fetching calls ${e.data.data}`);
   }
-})
-
+});
 </script>

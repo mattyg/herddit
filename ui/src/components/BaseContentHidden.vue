@@ -33,7 +33,3 @@ export default defineComponent({
   emits: ['show']
 })
 </script>
-
-<style scoped>
-
-</style>
