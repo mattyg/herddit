@@ -68,7 +68,9 @@ const fetchAllPosts = async () => {
 const { data: hashes, loading } = useRequest(fetchAllPosts, {
   pollingInterval: 1000,
   onError: (e: any) => {
-    toast.error(`Error fetching calls ${e.data.data}`);
+    if(!e.data.data.includes('CellMissing')) {
+      toast.error(`Error fetching calls ${e.data.data}`);
+    }
   }
 });
 </script>
