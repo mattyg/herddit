@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, ComputedRef, defineProps } from 'vue';
+import { inject, ComputedRef } from 'vue';
 import { AppAgentClient,encodeHashToBase64 } from '@holochain/client';
 import PostListItem from './PostListItem.vue';
 import { toast } from 'vue3-toastify';
@@ -55,7 +55,6 @@ const props = defineProps<{
 }>();
 
 const fetchAllPosts = async () => {
-  console.log('fetching');
   const response = await client.callZome({
     cell_id: [props.dnaHash, client.myPubKey],
     zome_name: 'posts',
@@ -71,6 +70,5 @@ const { data: hashes, loading } = useRequest(fetchAllPosts, {
   onError: (e: any) => {
     toast.error(`Error fetching calls ${e.data.data}`);
   }
-})
-
+});
 </script>

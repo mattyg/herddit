@@ -20,8 +20,8 @@
             :votes="post_metadata.upvotes - post_metadata.downvotes" 
             :dna-hash="dnaHash" 
             :post-hash="postHash"
-            @upvote="fetchPost"
-            @downvote="fetchPost"
+            @upvote="runFetchPost"
+            @downvote="runFetchPost"
           />
 
           <div class="w-full pr-8">
@@ -165,6 +165,7 @@ const deletePost = async() => {
 };
 
 const { data: post_metadata, run: runFetchPost } = useRequest(fetchPost, {
+  pollingInterval: 1000,
   onError: (e: any) => {
     toast.error(`Error fetching the post: ${e.data.data}`);
   }
