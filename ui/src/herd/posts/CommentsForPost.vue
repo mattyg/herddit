@@ -12,8 +12,8 @@
       class="w-full"
     >
       <CommentDetail 
-        v-for="hash in hashes" 
-        :key="encodeHashToBase64(hash)"
+        v-for="(hash, i) in hashes" 
+        :key="i"
         :dna-hash="dnaHash"
         :original-action-hash="hash" 
         :post-author-hash="postAuthorHash"
@@ -32,7 +32,7 @@
 
 <script lang="ts" setup>
 import { inject, ComputedRef } from 'vue';
-import { AppAgentClient, encodeHashToBase64 } from '@holochain/client';
+import { AppAgentClient } from '@holochain/client';
 import CommentDetail from './CommentDetail.vue';
 import CreateComment from './CreateComment.vue';
 import { toast } from 'vue3-toastify';

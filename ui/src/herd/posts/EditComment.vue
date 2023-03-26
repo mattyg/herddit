@@ -27,74 +27,47 @@
     </div>
   </div>
 </template>
-<script lang="ts">
-import { defineComponent, inject, ComputedRef, PropType } from 'vue';
+<script lang="ts" setup>
+import { inject, computed, ComputedRef, ref } from 'vue';
 import { AppAgentClient, Record } from '@holochain/client';
 import { Comment } from './types';
 import { decode } from '@msgpack/msgpack';
 import { toast } from 'vue3-toastify';
 
-export default defineComponent({
-  props: {
-    dnaHash: {
-      type: Object as PropType<Uint8Array>,
-      required: true,
-    },
-    originalActionHash: {
-      type: Object as PropType<Uint8Array>,
-      required: true,
-    },
-    currentRecord: {
-      type: Object,
-      required: true
-    }
-  },
-  emits: ['updated', 'cancelled'],
-  setup() {
-    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
-    return {
-      client,
-    };
-  },
-  data(): {
-    content: string;
-  } {
-    const currentComment = decode((this.currentRecord.entry as any).Present.entry) as Comment;
-    return { 
-      content: currentComment.content,
-    }
-  },
-  computed: {
-    currentComment() {
-      return decode((this.currentRecord.entry as any).Present.entry) as Comment;
-    },
-    isCommentValid() {
-      return this.content;
-    },
-  },
-  methods: {
-    async updateComment() {
+const props = defineProps<{
+  dnaHash: Uint8Array,
+  originalActionHash: Uint8Array,
+  currentRecord: Record
+}>();
+const emit = defineEmits(['updated', 'cancelled']);
+const client = (inject('client') as ComputedRef<AppAgentClient>).value;
 
-      const comment: Comment = { 
-        content: this.content,
-        post_ah: this.currentComment.post_ah,
-      };
+const comment = computed(() => {
+  return decode((props.currentRecord.entry as any).Present.entry) as Comment;
+});
+const isCommentValid = computed(() => content.value);
+const content = ref<string>(comment.value.content);
 
-      try {
-        const updateRecord: Record = await this.client.callZome({
-          cell_id: [this.dnaHash, this.client.myPubKey],
-          zome_name: 'posts',
-          fn_name: 'update_comment',
-          payload: {
-            original_comment_hash: this.originalActionHash,
-            updated_comment: comment
-          }
-        });
-        this.$emit('updated', updateRecord.signed_action.hashed.hash);
-      } catch (e: any) {
-        toast.error(`Error updating the comment: ${e.data.data}`);
+const updateComment = async () => {
+
+  const newComment: Comment = { 
+    content: content.value,
+    post_ah: comment.value.post_ah,
+  };
+
+  try {
+    const updateRecord: Record = await client.callZome({
+      cell_id: [props.dnaHash, client.myPubKey],
+      zome_name: 'posts',
+      fn_name: 'update_comment',
+      payload: {
+        original_comment_hash: props.originalActionHash,
+        updated_comment: newComment
       }
-    },
-  },
-})
+    });
+    emit('updated', updateRecord.signed_action.hashed.hash);
+  } catch (e: any) {
+    toast.error(`Error updating the comment: ${e.data.data}`);
+  }
+};
 </script>

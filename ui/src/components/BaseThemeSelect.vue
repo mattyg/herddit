@@ -35,20 +35,8 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
 import { useThemeStore } from '../stores/theme'
 
-
-export default defineComponent({
-  setup () {
-    const store = useThemeStore();
-
-    return { store };
-  }
-})
+const store = useThemeStore();
 </script>
-
-<style scoped>
-
-</style>

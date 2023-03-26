@@ -42,20 +42,16 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
+import { defineEmits } from 'vue'
 
-export default defineComponent({
-  props: {
-    votes: {
-      type: Number,
-      default: 0
-    },
-    myVote: {
-      type: Number,
-      default: 0
-    }
-  },
-  emits: ['upvote', 'downvote']
-})
+defineEmits(['upvote', 'downvote']);
+
+withDefaults(defineProps<{
+  votes?: number,
+  myVote?: number
+}>(), {
+  votes: 0,
+  myVote: 0,
+});
 </script>

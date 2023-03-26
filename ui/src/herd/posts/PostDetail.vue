@@ -84,12 +84,14 @@ import AgentProfile from '../profiles/AgentProfile.vue';
 import EditPost from './EditPost.vue';
 import {marked} from 'marked';
 import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import { isEqual } from 'lodash';
 import { toast } from 'vue3-toastify';
 import BaseEditDeleteButtons from '../../components/BaseEditDeleteButtons.vue';
 import DOMPurify from 'dompurify';
 import { useRoute, useRouter } from 'vue-router';
 import { useRequest } from 'vue-request';
+dayjs.extend(relativeTime);
 
 const route = useRoute();
 const router = useRouter();
@@ -116,20 +118,18 @@ const postContent = computed(() => {
 });
 
 const myPost = computed(() => {
-  if(!post_metadata.value?.record || !appInfo.value) return false;
+  if(!post_metadata.value?.record) return false;
   return isEqual(post_metadata.value.record.signed_action.hashed.content.author, client.myPubKey);
 });
 
 const authorHash = computed(() => {
   if (!post_metadata.value?.record) return undefined;
-
-  return post_metadata.value?.record.signed_action.hashed.content.author;
+  return post_metadata.value.record.signed_action.hashed.content.author;
 });
 
-const dateRelative = computed(() => {
-  if(!post_metadata.value?.record?.signed_action.hashed.content.timestamp) return;
-
-  return dayjs(post_metadata.value?.record.signed_action.hashed.content.timestamp/1000).fromNow();
+const dateRelative = computed((): undefined | string => {
+  if(!post_metadata.value?.record) return undefined;
+  return dayjs(post_metadata.value.record.signed_action.hashed.content.timestamp/1000).fromNow();
 });
 
 const fetchPost = async (): Promise<{ upvotes: number, downvotes: number, record: Record }> => {
@@ -143,11 +143,6 @@ const fetchPost = async (): Promise<{ upvotes: number, downvotes: number, record
   return post_metadata;
 };
 
-const fetchAppInfo = async () => {
-  const res = await client.appInfo();
-  return res;
-}
- 
 const deletePost = async() => {
   try {
     await client.callZome({
@@ -168,12 +163,6 @@ const { data: post_metadata, run: runFetchPost } = useRequest(fetchPost, {
   pollingInterval: 1000,
   onError: (e: any) => {
     toast.error(`Error fetching the post: ${e.data.data}`);
-  }
-});
-
-const { data: appInfo } = useRequest(fetchAppInfo, {
-  onError: (e: any) => {
-    toast.error(`Failed to fetch appInfo ${e.data.data}`)
   }
 });
 </script>

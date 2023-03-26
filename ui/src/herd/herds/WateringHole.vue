@@ -40,7 +40,7 @@
   </div>
   <input
     id="join-herd-modal"
-    v-model="joinHerdModalVisible"
+    v-model="showJoinHerdModal"
     type="checkbox"
     className="modal-toggle"
   >
@@ -69,45 +69,29 @@
   </label>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { AppAgentClient } from '@holochain/client';
-import { ComputedRef, defineComponent, inject } from 'vue'
+import { ComputedRef, ref, inject, onMounted } from 'vue'
 import AllListings from '../directory/AllListings.vue';
 import BaseSpinner from '../../components/BaseSpinner.vue';
+import { useRouter } from 'vue-router';
 
-export default defineComponent({
-    components: {
-        AllListings,
-        BaseSpinner,
-    },
-    setup() {
-        const client = (inject('client') as ComputedRef<AppAgentClient>).value;
-        return {
-          client,
-        };
-    },
-    data() {
-        return {
-            loading: true,
-            showPrivate: true,
-            herd_password: "",
-            joinHerdModalVisible: false,
-        };
-    },
-    async mounted() {
-        await this.client.appInfo();
-        this.loading = false;
-    },
-    methods: {
-      joinPrivateHerd() {
-        this.$router.push(`/herds/private/${this.herd_password}`);
-        this.herd_password = "";
-        this.joinHerdModalVisible = false;
-      },
-    }
-})
+const client = (inject('client') as ComputedRef<AppAgentClient>).value;
+const router = useRouter();
+
+const loading = ref(true);
+const showPrivate = ref(true);
+const herd_password = ref("");
+const showJoinHerdModal = ref(false);
+
+onMounted(async () => {
+    await client.appInfo();
+    loading.value = false;
+});
+
+const joinPrivateHerd = () => {
+  router.push(`/herds/private/${herd_password.value}`);
+  herd_password.value = "";
+  showJoinHerdModal.value = false;
+};
 </script>
-
-<style scoped>
-
-</style>

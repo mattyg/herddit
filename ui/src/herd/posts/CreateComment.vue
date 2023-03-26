@@ -24,77 +24,56 @@
     </button>
   </div>
 </template>
-<script lang="ts">
-import { defineComponent, inject, ComputedRef, PropType } from 'vue';
+<script lang="ts" setup>
+import { ref, computed, defineEmits, inject, ComputedRef, PropType } from 'vue';
 import { AppAgentClient, Record } from '@holochain/client';
 import { Comment } from './types';
 import { toast } from 'vue3-toastify';
 
-export default defineComponent({
-  props: {
-    dnaHash: {
-      type: Object as PropType<Uint8Array>,
-      required: true
-    },
-    postHash: {
-      type: Object as PropType<Uint8Array>,
-      required: true
-    },
-  },
-  emits: ['created'],
-  setup() {
-    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
-    return {
-      client,
-    };
-  },
-  data(): {
-    content: string;
-    submitting: boolean;
-  } {
-    return { 
-      content: "",
-      submitting: false,
-    }
-  },
-  computed: {
-    isCommentValid() {
-      return true && this.content.length > 0;
-    },
-  },
-  methods: {
-    async createComment() {
-      this.submitting = true;
-      
-      const comment: Comment = { 
-        content: this.content,
-        post_ah: this.postHash,
-      };
+const props = defineProps<{
+  dnaHash: Uint8Array,
+  postHash: Uint8Array,
+}>();
+const emit = defineEmits(['created']);
+const client = (inject('client') as ComputedRef<AppAgentClient>).value;
 
-      try {
-        const record: Record = await this.client.callZome({
-          cell_id: [this.dnaHash, this.client.myPubKey],
-          zome_name: 'posts',
-          fn_name: 'create_comment',
-          payload: comment,
-        });
+const content = ref("");
+const submitting = ref(false);
 
-        // Upvote my comment
-        await this.client.callZome({
-          cell_id: [this.dnaHash, this.client.myPubKey],
-          zome_name: 'posts',
-          fn_name: 'upvote_comment',
-          payload: record.signed_action.hashed.hash,
-        });
+const isCommentValid = computed(() => {
+  return true && content.value.length > 0;
+});
 
-        this.$emit('created', record.signed_action.hashed.hash);
-        this.content = "";
-      } catch (e: any) {
-        toast.error(`Error creating the comment: ${e.data.data}`);
-      }
+const createComment = async () => {
+  submitting.value = true;
+  
+  const comment: Comment = { 
+    content: content.value,
+    post_ah: props.postHash,
+  };
 
-      this.submitting = false;
-    },
-  },
-})
+  try {
+    const record: Record = await client.callZome({
+      cell_id: [props.dnaHash, client.myPubKey],
+      zome_name: 'posts',
+      fn_name: 'create_comment',
+      payload: comment,
+    });
+
+    // Upvote my comment
+    await client.callZome({
+      cell_id: [props.dnaHash, client.myPubKey],
+      zome_name: 'posts',
+      fn_name: 'upvote_comment',
+      payload: record.signed_action.hashed.hash,
+    });
+
+    emit('created', record.signed_action.hashed.hash);
+    content.value = "";
+  } catch (e: any) {
+    toast.error(`Error creating the comment: ${e.data.data}`);
+  }
+
+  submitting.value = false;
+};
 </script>

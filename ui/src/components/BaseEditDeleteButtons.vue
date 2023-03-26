@@ -32,10 +32,8 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
+import { defineEmits } from 'vue'
 
-export default defineComponent({
-  emits: ['edit', 'delete']
-})
+defineEmits(['edit', 'delete']);
 </script>
