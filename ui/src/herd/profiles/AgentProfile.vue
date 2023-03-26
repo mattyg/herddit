@@ -24,13 +24,22 @@
     <div
       v-if="hoverForDetails"
       v-show="showDetails"
-      class="absolute z-30 bg-neutral text-neutral-content p-4 rounded-md flex flex-col justify-center min-w-64 max-w-92 break-words"
+      class="absolute z-30 bg-neutral text-neutral-content p-4 rounded-md flex flex-col justify-center break-words max-w-md"
     >
       <profile-detail
+        class="min-w-[15rem]"
         style="color: hsl(var(--nc)); --sl-input-help-text-color: hsl(var(--nc)); --sl-input-label-color: hsl(var(--nc));"
         :agentPubKey="agentPubKey"
       />
       <RouterLink
+        v-if="isMyAgent"
+        to="/my-agent"
+        class="btn btn-ghost btn-sm mt-4 f"
+      >
+        More
+      </RouterLink>
+      <RouterLink
+        v-else
         :to="`/agents/${agentPubKeyString}`"
         class="btn btn-ghost btn-sm mt-4 f"
       >
@@ -42,10 +51,9 @@
 
 <script lang="ts" setup>
 import { Profile, ProfilesStore } from '@holochain-open-dev/profiles';
-import { encodeHashToBase64 } from '@holochain/client';
-import { ref, ComputedRef, inject, computed, watch } from 'vue'
-import { useRequest } from 'vue-request';
-import { toast } from 'vue3-toastify';
+import { AppAgentWebsocket, encodeHashToBase64 } from '@holochain/client';
+import { isEqual } from 'lodash';
+import { ref, ComputedRef, inject, computed, onUnmounted } from 'vue'
 
 const props = withDefaults(defineProps<{
   agentPubKey: Uint8Array,
@@ -57,24 +65,24 @@ const props = withDefaults(defineProps<{
   muted: false,
   hoverForDetails: true
 });
-
+const client = (inject('client') as ComputedRef<AppAgentWebsocket>).value;
 const profilesStore = (inject('profilesStore') as ComputedRef<ProfilesStore>).value;
+
 const showDetails = ref(false);
+const profile = ref<Profile>();
 
 const agentPubKeyString = computed(() => {
   return encodeHashToBase64(props.agentPubKey);
 });
 
-const getAgentProfile = async (): Promise<undefined | Profile> => {
-  const res = await profilesStore.client.getAgentProfile(props.agentPubKey);
-  return res;
-};
-
-const { data: profile, run: runGetAgentProfile } = useRequest(getAgentProfile, {
-  onError: (e: any) => {
-    toast.error(`Error getting agent profile ${e.data.data}`);
-  }
+const isMyAgent = computed(() => {
+  return isEqual(props.agentPubKey, client.myPubKey);
 });
 
-watch(props, runGetAgentProfile);
+const unsubscribe = profilesStore.profiles.get(props.agentPubKey).subscribe((res) => {
+  if(res.status === 'complete') {
+    profile.value = res.value;
+  }
+});
+onUnmounted(unsubscribe);
 </script>
