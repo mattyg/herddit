@@ -54,7 +54,7 @@
             class="dropdown-content menu z-40 bg-base-200 text-base-content shadow-md"
           >
             <li>
-              <RouterLink :to="`/agents/${myPubKeyBase64}`">
+              <RouterLink :to="`/my-agent`">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
