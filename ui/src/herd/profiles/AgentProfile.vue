@@ -2,8 +2,8 @@
   <div
     v-if="profile"
     class="relative"
-    @mouseenter="() => { detailsVisible = true; }"
-    @mouseleave="() => { detailsVisible = false; }"
+    @mouseenter="() => { showDetails = true; }"
+    @mouseleave="() => { showDetails = false; }"
   >
     <div 
       class="flex flex-row items-center" 
@@ -23,7 +23,7 @@
 
     <div
       v-if="hoverForDetails"
-      v-show="detailsVisible"
+      v-show="showDetails"
       class="absolute z-30 bg-neutral text-neutral-content p-4 rounded-md flex flex-col justify-center min-w-64 max-w-92 break-words"
     >
       <profile-detail
@@ -40,60 +40,41 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { Profile, ProfilesStore } from '@holochain-open-dev/profiles';
-import { AppAgentClient, encodeHashToBase64 } from '@holochain/client';
-import { ComputedRef, defineComponent, inject, PropType } from 'vue'
+import { encodeHashToBase64 } from '@holochain/client';
+import { ref, ComputedRef, inject, computed, watch } from 'vue'
+import { useRequest } from 'vue-request';
 import { toast } from 'vue3-toastify';
 
-export default defineComponent({
-  props: {
-    agentPubKey: {
-      type: Object as PropType<Uint8Array>,
-      required: true
-    },
-    size: {
-      type: String,
-      default: 'lg',
-    },
-    muted: {
-      type: Boolean,
-      default: false
-    },
-    hoverForDetails: {
-      type: Boolean,
-      default: true
-    }
-  },
-  setup() {
-    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
-    const profilesStore = (inject('profilesStore') as ComputedRef<ProfilesStore>).value;
-    return {
-      client,
-      profilesStore
-    };
-  },
-  data() : { profile?: Profile; detailsVisible: boolean } {
-    return {
-      profile: undefined,
-      detailsVisible: false,
-    }
-  },
-  computed: {
-    agentPubKeyString() {
-      return encodeHashToBase64(this.agentPubKey);
-    }
-  },
-  async mounted() {
-    try {
-      this.profile = await this.profilesStore.client.getAgentProfile(this.agentPubKey);
-    } catch(e: any) {
-      toast.error('Error getting agent profile', e);
-    }
-  },
-})
+const props = withDefaults(defineProps<{
+  agentPubKey: Uint8Array,
+  size?: string,
+  muted?: boolean,
+  hoverForDetails?: boolean
+}>(),{
+  size: 'lg',
+  muted: false,
+  hoverForDetails: true
+});
+
+const profilesStore = (inject('profilesStore') as ComputedRef<ProfilesStore>).value;
+const showDetails = ref(false);
+
+const agentPubKeyString = computed(() => {
+  return encodeHashToBase64(props.agentPubKey);
+});
+
+const getAgentProfile = async (): Promise<undefined | Profile> => {
+  const res = await profilesStore.client.getAgentProfile(props.agentPubKey);
+  return res;
+};
+
+const { data: profile, run: runGetAgentProfile } = useRequest(getAgentProfile, {
+  onError: (e: any) => {
+    toast.error(`Error getting agent profile ${e.data.data}`);
+  }
+});
+
+watch(props, runGetAgentProfile);
 </script>
-
-<style scoped>
-
-</style>

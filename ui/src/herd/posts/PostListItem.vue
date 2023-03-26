@@ -1,5 +1,5 @@
 <template>
-  <div v-if="record">
+  <div v-if="post_metadata?.record">
     <div
       v-if="isDeleted"
       class="w-full bg-base-200 px-8 py-4 space-x-8 text-gray-400 font-bold"
@@ -51,8 +51,8 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, inject, ComputedRef, PropType } from 'vue';
+<script lang="ts" setup>
+import { ref, inject, ComputedRef, computed, watch} from 'vue';
 import { decode } from '@msgpack/msgpack';
 import { AppAgentClient, Record, encodeHashToBase64 } from '@holochain/client';
 import { Post } from './types';
@@ -61,92 +61,67 @@ import AgentProfile from '../profiles/AgentProfile.vue';
 import BaseContentHidden from '../../components/BaseContentHidden.vue';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { useRequest } from 'vue-request';
+import { toast } from 'vue3-toastify';
 dayjs.extend(relativeTime);
 
-export default defineComponent({
-  components: {
-    PostVotes,
-    AgentProfile,
-    BaseContentHidden,
-  },
-  props: {
-    dnaHash: {
-      type: Object as PropType<Uint8Array>,
-      required: true
-    },
-    postHash: {
-      type: Object as PropType<Uint8Array>,
-      required: true
-    }
-  },
-  setup() {
-    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
-    return {
-      client
-    };
-  },
-  data(): { record: Record | undefined; loading: boolean; editing: boolean; votesCount: number; showIfVoteNegative: boolean; } {
-    return {
-      record: undefined,
-      loading: true,
-      editing: false,
-      votesCount: 0,
-      showIfVoteNegative: false,
-    }
-  },
-  computed: {
-    post() {
-      if (!this.record) return undefined;
-      return decode((this.record.entry as any).Present.entry) as Post;
-    },
-    isDeleted() {
-      if (!this.record) return undefined;
+const props = defineProps<{
+  dnaHash: Uint8Array,
+  postHash: Uint8Array
+}>();
+const client = (inject('client') as ComputedRef<AppAgentClient>).value;
 
-      return this.record.signed_action.hashed.content.type === 'Delete';
-    },
-    authorHash() {
-      if (!this.record) return undefined;
+const showIfVoteNegative = ref(false);
 
-      return this.record.signed_action.hashed.content.author;
-    },
-    dateRelative() {
-      if(!this.record?.signed_action.hashed.content.timestamp) return;
+const votesCount = computed(() => {
+  if (!post_metadata.value) return 0;
 
-      return dayjs(this.record.signed_action.hashed.content.timestamp/1000).fromNow();
-    },
-    postHashString() {      
-      return encodeHashToBase64(this.postHash);
-    },
-    dnaHashString() {
-      return encodeHashToBase64(this.dnaHash);
-    }
-  },
-  watch: {
-    dnaHash() {
-      this.fetchPost();
-    },
-    postHash() {
-      this.fetchPost();
-    }
-  },
-  async mounted() {
-    await this.fetchPost();
-  },
-  methods: {
-    async fetchPost() {
-      const post_metadata = await this.client.callZome({
-        cell_id: [this.dnaHash, this.client.myPubKey],
-        cap_secret: null,
-        zome_name: 'posts',
-        fn_name: 'get_post_metadata',
-        payload: this.postHash,
-      });
+  return post_metadata.value.upvotes - post_metadata.value.downvotes
+});
 
-      this.record = post_metadata.record;
-      this.votesCount = post_metadata.upvotes - post_metadata.downvotes;
+const post = computed(() => {
+  if (!post_metadata.value?.record) return undefined;
+  return decode((post_metadata.value.record.entry as any).Present.entry) as Post;
+});
 
-      this.loading = false;
-    },
-  },
-})
+const isDeleted = computed(() => {
+  if (!post_metadata.value?.record) return undefined;
+  return post_metadata.value.record.signed_action.hashed.content.type === 'Delete';
+});
+
+const authorHash = computed(() => {
+  if (!post_metadata.value?.record) return undefined;
+  return post_metadata.value.record.signed_action.hashed.content.author;
+});
+
+const dateRelative = computed(() => {
+  if(!post_metadata.value?.record.signed_action.hashed.content.timestamp) return;
+  return dayjs(post_metadata.value.record.signed_action.hashed.content.timestamp/1000).fromNow();
+});
+
+const postHashString = computed(() => {      
+  return encodeHashToBase64(props.postHash);
+});
+
+const fetchPost = async (): Promise<{ original_action_hash: Uint8Array, record: Record, upvotes: number, downvotes: number }> => {
+  const res = await client.callZome({
+    cell_id: [props.dnaHash, client.myPubKey],
+    cap_secret: null,
+    zome_name: 'posts',
+    fn_name: 'get_post_metadata',
+    payload: props.postHash,
+  });
+
+  return res;
+};
+
+const {data: post_metadata, run: runFetchPost } = useRequest(fetchPost, {
+  onError: (e: any) => {
+    toast.error(`Failed to fetch post ${e.data.data}`)
+  }
+});
+
+watch(props, () => {
+  runFetchPost();
+});
 </script>

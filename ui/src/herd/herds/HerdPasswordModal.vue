@@ -46,20 +46,12 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-
-export default defineComponent({
-  props: {
-    visible: {
-      type: Boolean,
-      default: false
-    },
-    text: {
-      type: String,
-      default: "",
-      required: true,
-    }
-  }
+<script lang="ts" setup>
+withDefaults(defineProps<{
+  visible: boolean,
+  text: string
+}>(), {
+  visible: false,
+  text: ''
 });
 </script>

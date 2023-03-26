@@ -45,84 +45,52 @@
     </div>
   </div>
 </template>
-<script lang="ts">
-import { defineComponent, inject, ComputedRef, PropType } from 'vue';
-import { AppAgentClient, Record, encodeHashToBase64 } from '@holochain/client';
+<script lang="ts" setup>
+import { ref, inject, ComputedRef, computed } from 'vue';
+import { AppAgentClient, Record } from '@holochain/client';
 import { Post } from './types';
 import { decode } from '@msgpack/msgpack';
 import '@vaadin/date-time-picker/theme/material/vaadin-date-time-picker.js';
 import { toast } from 'vue3-toastify';
 
-export default defineComponent({
-  props: {
-    dnaHash: {
-      type: Object as PropType<Uint8Array>,
-      required: true,
-    },
-    postHash: {
-      type: Object as PropType<Uint8Array>,
-      required: true,
-    },
-    currentRecord: {
-      type: Object,
-      required: true
-    }
-  },
-  emits: ['updated', 'cancelled'],
-  setup() {
-    const client = (inject('client') as ComputedRef<AppAgentClient>).value;
-    return {
-      client,
-    };
-  },
-  data(): {
-    title: string;
-    content: string;
-  } {
-    const currentPost = decode((this.currentRecord.entry as any).Present.entry) as Post;
-    return { 
-      title: currentPost.title,
-      content: currentPost.content
-    };
-  },
-  computed: {
-    currentPost() {
-      return decode((this.currentRecord.entry as any).Present.entry) as Post;
-    },
-    isPostValid() {
-      return this.title && this.content;
-    },
-    postHashString() {
-      if(!this.postHash) return undefined;
+const props = defineProps<{
+  dnaHash: Uint8Array,
+  postHash: Uint8Array,
+  currentRecord: Record
+}>();
+const emit = defineEmits(['updated', 'cancelled']);
+const client = (inject('client') as ComputedRef<AppAgentClient>).value;
 
-      return encodeHashToBase64(this.postHash);
-    }
-  },
-  methods: {
-    async updatePost() {
-      if(!this.isPostValid) return;
+const post = computed(() => decode((props.currentRecord.entry as any).Present.entry) as Post);
+const title = ref(post.value.title);
+const content = ref(post.value.content);
 
-      const post: Post = { 
-        title: this.title,
-        content: this.content,
-      };
+const isPostValid =  computed(() => {
+  return title.value && content.value;
+});
 
-      try {
-        const updateRecord: Record = await this.client.callZome({
-          cell_id: [this.dnaHash, this.client.myPubKey],
-          zome_name: 'posts',
-          fn_name: 'update_post',
-          payload: {
-            original_post_hash: this.postHash,
-            previous_post_hash: this.currentRecord.signed_action.hashed.hash,
-            updated_post: post
-          }
-        });
-        this.$emit('updated', updateRecord.signed_action.hashed.hash);
-      } catch (e: any) {
-        toast.error(`Error updating the post: ${e.data.data}`);
+const updatePost = async () => {
+  if(!isPostValid.value) return;
+
+  const newPost: Post = { 
+    title: title.value,
+    content: content.value,
+  };
+
+  try {
+    const updateRecord: Record = await client.callZome({
+      cell_id: [props.dnaHash, client.myPubKey],
+      zome_name: 'posts',
+      fn_name: 'update_post',
+      payload: {
+        original_post_hash: props.postHash,
+        previous_post_hash: props.currentRecord.signed_action.hashed.hash,
+        updated_post: newPost
       }
-    },
-  },
-})
+    });
+    emit('updated', updateRecord.signed_action.hashed.hash);
+  } catch (e: any) {
+    toast.error(`Error updating the post: ${e.data.data}`);
+  }
+};
 </script>
