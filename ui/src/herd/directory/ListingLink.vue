@@ -72,6 +72,8 @@ const fetchListing = async (): Promise<Record> => {
 };
 
 const { data: record } = useRequest(fetchListing, {
+  errorRetryInterval: 1000,
+  errorRetryCount: 5,
   onError: (e: any) => {
     toast.error(`Failed to fetch listing ${e.data.data}`)
   }
