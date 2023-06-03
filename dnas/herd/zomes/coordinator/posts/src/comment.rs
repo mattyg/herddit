@@ -179,6 +179,23 @@ pub fn downvote_comment(original_post_hash: ActionHash) -> ExternResult<()> {
 }
 
 #[hdk_extern]
+pub fn rmvote_comment(original_post_hash: ActionHash) -> ExternResult<()> {
+    create_link(
+        agent_info()?.agent_initial_pubkey.clone(),
+        original_post_hash.clone(),
+        LinkTypes::MyVotedComments,
+        (),
+    )?;
+    create_link(
+        original_post_hash,
+        agent_info()?.agent_initial_pubkey,
+        LinkTypes::CommentVoteByAgent,
+        make_vote_link_tag(0)?,
+    )?;
+    Ok(())
+}
+
+#[hdk_extern]
 pub fn get_my_vote_on_comment(comment_hash: ActionHash) -> ExternResult<Option<VoteTag>> {
     // Get all votes on this comment
     let vote_links = get_links(

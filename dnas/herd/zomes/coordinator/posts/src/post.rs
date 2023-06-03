@@ -134,6 +134,17 @@ pub fn upvote_post(original_post_hash: ActionHash) -> ExternResult<()> {
 }
 
 #[hdk_extern]
+pub fn rmvote_post(original_post_hash: ActionHash) -> ExternResult<()> {
+    create_link(
+        original_post_hash,
+        agent_info()?.agent_initial_pubkey,
+        LinkTypes::PostVoteByAgent,
+        make_vote_link_tag(0)?,
+    )?;
+    Ok(())
+}
+
+#[hdk_extern]
 pub fn downvote_post(original_post_hash: ActionHash) -> ExternResult<()> {
     create_link(
         original_post_hash,

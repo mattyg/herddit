@@ -4,6 +4,7 @@
     :my-vote="myVote"
     @upvote="upvote"
     @downvote="downvote"
+    @rmvote="rmvote"
   />
 </template>
 
@@ -20,7 +21,7 @@ const props = defineProps<{
   votes?: number
 }>();
 
-const emit = defineEmits(['upvote', 'downvote']);
+const emit = defineEmits(['upvote', 'downvote', 'rmvote']);
 const client = (inject('client') as ComputedRef<AppAgentClient>).value;
  
 
@@ -66,10 +67,30 @@ const downvote = async () => {
       fn_name: 'downvote_comment',
       payload: props.originalActionHash,
     });
+    console.log('emit downvote')
     emit('downvote');
     runFetchMyVote();
   } catch (e: any) {
     toast.error("Failed to vote on post: ", e.data.data);
+  }
+};
+
+const rmvote = async () => {
+  if(myVote.value === 0) return;
+
+  try {
+    await client.callZome({
+      cell_id: [props.dnaHash, client.myPubKey],
+      zome_name: 'posts',
+      fn_name: 'rmvote_comment',
+      payload: props.originalActionHash,
+    });
+    console.log('emit rmvote')
+    emit('rmvote');
+    runFetchMyVote();
+  } catch (e: any) {
+    toast.error("Failed to vote on post: ", e.data.data);
+    console.log('error:',e);
   }
 };
 

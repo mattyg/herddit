@@ -60,7 +60,7 @@ pub fn validate_create_link_vote_by_agent(
 
     // TODO: make this a DNA property
     // Value must be -1 or 1
-    if vote_tag.value != -1 && vote_tag.value != 1 {
+    if vote_tag.value > 1 || vote_tag.value < -1 {
         return Ok(
             ValidateCallbackResult::Invalid(
                 String::from("VotePostToAgent tag value must be 1 or -1"),
