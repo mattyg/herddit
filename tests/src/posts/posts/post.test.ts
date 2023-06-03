@@ -334,6 +334,8 @@ test('get_all_posts_sorted_by_votes sorts by number of votes desc, then timestam
     });
 
     await pause(2000);
+
+
     
     // All agents see the same post ordering
     const alice_posts_sorted = await alice.namedCells.get('herd').callZome({
@@ -359,6 +361,23 @@ test('get_all_posts_sorted_by_votes sorts by number of votes desc, then timestam
       fn_name: "get_all_posts_sorted_by_votes",
     });
     t.deepEqual(john_posts_sorted, [record.signed_action.hashed.hash, record3.signed_action.hashed.hash, record2.signed_action.hashed.hash])
+
+    // Bob removes his vote to alice's post
+    await bob.namedCells.get('herd').callZome({
+      zome_name: "posts",
+      fn_name: "rmvote_post",
+      payload: record.signed_action.hashed.hash,
+    });
+
+    await pause(2000);
+
+    const metadata: Record = await alice.namedCells.get('herd').callZome({
+      zome_name: "posts",
+      fn_name: "get_post_metadata",
+      payload: record.signed_action.hashed.hash,
+    });
+
+    t.deepEqual(3, (decode((metadata.entry as any).Present.entry) as any).upvotes);
         
   },
   true,
