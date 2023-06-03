@@ -67,7 +67,6 @@ const downvote = async () => {
       fn_name: 'downvote_comment',
       payload: props.originalActionHash,
     });
-    console.log('emit downvote')
     emit('downvote');
     runFetchMyVote();
   } catch (e: any) {
@@ -85,12 +84,10 @@ const rmvote = async () => {
       fn_name: 'rmvote_comment',
       payload: props.originalActionHash,
     });
-    console.log('emit rmvote')
     emit('rmvote');
     runFetchMyVote();
   } catch (e: any) {
     toast.error("Failed to vote on post: ", e.data.data);
-    console.log('error:',e);
   }
 };
 
