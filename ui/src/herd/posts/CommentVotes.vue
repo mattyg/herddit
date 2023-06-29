@@ -88,6 +88,7 @@ const rmvote = async () => {
     runFetchMyVote();
   } catch (e: any) {
     toast.error("Failed to vote on post: ", e.data.data);
+    console.log(e);
   }
 };
 

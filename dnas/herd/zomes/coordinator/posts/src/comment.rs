@@ -179,19 +179,25 @@ pub fn downvote_comment(original_post_hash: ActionHash) -> ExternResult<()> {
 }
 
 #[hdk_extern]
-pub fn rmvote_comment(original_post_hash: ActionHash) -> ExternResult<()> {
-    create_link(
+pub fn rmvote_comment(comment_hash: ActionHash) -> ExternResult<()> {
+    get_links(
         agent_info()?.agent_initial_pubkey.clone(),
-        original_post_hash.clone(),
         LinkTypes::MyVotedComments,
-        (),
-    )?;
-    create_link(
-        original_post_hash,
-        agent_info()?.agent_initial_pubkey,
+        None,
+    )?.iter().for_each(|link| {
+        if link.target.clone().to_hex() == comment_hash.to_hex() {
+            let _ = delete_link(link.create_link_hash.clone());
+        }
+    });
+    get_links(
+        comment_hash,
         LinkTypes::CommentVoteByAgent,
-        make_vote_link_tag(0)?,
-    )?;
+        None,
+    )?.iter().for_each(|link| {
+        if link.target.clone().to_hex() == agent_info().unwrap().agent_initial_pubkey.to_hex() {
+            let _ = delete_link(link.create_link_hash.clone());
+        }
+    });
     Ok(())
 }
 
