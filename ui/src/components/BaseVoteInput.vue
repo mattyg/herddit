@@ -3,7 +3,7 @@
     <div
       class="text-2xl font-bold "
       :class="{'text-accent': myVote === 1, 'hover:text-accent-focus': myVote !== 1}"
-      @click="$emit('upvote')"
+      @click="myVote === 1 ? $emit('rmvote') : $emit('upvote')"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -27,7 +27,7 @@
     <div
       class="text-2xl font-bold hover:text-accent-focus"
       :class="{'text-accent': myVote === -1, 'hover:text-accent-focus': myVote !== -1}"
-      @click="$emit('downvote')"
+      @click="myVote === -1 ? $emit('rmvote') : $emit('downvote')"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -45,7 +45,7 @@
 <script lang="ts" setup>
 import { defineEmits } from 'vue'
 
-defineEmits(['upvote', 'downvote']);
+defineEmits(['upvote', 'downvote', 'rmvote']);
 
 withDefaults(defineProps<{
   votes?: number,

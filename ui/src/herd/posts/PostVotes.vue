@@ -6,6 +6,7 @@
     :my-vote="myVote"
     @upvote="upvote"
     @downvote="downvote"
+    @rmvote="rmvote"
   />
 </template>
 
@@ -26,7 +27,7 @@ const props = withDefaults(defineProps<{
   size: 'lg'
 });
 
-const emit = defineEmits(['upvote', 'downvote']);
+const emit = defineEmits(['upvote', 'downvote', 'rmvote']);
 const client = (inject('client') as ComputedRef<AppAgentClient>).value;
 
 const getMyVote = async () => {
@@ -61,6 +62,24 @@ const upvote = async() => {
     runGetMyVote();
   } catch (e: any) {
     toast.error(`Failed to upvote post: ${e.data.data}`);
+  }
+};
+
+const rmvote = async () => {
+  if(myVote.value === 0) return;
+
+  try {
+    await client.callZome({
+      cell_id: [props.dnaHash, client.myPubKey],
+      cap_secret: null,
+      zome_name: 'posts',
+      fn_name: 'rmvote_post',
+      payload: props.postHash,
+    });
+    emit('rmvote');
+    runGetMyVote();
+  } catch (e: any) {
+    toast.error(`Failed to rmvote post: ${e.data.data}`);
   }
 };
 
