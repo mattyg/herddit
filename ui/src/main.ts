@@ -9,12 +9,12 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import routes from './routes';
 
 // Profiles custom elements
-import "@holochain-open-dev/profiles/elements/profiles-context.js";
-import "@holochain-open-dev/profiles/elements/create-profile.js";
-import "@holochain-open-dev/profiles/elements/agent-avatar.js";
-import "@holochain-open-dev/profiles/elements/my-profile.js";
-import "@holochain-open-dev/profiles/elements/profile-prompt.js";
-import "@holochain-open-dev/profiles/elements/profile-detail.js";
+import "@holochain-open-dev/profiles/dist/elements/profiles-context.js";
+import "@holochain-open-dev/profiles/dist/elements/create-profile.js";
+import "@holochain-open-dev/profiles/dist/elements/agent-avatar.js";
+import "@holochain-open-dev/profiles/dist/elements/my-profile.js";
+import "@holochain-open-dev/profiles/dist/elements/profile-prompt.js";
+import "@holochain-open-dev/profiles/dist/elements/profile-detail.js";
 
 // Shoelace
 import '@shoelace-style/shoelace/dist/themes/light.css';
