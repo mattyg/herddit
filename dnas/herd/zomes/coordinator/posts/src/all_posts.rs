@@ -1,8 +1,8 @@
 use std::cmp::Ordering;
 
+use crate::post::*;
 use hdk::prelude::*;
 use posts_integrity::*;
-use crate::post::*;
 
 #[hdk_extern]
 pub fn get_all_posts(_: ()) -> ExternResult<Vec<ActionHash>> {
@@ -10,10 +10,7 @@ pub fn get_all_posts(_: ()) -> ExternResult<Vec<ActionHash>> {
     let links = get_links(path.path_entry_hash()?, LinkTypes::AllPosts, None)?;
     let get_input: Vec<GetInput> = links
         .into_iter()
-        .map(|link| GetInput::new(
-            ActionHash::from(link.target).into(),
-            GetOptions::default(),
-        ))
+        .map(|link| GetInput::new(ActionHash::from(link.target).into(), GetOptions::default()))
         .collect();
     let records = HDK.with(|hdk| hdk.borrow().get(get_input))?;
     let hashes: Vec<ActionHash> = records
@@ -24,12 +21,11 @@ pub fn get_all_posts(_: ()) -> ExternResult<Vec<ActionHash>> {
     Ok(hashes)
 }
 
-
 #[hdk_extern]
 pub fn get_all_posts_sorted_by_votes(_: ()) -> ExternResult<Vec<ActionHash>> {
     let path = Path::from("all_posts");
     let links = get_links(path.path_entry_hash()?, LinkTypes::AllPosts, None)?;
-   
+
     // Get all posts metadata and sort by votes, descending
     let mut posts_metadata: Vec<PostMetadata> = links
         .into_iter()
@@ -38,10 +34,14 @@ pub fn get_all_posts_sorted_by_votes(_: ()) -> ExternResult<Vec<ActionHash>> {
     posts_metadata.sort_by(|a, b| -> Ordering {
         let a_value = (a.upvotes - a.downvotes) as isize;
         let b_value = (b.upvotes - b.downvotes) as isize;
-        
+
         if a_value == b_value {
             // If votes equal, order by record timestamp, asc
-            return a.record.action().timestamp().cmp(&b.record.action().timestamp());
+            return a
+                .record
+                .action()
+                .timestamp()
+                .cmp(&b.record.action().timestamp());
         } else {
             // Order by highest value, desc
             return b_value.cmp(&a_value);
@@ -53,6 +53,6 @@ pub fn get_all_posts_sorted_by_votes(_: ()) -> ExternResult<Vec<ActionHash>> {
         .into_iter()
         .map(|r| r.record.action_address().clone())
         .collect();
-        
+
     Ok(hashes)
 }

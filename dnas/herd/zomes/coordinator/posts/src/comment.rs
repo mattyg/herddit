@@ -1,8 +1,8 @@
 use std::cmp::Ordering;
 
+use crate::utils::*;
 use hdk::prelude::*;
 use posts_integrity::*;
-use crate::utils::*;
 
 #[hdk_extern]
 pub fn create_comment(comment: Comment) -> ExternResult<Record> {
@@ -13,12 +13,9 @@ pub fn create_comment(comment: Comment) -> ExternResult<Record> {
         LinkTypes::PostToComments,
         (),
     )?;
-    let record = get(comment_hash.clone(), GetOptions::default())?
-        .ok_or(
-            wasm_error!(
-                WasmErrorInner::Guest(String::from("Could not find the newly created Comment"))
-            ),
-        )?;
+    let record = get(comment_hash.clone(), GetOptions::default())?.ok_or(wasm_error!(
+        WasmErrorInner::Guest(String::from("Could not find the newly created Comment"))
+    ))?;
     Ok(record)
 }
 
@@ -31,39 +28,33 @@ pub struct CommentMetadata {
 }
 
 #[hdk_extern]
-pub fn get_comment_metadata(
-    original_action_hash: ActionHash,
-) -> ExternResult<CommentMetadata> {    
-
+pub fn get_comment_metadata(original_action_hash: ActionHash) -> ExternResult<CommentMetadata> {
     // Get all vote links, count upvotes & downvotes
     let mut vote_links = get_links(
         original_action_hash.clone(),
         LinkTypes::CommentVoteByAgent,
         None,
     )?;
-    vote_links
-        .sort_by(|a, b| -> Ordering {
-            match a.target == b.target {
-                true => b.timestamp.cmp(&a.timestamp),
-                false => a.target.cmp(&b.target)
-            }
-        });
+    vote_links.sort_by(|a, b| -> Ordering {
+        match a.target == b.target {
+            true => b.timestamp.cmp(&a.timestamp),
+            false => a.target.cmp(&b.target),
+        }
+    });
     vote_links.dedup_by_key(|a| a.target.clone());
     let latest_vote_tags: Vec<VoteTag> = vote_links
         .into_iter()
-        .map(|link| VoteTag::try_from(
-            SerializedBytes::from(UnsafeBytes::from(link.tag.0)),
-        ))
+        .map(|link| VoteTag::try_from(SerializedBytes::from(UnsafeBytes::from(link.tag.0))))
         .filter_map(Result::ok)
         .collect();
-    
+
     let upvotes = latest_vote_tags
         .clone()
         .into_iter()
         .filter(|vote_tag| vote_tag.value == 1)
         .collect::<Vec<VoteTag>>()
         .len();
-    
+
     let downvotes = latest_vote_tags
         .into_iter()
         .filter(|vote_tag| vote_tag.value == -1)
@@ -72,16 +63,15 @@ pub fn get_comment_metadata(
 
     // get actual comment
     let record = get_latest_record(original_action_hash.clone())?;
-    
+
     let comment_metadata = CommentMetadata {
         original_action_hash,
         record: record,
         upvotes: upvotes,
         downvotes: downvotes,
     };
-            
-    Ok(comment_metadata)
 
+    Ok(comment_metadata)
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -92,17 +82,12 @@ pub struct UpdateCommentInput {
 
 #[hdk_extern]
 pub fn update_comment(input: UpdateCommentInput) -> ExternResult<Record> {
-    let updated_comment_hash = update_entry(
-        input.original_comment_hash.clone(),
-        &input.updated_comment,
-    )?;
+    let updated_comment_hash =
+        update_entry(input.original_comment_hash.clone(), &input.updated_comment)?;
 
-    let record = get(updated_comment_hash.clone(), GetOptions::default())?
-        .ok_or(
-            wasm_error!(
-                WasmErrorInner::Guest(String::from("Could not find the newly updated Comment"))
-            ),
-        )?;
+    let record = get(updated_comment_hash.clone(), GetOptions::default())?.ok_or(wasm_error!(
+        WasmErrorInner::Guest(String::from("Could not find the newly updated Comment"))
+    ))?;
     Ok(record)
 }
 
@@ -114,7 +99,7 @@ pub fn delete_comment(original_comment_hash: ActionHash) -> ExternResult<ActionH
 #[hdk_extern]
 pub fn get_comments_for_post(post_hash: ActionHash) -> ExternResult<Vec<ActionHash>> {
     let links = get_links(post_hash, LinkTypes::PostToComments, None)?;
-   
+
     // Get all posts metadata and sort by votes, descending
     let mut comments_metadata: Vec<CommentMetadata> = links
         .into_iter()
@@ -123,10 +108,14 @@ pub fn get_comments_for_post(post_hash: ActionHash) -> ExternResult<Vec<ActionHa
     comments_metadata.sort_by(|a, b| -> Ordering {
         let a_value = (a.upvotes - a.downvotes) as isize;
         let b_value = (b.upvotes - b.downvotes) as isize;
-        
+
         if a_value == b_value {
             // If values equal, order by record timestamp, desc
-            return b.record.action().timestamp().cmp(&a.record.action().timestamp());
+            return b
+                .record
+                .action()
+                .timestamp()
+                .cmp(&a.record.action().timestamp());
         } else {
             // Order by highest value, desc
             return b_value.cmp(&a_value);
@@ -141,7 +130,6 @@ pub fn get_comments_for_post(post_hash: ActionHash) -> ExternResult<Vec<ActionHa
 
     Ok(hashes)
 }
-
 
 #[hdk_extern]
 pub fn upvote_comment(original_post_hash: ActionHash) -> ExternResult<()> {
@@ -181,15 +169,12 @@ pub fn downvote_comment(original_post_hash: ActionHash) -> ExternResult<()> {
 #[hdk_extern]
 pub fn get_my_vote_on_comment(comment_hash: ActionHash) -> ExternResult<Option<VoteTag>> {
     // Get all votes on this comment
-    let vote_links = get_links(
-        comment_hash.clone(),
-        LinkTypes::CommentVoteByAgent,
-        None,
-    )?;
+    let vote_links = get_links(comment_hash.clone(), LinkTypes::CommentVoteByAgent, None)?;
 
     // Filter only my votes, sort by timestamp
     let my_pubkey = agent_info()?.agent_initial_pubkey;
-    let mut my_vote_links: Vec<Link> = vote_links.into_iter()
+    let mut my_vote_links: Vec<Link> = vote_links
+        .into_iter()
         .filter(|link| link.target == AnyLinkableHash::from(my_pubkey.clone()))
         .collect();
     my_vote_links.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
@@ -198,12 +183,13 @@ pub fn get_my_vote_on_comment(comment_hash: ActionHash) -> ExternResult<Option<V
 
     match maybe_my_vote {
         Some(my_vote) => {
-            let my_vote_tag = VoteTag::try_from(
-                SerializedBytes::from(UnsafeBytes::from(my_vote.clone().tag.0)),
-            ).map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))?;
-        
+            let my_vote_tag = VoteTag::try_from(SerializedBytes::from(UnsafeBytes::from(
+                my_vote.clone().tag.0,
+            )))
+            .map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))?;
+
             Ok(Some(my_vote_tag))
         }
-        None => Ok(None)
+        None => Ok(None),
     }
 }

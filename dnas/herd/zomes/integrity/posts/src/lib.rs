@@ -5,8 +5,8 @@ pub use post::*;
 pub mod votes;
 pub use votes::*;
 pub mod validate;
-pub use validate::*;
 use hdi::prelude::*;
+pub use validate::*;
 
 #[hdk_entry_helper]
 #[derive(Clone)]
@@ -55,8 +55,6 @@ pub enum LinkTypes {
     CommentVoteByAgent,
 }
 #[hdk_extern]
-pub fn genesis_self_check(
-    _data: GenesisSelfCheckData,
-) -> ExternResult<ValidateCallbackResult> {
+pub fn genesis_self_check(_data: GenesisSelfCheckData) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }

@@ -1,6 +1,6 @@
 pub mod listing;
-pub use listing::*;
 use hdi::prelude::*;
+pub use listing::*;
 
 #[hdk_entry_defs]
 #[unit_enum(UnitEntryTypes)]
@@ -19,9 +19,7 @@ pub enum LinkTypes {
 // Validation you perform during the genesis process. Nobody else on the network performs it, only you.
 // There *is no* access to network calls in this callback
 #[hdk_extern]
-pub fn genesis_self_check(
-    _data: GenesisSelfCheckData,
-) -> ExternResult<ValidateCallbackResult> {
+pub fn genesis_self_check(_data: GenesisSelfCheckData) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }
 // Validation the network performs when you try to join, you can't perform this validation yourself as you are not a member yet.
@@ -378,7 +376,7 @@ pub fn validate(_op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                     }
                 }
-                OpRecord::CreatePrivateEntry { app_entry_type: _, action: _ } => 
+                OpRecord::CreatePrivateEntry { app_entry_type: _, action: _ } =>
                     Ok(ValidateCallbackResult::Valid),
                 OpRecord::UpdatePrivateEntry {
                     original_action_hash: _,
@@ -437,9 +435,16 @@ pub fn validate(_op: Op) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }
 fn _record_to_app_entry(record: &Record) -> ExternResult<Option<EntryTypes>> {
-    if let Record { signed_action, entry: RecordEntry::Present(entry) } = record {
-        if let Some(EntryType::App(AppEntryDef { entry_index, zome_index, .. }))
-            = signed_action.action().entry_type()
+    if let Record {
+        signed_action,
+        entry: RecordEntry::Present(entry),
+    } = record
+    {
+        if let Some(EntryType::App(AppEntryDef {
+            entry_index,
+            zome_index,
+            ..
+        })) = signed_action.action().entry_type()
         {
             return EntryTypes::deserialize_from_type(
                 zome_index.clone(),
