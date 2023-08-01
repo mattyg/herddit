@@ -13,9 +13,9 @@
   },
   "dependencies": {
     "@babel/types": "^7.20.2",
-    "@holochain-open-dev/profiles": "^0.12.1",
-    "@holochain-open-dev/utils": "^0.12.2",
-    "@holochain/client": "^0.12.2",
+    "@holochain-open-dev/profiles": "^0.15.0",
+    "@holochain-open-dev/utils": "^0.14.2",
+    "@holochain/client": "^0.15.0",
     "@msgpack/msgpack": "^2.7.2",
     "@shoelace-style/shoelace": "^2.3.0",
     "@types/lodash": "^4.14.191",

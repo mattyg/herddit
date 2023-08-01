@@ -5,7 +5,8 @@ pub fn get_my_posts(author: AgentPubKey) -> ExternResult<Vec<ActionHash>> {
     let links = get_links(author, LinkTypes::MyPosts, None)?;
     let get_input: Vec<GetInput> = links
         .into_iter()
-        .map(|link| GetInput::new(ActionHash::from(link.target).into(), GetOptions::default()))
+        .filter_map(|link| ActionHash::try_from(link.target).ok())
+        .map(|target| GetInput::new(target.into(), GetOptions::default()))
         .collect();
     let records = HDK.with(|hdk| hdk.borrow().get(get_input))?;
     let hashes: Vec<ActionHash> = records

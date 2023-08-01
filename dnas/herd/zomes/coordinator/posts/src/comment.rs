@@ -103,7 +103,8 @@ pub fn get_comments_for_post(post_hash: ActionHash) -> ExternResult<Vec<ActionHa
     // Get all posts metadata and sort by votes, descending
     let mut comments_metadata: Vec<CommentMetadata> = links
         .into_iter()
-        .filter_map(|link| get_comment_metadata(ActionHash::from(link.target)).ok())
+        .filter_map(|link| ActionHash::try_from(link.target).ok())
+        .filter_map(|target| get_comment_metadata(target).ok())
         .collect();
     comments_metadata.sort_by(|a, b| -> Ordering {
         let a_value = (a.upvotes - a.downvotes) as isize;
@@ -172,10 +173,10 @@ pub fn get_my_vote_on_comment(comment_hash: ActionHash) -> ExternResult<Option<V
     let vote_links = get_links(comment_hash.clone(), LinkTypes::CommentVoteByAgent, None)?;
 
     // Filter only my votes, sort by timestamp
-    let my_pubkey = agent_info()?.agent_initial_pubkey;
+    let my_pubkey =  AnyLinkableHash::try_from(agent_info()?.agent_initial_pubkey)?;
     let mut my_vote_links: Vec<Link> = vote_links
         .into_iter()
-        .filter(|link| link.target == AnyLinkableHash::from(my_pubkey.clone()))
+        .filter(|link| link.target == my_pubkey)
         .collect();
     my_vote_links.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
 

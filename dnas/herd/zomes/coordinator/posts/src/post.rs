@@ -136,10 +136,10 @@ pub fn get_my_vote_on_post(comment_hash: ActionHash) -> ExternResult<Option<Vote
     let vote_links = get_links(comment_hash.clone(), LinkTypes::PostVoteByAgent, None)?;
 
     // Filter only my votes, sort by timestamp
-    let my_pubkey = agent_info()?.agent_initial_pubkey;
+    let my_pubkey = AnyLinkableHash::try_from(agent_info()?.agent_initial_pubkey).map_err(|e| wasm_error!(e))?;
     let mut my_vote_links: Vec<Link> = vote_links
         .into_iter()
-        .filter(|link| link.target == AnyLinkableHash::from(my_pubkey.clone()))
+        .filter(|link| link.target == my_pubkey)
         .collect();
     my_vote_links.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
 

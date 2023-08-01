@@ -10,7 +10,8 @@ pub fn get_all_posts(_: ()) -> ExternResult<Vec<ActionHash>> {
     let links = get_links(path.path_entry_hash()?, LinkTypes::AllPosts, None)?;
     let get_input: Vec<GetInput> = links
         .into_iter()
-        .map(|link| GetInput::new(ActionHash::from(link.target).into(), GetOptions::default()))
+        .filter_map(|link| ActionHash::try_from(link.target).ok())
+        .map(|target| GetInput::new(target.into(), GetOptions::default()))
         .collect();
     let records = HDK.with(|hdk| hdk.borrow().get(get_input))?;
     let hashes: Vec<ActionHash> = records
@@ -29,7 +30,8 @@ pub fn get_all_posts_sorted_by_votes(_: ()) -> ExternResult<Vec<ActionHash>> {
     // Get all posts metadata and sort by votes, descending
     let mut posts_metadata: Vec<PostMetadata> = links
         .into_iter()
-        .filter_map(|link| get_post_metadata(ActionHash::from(link.target)).ok())
+        .filter_map(|link| ActionHash::try_from(link.target).ok())
+        .filter_map(|target| get_post_metadata(target).ok())
         .collect();
     posts_metadata.sort_by(|a, b| -> Ordering {
         let a_value = (a.upvotes - a.downvotes) as isize;

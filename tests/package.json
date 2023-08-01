@@ -10,8 +10,8 @@
   "author": "",
   "license": "CAL-1.0",
   "dependencies": {
-    "@holochain/client": "^0.12.2",
-    "@holochain/tryorama": "^0.11.2",
+    "@holochain/client": "^0.15.0",
+    "@holochain/tryorama": "^0.15.0-rc.1",
     "@msgpack/msgpack": "^2.7.0",
     "foreach-cli": "^1.8.1",
     "ts-node-test": "^0.2.0"

@@ -51,7 +51,8 @@ fn get_public_listings() -> ExternResult<Vec<Record>> {
 
     let get_input: Vec<GetInput> = links
         .into_iter()
-        .map(|link| GetInput::new(ActionHash::from(link.target).into(), GetOptions::default()))
+        .filter_map(|link| ActionHash::try_from(link.target).ok())
+        .map(|target| GetInput::new(target.into(), GetOptions::default()))
         .collect();
 
     let records: Vec<Record> = HDK

@@ -7,7 +7,9 @@ pub fn validate_link_authored_by_base(
     _target: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    if !AnyLinkableHash::from(action.author).eq(&base) {
+    let author_hash = AnyLinkableHash::try_from(action.author).map_err(|e| wasm_error!(e))?;
+
+    if author_hash != base {
         return Ok(ValidateCallbackResult::Invalid(String::from(
             "AgentToVotePost must be authored by linked agent",
         )));
@@ -36,7 +38,8 @@ pub fn validate_create_link_vote_by_agent(
     target: AnyLinkableHash,
     tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    if !AnyLinkableHash::from(action.clone().author).eq(&target) {
+    let author_hash = AnyLinkableHash::try_from(action.clone().author).map_err(|e| wasm_error!(e))?;
+    if author_hash != target {
         return Ok(ValidateCallbackResult::Invalid(String::from(
             "AgentToVotePost must be authored by linked agent",
         )));

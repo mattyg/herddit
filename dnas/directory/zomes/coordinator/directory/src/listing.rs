@@ -54,7 +54,7 @@ pub fn get_listing(original_listing_hash: ActionHash) -> ExternResult<Option<Rec
         .into_iter()
         .max_by(|link_a, link_b| link_b.timestamp.cmp(&link_a.timestamp));
     let latest_listing_hash = match latest_link {
-        Some(link) => ActionHash::from(link.target.clone()),
+        Some(link) => ActionHash::try_from(link.target.clone()).map_err(|e| wasm_error!(e))?,
         None => original_listing_hash.clone(),
     };
     get(latest_listing_hash, GetOptions::default())
