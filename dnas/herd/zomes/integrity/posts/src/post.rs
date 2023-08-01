@@ -1,5 +1,5 @@
-use hdi::prelude::*;
 use crate::*;
+use hdi::prelude::*;
 pub fn validate_create_post(
     _action: EntryCreationAction,
     _post: Post,
@@ -36,11 +36,9 @@ pub fn validate_delete_link_post_updates(
     _target: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    Ok(
-        ValidateCallbackResult::Invalid(
-            String::from("PostUpdates links cannot be deleted"),
-        ),
-    )
+    Ok(ValidateCallbackResult::Invalid(String::from(
+        "PostUpdates links cannot be deleted",
+    )))
 }
 pub fn validate_create_link_all_posts(
     _action: CreateLink,
@@ -57,7 +55,9 @@ pub fn validate_delete_link_all_posts(
     _target: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    Ok(ValidateCallbackResult::Invalid(String::from("AllPosts links cannot be deleted")))
+    Ok(ValidateCallbackResult::Invalid(String::from(
+        "AllPosts links cannot be deleted",
+    )))
 }
 pub fn validate_create_link_my_posts(
     _action: CreateLink,
@@ -74,5 +74,7 @@ pub fn validate_delete_link_my_posts(
     _target: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    Ok(ValidateCallbackResult::Invalid(String::from("MyPosts links cannot be deleted")))
+    Ok(ValidateCallbackResult::Invalid(String::from(
+        "MyPosts links cannot be deleted",
+    )))
 }

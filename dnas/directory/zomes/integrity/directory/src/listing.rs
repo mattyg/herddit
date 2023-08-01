@@ -5,7 +5,7 @@ pub struct Listing {
     pub title: String,
     pub description: String,
     pub network_seed: String,
-    pub dna: DnaHash
+    pub dna: DnaHash,
 }
 
 #[hdk_entry_helper]
@@ -14,7 +14,7 @@ pub struct PrivateListing {
     pub title: String,
     pub description: String,
     pub network_seed: String,
-    pub dna: DnaHash
+    pub dna: DnaHash,
 }
 
 pub fn validate_create_listing(
@@ -23,12 +23,16 @@ pub fn validate_create_listing(
 ) -> ExternResult<ValidateCallbackResult> {
     // Listing title < 50 characters
     if listing.title.chars().count() > 50 {
-        return Ok(ValidateCallbackResult::Invalid("Title must be < 50 characters".into()));
+        return Ok(ValidateCallbackResult::Invalid(
+            "Title must be < 50 characters".into(),
+        ));
     }
-    
+
     // Listing title contains no whitespace, is alphanumeric
-    if !listing.title.chars().all(|c| char::is_alphanumeric(c)) {
-        return Ok(ValidateCallbackResult::Invalid("Title can only contain alphanumeric characters, and no spaces".into()));
+    if !listing.title.chars().all(char::is_alphanumeric) {
+        return Ok(ValidateCallbackResult::Invalid(
+            "Title can only contain alphanumeric characters, and no spaces".into(),
+        ));
     }
 
     Ok(ValidateCallbackResult::Valid)
@@ -39,14 +43,18 @@ pub fn validate_update_listing(
     _original_action: EntryCreationAction,
     _original_listing: Listing,
 ) -> ExternResult<ValidateCallbackResult> {
-    Ok(ValidateCallbackResult::Invalid("Listings cannot be updated".into()))
+    Ok(ValidateCallbackResult::Invalid(
+        "Listings cannot be updated".into(),
+    ))
 }
 pub fn validate_delete_listing(
     _action: Delete,
     _original_action: EntryCreationAction,
     _original_listing: Listing,
 ) -> ExternResult<ValidateCallbackResult> {
-    Ok(ValidateCallbackResult::Invalid("Listings cannot be deleted".into()))
+    Ok(ValidateCallbackResult::Invalid(
+        "Listings cannot be deleted".into(),
+    ))
 }
 pub fn validate_create_link_listing_updates(
     _action: CreateLink,
@@ -54,7 +62,9 @@ pub fn validate_create_link_listing_updates(
     _target_address: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    Ok(ValidateCallbackResult::Invalid("Listings cannot be updated".into()))
+    Ok(ValidateCallbackResult::Invalid(
+        "Listings cannot be updated".into(),
+    ))
 }
 pub fn validate_delete_link_listing_updates(
     _action: DeleteLink,
@@ -63,11 +73,9 @@ pub fn validate_delete_link_listing_updates(
     _target: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    Ok(
-        ValidateCallbackResult::Invalid(
-            String::from("ListingUpdates links cannot be deleted"),
-        ),
-    )
+    Ok(ValidateCallbackResult::Invalid(String::from(
+        "ListingUpdates links cannot be deleted",
+    )))
 }
 pub fn validate_create_link_all_listings(
     _action: CreateLink,
@@ -84,10 +92,7 @@ pub fn validate_delete_link_all_listings(
     _target: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    Ok(
-        ValidateCallbackResult::Invalid(
-            String::from("AllListings links cannot be deleted"),
-        ),
-    )
+    Ok(ValidateCallbackResult::Invalid(String::from(
+        "AllListings links cannot be deleted",
+    )))
 }
-

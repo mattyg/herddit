@@ -1,6 +1,6 @@
 pub mod listing;
-pub use listing::*;
 use hdi::prelude::*;
+pub use listing::*;
 
 #[hdk_entry_defs]
 #[unit_enum(UnitEntryTypes)]
@@ -19,9 +19,7 @@ pub enum LinkTypes {
 // Validation you perform during the genesis process. Nobody else on the network performs it, only you.
 // There *is no* access to network calls in this callback
 #[hdk_extern]
-pub fn genesis_self_check(
-    _data: GenesisSelfCheckData,
-) -> ExternResult<ValidateCallbackResult> {
+pub fn genesis_self_check(_data: GenesisSelfCheckData) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }
 // Validation the network performs when you try to join, you can't perform this validation yourself as you are not a member yet.
@@ -56,8 +54,8 @@ pub fn validate_agent_joining(
 #[allow(dead_code)]
 pub fn validate(_op: Op) -> ExternResult<ValidateCallbackResult> {
     /*
-    match op.to_type::<EntryTypes, LinkTypes>()? {
-        OpType::StoreEntry(store_entry) => {
+    match op.flattened()::<EntryTypes, LinkTypes>()? {
+        FlatOp::StoreEntry(store_entry) => {
             match store_entry {
                 OpEntry::CreateEntry { app_entry, action } => {
                     match app_entry {
@@ -86,7 +84,7 @@ pub fn validate(_op: Op) -> ExternResult<ValidateCallbackResult> {
                 _ => Ok(ValidateCallbackResult::Valid),
             }
         }
-        OpType::RegisterUpdate(update_entry) => {
+        FlatOp::RegisterUpdate(update_entry) => {
             match update_entry {
                 OpUpdate::Entry {
                     original_action,
@@ -112,7 +110,7 @@ pub fn validate(_op: Op) -> ExternResult<ValidateCallbackResult> {
                 _ => Ok(ValidateCallbackResult::Valid),
             }
         }
-        OpType::RegisterDelete(delete_entry) => {
+        FlatOp::RegisterDelete(delete_entry) => {
             match delete_entry {
                 OpDelete::Entry { original_action, original_app_entry, action } => {
                     match original_app_entry {
@@ -125,7 +123,7 @@ pub fn validate(_op: Op) -> ExternResult<ValidateCallbackResult> {
                 _ => Ok(ValidateCallbackResult::Valid),
             }
         }
-        OpType::RegisterCreateLink {
+        FlatOp::RegisterCreateLink {
             link_type,
             base_address,
             target_address,
@@ -151,7 +149,7 @@ pub fn validate(_op: Op) -> ExternResult<ValidateCallbackResult> {
                 }
             }
         }
-        OpType::RegisterDeleteLink {
+        FlatOp::RegisterDeleteLink {
             link_type,
             base_address,
             target_address,
@@ -180,7 +178,7 @@ pub fn validate(_op: Op) -> ExternResult<ValidateCallbackResult> {
                 }
             }
         }
-        OpType::StoreRecord(store_record) => {
+        FlatOp::StoreRecord(store_record) => {
             match store_record {
                 // Complementary validation to the `StoreEntry` Op, in which the record itself is validated
                 // If you want to optimize performance, you can remove the validation for an entry type here and keep it in `StoreEntry`
@@ -378,7 +376,7 @@ pub fn validate(_op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                     }
                 }
-                OpRecord::CreatePrivateEntry { app_entry_type: _, action: _ } => 
+                OpRecord::CreatePrivateEntry { app_entry_type: _, action: _ } =>
                     Ok(ValidateCallbackResult::Valid),
                 OpRecord::UpdatePrivateEntry {
                     original_action_hash: _,
@@ -411,7 +409,7 @@ pub fn validate(_op: Op) -> ExternResult<ValidateCallbackResult> {
                 _ => Ok(ValidateCallbackResult::Valid),
             }
         }
-        OpType::RegisterAgentActivity(agent_activity) => {
+        FlatOp::RegisterAgentActivity(agent_activity) => {
             match agent_activity {
                 OpActivity::CreateAgent { agent, action } => {
                     let previous_action = must_get_action(action.prev_action)?;
@@ -437,14 +435,21 @@ pub fn validate(_op: Op) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }
 fn _record_to_app_entry(record: &Record) -> ExternResult<Option<EntryTypes>> {
-    if let Record { signed_action, entry: RecordEntry::Present(entry) } = record {
-        if let Some(EntryType::App(AppEntryDef { entry_index, zome_index, .. }))
-            = signed_action.action().entry_type()
+    if let Record {
+        signed_action,
+        entry: RecordEntry::Present(entry),
+    } = record
+    {
+        if let Some(EntryType::App(AppEntryDef {
+            entry_index,
+            zome_index,
+            ..
+        })) = signed_action.action().entry_type()
         {
             return EntryTypes::deserialize_from_type(
-                zome_index.clone(),
-                entry_index.clone(),
-                &entry,
+                *zome_index,
+                *entry_index,
+                entry,
             );
         }
     }

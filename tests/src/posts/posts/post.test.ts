@@ -340,25 +340,25 @@ test('get_all_posts_sorted_by_votes sorts by number of votes desc, then timestam
       zome_name: "posts",
       fn_name: "get_all_posts_sorted_by_votes",
     });
-    t.deepEqual(alice_posts_sorted, [record.signed_action.hashed.hash, record3.signed_action.hashed.hash, record2.signed_action.hashed.hash])
+    t.deepEqual(alice_posts_sorted, [record.signed_action.hashed.hash, record4.signed_action.hashed.hash, record3.signed_action.hashed.hash, record2.signed_action.hashed.hash])
     
     const bob_posts_sorted = await bob.namedCells.get('herd').callZome({
       zome_name: "posts",
       fn_name: "get_all_posts_sorted_by_votes",
     });
-    t.deepEqual(bob_posts_sorted, [record.signed_action.hashed.hash, record3.signed_action.hashed.hash, record2.signed_action.hashed.hash])
+    t.deepEqual(bob_posts_sorted, [record.signed_action.hashed.hash, record4.signed_action.hashed.hash, record3.signed_action.hashed.hash, record2.signed_action.hashed.hash])
 
     const jane_posts_sorted = await jane.namedCells.get('herd').callZome({
       zome_name: "posts",
       fn_name: "get_all_posts_sorted_by_votes",
     });
-    t.deepEqual(jane_posts_sorted, [record.signed_action.hashed.hash, record3.signed_action.hashed.hash, record2.signed_action.hashed.hash])
+    t.deepEqual(jane_posts_sorted, [record.signed_action.hashed.hash, record4.signed_action.hashed.hash, record3.signed_action.hashed.hash, record2.signed_action.hashed.hash])
 
     const john_posts_sorted = await john.namedCells.get('herd').callZome({
       zome_name: "posts",
       fn_name: "get_all_posts_sorted_by_votes",
     });
-    t.deepEqual(john_posts_sorted, [record.signed_action.hashed.hash, record3.signed_action.hashed.hash, record2.signed_action.hashed.hash])
+    t.deepEqual(john_posts_sorted, [record.signed_action.hashed.hash, record4.signed_action.hashed.hash, record3.signed_action.hashed.hash, record2.signed_action.hashed.hash])
         
   },
   true,
