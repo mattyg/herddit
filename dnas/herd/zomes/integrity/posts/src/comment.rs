@@ -5,7 +5,7 @@ pub fn validate_create_comment(
     _action: EntryCreationAction,
     comment: Comment,
 ) -> ExternResult<ValidateCallbackResult> {
-    let record = must_get_valid_record(comment.post_ah.clone())?;
+    let record = must_get_valid_record(comment.post_ah)?;
     let _post: crate::Post = record
         .entry()
         .to_app_option()
@@ -87,7 +87,7 @@ pub fn validate_create_link_comment_updates(
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
     // Check the entry type for the given action hash
-    let action_hash = ActionHash::try_from(base_address)?.map_err(|e| wasm_error!(e));
+    let action_hash = ActionHash::try_from(base_address).map_err(|e| wasm_error!(e))?;
     let record = must_get_valid_record(action_hash)?;
     let _comment: crate::Comment = record
         .entry()
@@ -97,7 +97,7 @@ pub fn validate_create_link_comment_updates(
             "Linked action must reference an entry"
         ))))?;
     // Check the entry type for the given action hash
-    let action_hash = ActionHash::try_from(target_address)?.map_err(|e| wasm_error!(e));
+    let action_hash = ActionHash::try_from(target_address).map_err(|e| wasm_error!(e))?;
     let record = must_get_valid_record(action_hash)?;
     let _comment: crate::Comment = record
         .entry()

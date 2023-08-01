@@ -5,7 +5,7 @@ use std::cmp::Ordering;
 
 #[hdk_extern]
 pub fn create_post(post: Post) -> ExternResult<Record> {
-    let post_hash = create_entry(&EntryTypes::Post(post.clone()))?;
+    let post_hash = create_entry(&EntryTypes::Post(post))?;
     let record = get(post_hash.clone(), GetOptions::default())?.ok_or(wasm_error!(
         WasmErrorInner::Guest(String::from("Could not find the newly created Post"))
     ))?;
@@ -17,7 +17,7 @@ pub fn create_post(post: Post) -> ExternResult<Record> {
         (),
     )?;
     let my_agent_pub_key = agent_info()?.agent_latest_pubkey;
-    create_link(my_agent_pub_key, post_hash.clone(), LinkTypes::MyPosts, ())?;
+    create_link(my_agent_pub_key, post_hash, LinkTypes::MyPosts, ())?;
     Ok(record)
 }
 
@@ -40,9 +40,9 @@ pub fn get_post_metadata(original_post_hash: ActionHash) -> ExternResult<PostMet
     let mut post_vote_links = get_links(original_post_hash, LinkTypes::PostVoteByAgent, None)?;
     post_vote_links.sort_by(|a, b| -> Ordering {
         if a.target == b.target {
-            return b.timestamp.cmp(&a.timestamp);
+            b.timestamp.cmp(&a.timestamp)
         } else {
-            return a.target.cmp(&b.target);
+            a.target.cmp(&b.target)
         }
     });
     post_vote_links.dedup_by_key(|a| a.target.clone());
@@ -56,19 +56,17 @@ pub fn get_post_metadata(original_post_hash: ActionHash) -> ExternResult<PostMet
         .clone()
         .into_iter()
         .filter(|post_vote_tag| post_vote_tag.value == 1)
-        .collect::<Vec<VoteTag>>()
-        .len();
+        .count();
 
     let downvotes = latest_post_vote_tags
         .into_iter()
         .filter(|post_vote_tag| post_vote_tag.value == -1)
-        .collect::<Vec<VoteTag>>()
-        .len();
+        .count();
 
     let post_metadata = PostMetadata {
         record: post,
-        upvotes: upvotes,
-        downvotes: downvotes,
+        upvotes,
+        downvotes,
     };
 
     Ok(post_metadata)
@@ -85,12 +83,12 @@ pub struct UpdatePostInput {
 pub fn update_post(input: UpdatePostInput) -> ExternResult<Record> {
     let updated_post_hash = update_entry(input.original_post_hash.clone(), &input.updated_post)?;
     create_link(
-        input.original_post_hash.clone(),
+        input.original_post_hash,
         updated_post_hash.clone(),
         LinkTypes::PostUpdates,
         (),
     )?;
-    let record = get(updated_post_hash.clone(), GetOptions::default())?.ok_or(wasm_error!(
+    let record = get(updated_post_hash, GetOptions::default())?.ok_or(wasm_error!(
         WasmErrorInner::Guest(String::from("Could not find the newly updated Post"))
     ))?;
     Ok(record)
@@ -133,10 +131,10 @@ pub fn downvote_post(original_post_hash: ActionHash) -> ExternResult<()> {
 #[hdk_extern]
 pub fn get_my_vote_on_post(comment_hash: ActionHash) -> ExternResult<Option<VoteTag>> {
     // Get all votes on this comment
-    let vote_links = get_links(comment_hash.clone(), LinkTypes::PostVoteByAgent, None)?;
+    let vote_links = get_links(comment_hash, LinkTypes::PostVoteByAgent, None)?;
 
     // Filter only my votes, sort by timestamp
-    let my_pubkey = AnyLinkableHash::try_from(agent_info()?.agent_initial_pubkey).map_err(|e| wasm_error!(e))?;
+    let my_pubkey = AnyLinkableHash::from(agent_info()?.agent_initial_pubkey);
     let mut my_vote_links: Vec<Link> = vote_links
         .into_iter()
         .filter(|link| link.target == my_pubkey)

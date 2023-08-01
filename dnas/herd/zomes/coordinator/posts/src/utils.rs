@@ -23,7 +23,7 @@ pub fn get_latest_record(original_ah: ActionHash) -> ExternResult<Record> {
 
                         // Updates exist, select latest record
                         _ => {
-                            let mut updates = record_details.updates.clone();
+                            let mut updates = record_details.updates;
                             updates.sort_by_key(|a| a.hashed.content.timestamp());
                             let latest_update = updates.last().ok_or(wasm_error!(
                                 WasmErrorInner::Guest("Latest update not found".into())
@@ -42,7 +42,7 @@ pub fn get_latest_record(original_ah: ActionHash) -> ExternResult<Record> {
 
                 // Deletes exist, select earliest delete
                 _ => {
-                    let mut deletes = record_details.deletes.clone();
+                    let mut deletes = record_details.deletes;
                     deletes.sort_by_key(|a| a.hashed.content.timestamp());
                     let earliest_delete = deletes.first().ok_or(wasm_error!(
                         WasmErrorInner::Guest("Earliest delete record not found".into())

@@ -8,7 +8,7 @@ pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
 
 #[hdk_extern]
 pub fn get_info(_: ()) -> ExternResult<HerdInfo> {
-    let dna_properties = dna_info()?.properties;
+    let dna_properties = dna_info()?.modifiers.properties;
 
     let herd_info = HerdInfo::try_from(dna_properties)
         .map_err(|err| wasm_error!(WasmErrorInner::Guest(err.into())))?;

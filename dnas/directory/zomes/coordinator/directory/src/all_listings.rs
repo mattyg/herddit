@@ -27,7 +27,7 @@ pub fn get_listings(input: GetListingsInput) -> ExternResult<Vec<(DnaHash, Actio
         .clone()
         .into_iter()
         .filter_map(|r| r.entry.to_app_option().ok())
-        .filter_map(|r| r)
+        .flatten()
         .map(|listing: Listing| listing.dna)
         .collect();
 

@@ -17,20 +17,20 @@ pub fn create_private_listing_idempotent(listing: PrivateListing) -> ExternResul
         })
         .collect();
 
-    match identical_listings.len() > 0 {
-        true => Ok(identical_listings
+    match identical_listings.is_empty() {
+        true => create_entry(EntryTypes::PrivateListing(listing)),
+        false => Ok(identical_listings
             .first()
             .unwrap()
             .action_hashed()
             .hash
             .clone()),
-        false => create_entry(EntryTypes::PrivateListing(listing.clone())),
     }
 }
 
 #[hdk_extern]
 pub fn create_listing(listing: Listing) -> ExternResult<ActionHash> {
-    let listing_hash = create_entry(&EntryTypes::Listing(listing.clone()))?;
+    let listing_hash = create_entry(&EntryTypes::Listing(listing))?;
 
     let path = Path::from("all_listings");
     create_link(
@@ -54,8 +54,8 @@ pub fn get_listing(original_listing_hash: ActionHash) -> ExternResult<Option<Rec
         .into_iter()
         .max_by(|link_a, link_b| link_b.timestamp.cmp(&link_a.timestamp));
     let latest_listing_hash = match latest_link {
-        Some(link) => ActionHash::try_from(link.target.clone()).map_err(|e| wasm_error!(e))?,
-        None => original_listing_hash.clone(),
+        Some(link) => ActionHash::try_from(link.target).map_err(|e| wasm_error!(e))?,
+        None => original_listing_hash,
     };
     get(latest_listing_hash, GetOptions::default())
 }
@@ -71,12 +71,12 @@ pub fn update_listing(input: UpdateListingInput) -> ExternResult<Record> {
     let updated_listing_hash =
         update_entry(input.previous_listing_hash.clone(), &input.updated_listing)?;
     create_link(
-        input.original_listing_hash.clone(),
+        input.original_listing_hash,
         updated_listing_hash.clone(),
         LinkTypes::ListingUpdates,
         (),
     )?;
-    let record = get(updated_listing_hash.clone(), GetOptions::default())?.ok_or(wasm_error!(
+    let record = get(updated_listing_hash, GetOptions::default())?.ok_or(wasm_error!(
         WasmErrorInner::Guest(String::from("Could not find the newly updated Listing"))
     ))?;
     Ok(record)

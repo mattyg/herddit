@@ -13,8 +13,8 @@ pub fn validate_agent_joining(
 
 #[hdk_extern]
 pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
-    match op.to_type::<EntryTypes, LinkTypes>()? {
-        OpType::StoreEntry(store_entry) => match store_entry {
+    match op.flattened::<EntryTypes, LinkTypes>()? {
+        FlatOp::StoreEntry(store_entry) => match store_entry {
             OpEntry::CreateEntry { app_entry, action } => match app_entry {
                 EntryTypes::Post(post) => {
                     validate_create_post(EntryCreationAction::Create(action), post)
@@ -35,7 +35,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             },
             _ => Ok(ValidateCallbackResult::Valid),
         },
-        OpType::RegisterUpdate(update_entry) => match update_entry {
+        FlatOp::RegisterUpdate(update_entry) => match update_entry {
             OpUpdate::Entry {
                 original_action,
                 original_app_entry,
@@ -52,7 +52,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             },
             _ => Ok(ValidateCallbackResult::Valid),
         },
-        OpType::RegisterDelete(delete_entry) => match delete_entry {
+        FlatOp::RegisterDelete(delete_entry) => match delete_entry {
             OpDelete::Entry {
                 original_action,
                 original_app_entry,
@@ -65,7 +65,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             },
             _ => Ok(ValidateCallbackResult::Valid),
         },
-        OpType::RegisterCreateLink {
+        FlatOp::RegisterCreateLink {
             link_type,
             base_address,
             target_address,
@@ -112,7 +112,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 }
             }
         }
-        OpType::RegisterDeleteLink {
+        FlatOp::RegisterDeleteLink {
             link_type,
             base_address,
             target_address,
@@ -200,7 +200,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 ),
             }
         }
-        OpType::StoreRecord(store_record) => match store_record {
+        FlatOp::StoreRecord(store_record) => match store_record {
             OpRecord::CreateEntry { app_entry, action } => match app_entry {
                 EntryTypes::Post(post) => {
                     validate_create_post(EntryCreationAction::Create(action), post)
@@ -358,8 +358,8 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                     }
                 };
                 let link_type = match LinkTypes::from_type(
-                    create_link.zome_index.clone(),
-                    create_link.link_type.clone(),
+                    create_link.zome_index,
+                    create_link.link_type,
                 )? {
                     Some(lt) => lt,
                     None => {
@@ -442,7 +442,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             OpRecord::InitZomesComplete { action: _ } => Ok(ValidateCallbackResult::Valid),
             _ => Ok(ValidateCallbackResult::Valid),
         },
-        OpType::RegisterAgentActivity(agent_activity) => match agent_activity {
+        FlatOp::RegisterAgentActivity(agent_activity) => match agent_activity {
             OpActivity::CreateAgent { agent, action } => {
                 let previous_action = must_get_action(action.prev_action)?;
                 match previous_action.action() {
@@ -477,9 +477,9 @@ fn record_to_app_entry(record: &Record) -> ExternResult<Option<EntryTypes>> {
         })) = signed_action.action().entry_type()
         {
             return EntryTypes::deserialize_from_type(
-                zome_index.clone(),
-                entry_index.clone(),
-                &entry,
+                *zome_index,
+                *entry_index,
+                entry,
             );
         }
     }

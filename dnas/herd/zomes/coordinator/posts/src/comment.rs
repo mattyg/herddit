@@ -8,12 +8,12 @@ use posts_integrity::*;
 pub fn create_comment(comment: Comment) -> ExternResult<Record> {
     let comment_hash = create_entry(&EntryTypes::Comment(comment.clone()))?;
     create_link(
-        comment.post_ah.clone(),
+        comment.post_ah,
         comment_hash.clone(),
         LinkTypes::PostToComments,
         (),
     )?;
-    let record = get(comment_hash.clone(), GetOptions::default())?.ok_or(wasm_error!(
+    let record = get(comment_hash, GetOptions::default())?.ok_or(wasm_error!(
         WasmErrorInner::Guest(String::from("Could not find the newly created Comment"))
     ))?;
     Ok(record)
@@ -52,23 +52,21 @@ pub fn get_comment_metadata(original_action_hash: ActionHash) -> ExternResult<Co
         .clone()
         .into_iter()
         .filter(|vote_tag| vote_tag.value == 1)
-        .collect::<Vec<VoteTag>>()
-        .len();
+        .count();
 
     let downvotes = latest_vote_tags
         .into_iter()
         .filter(|vote_tag| vote_tag.value == -1)
-        .collect::<Vec<VoteTag>>()
-        .len();
+        .count();
 
     // get actual comment
     let record = get_latest_record(original_action_hash.clone())?;
 
     let comment_metadata = CommentMetadata {
         original_action_hash,
-        record: record,
-        upvotes: upvotes,
-        downvotes: downvotes,
+        record,
+        upvotes,
+        downvotes,
     };
 
     Ok(comment_metadata)
@@ -85,7 +83,7 @@ pub fn update_comment(input: UpdateCommentInput) -> ExternResult<Record> {
     let updated_comment_hash =
         update_entry(input.original_comment_hash.clone(), &input.updated_comment)?;
 
-    let record = get(updated_comment_hash.clone(), GetOptions::default())?.ok_or(wasm_error!(
+    let record = get(updated_comment_hash, GetOptions::default())?.ok_or(wasm_error!(
         WasmErrorInner::Guest(String::from("Could not find the newly updated Comment"))
     ))?;
     Ok(record)
@@ -119,7 +117,7 @@ pub fn get_comments_for_post(post_hash: ActionHash) -> ExternResult<Vec<ActionHa
                 .cmp(&a.record.action().timestamp());
         } else {
             // Order by highest value, desc
-            return b_value.cmp(&a_value);
+            b_value.cmp(&a_value)
         }
     });
 
@@ -153,7 +151,7 @@ pub fn upvote_comment(original_post_hash: ActionHash) -> ExternResult<()> {
 #[hdk_extern]
 pub fn downvote_comment(original_post_hash: ActionHash) -> ExternResult<()> {
     create_link(
-        agent_info()?.agent_initial_pubkey.clone(),
+        agent_info()?.agent_initial_pubkey,
         original_post_hash.clone(),
         LinkTypes::MyVotedComments,
         (),
@@ -170,10 +168,10 @@ pub fn downvote_comment(original_post_hash: ActionHash) -> ExternResult<()> {
 #[hdk_extern]
 pub fn get_my_vote_on_comment(comment_hash: ActionHash) -> ExternResult<Option<VoteTag>> {
     // Get all votes on this comment
-    let vote_links = get_links(comment_hash.clone(), LinkTypes::CommentVoteByAgent, None)?;
+    let vote_links = get_links(comment_hash, LinkTypes::CommentVoteByAgent, None)?;
 
     // Filter only my votes, sort by timestamp
-    let my_pubkey =  AnyLinkableHash::try_from(agent_info()?.agent_initial_pubkey)?;
+    let my_pubkey =  AnyLinkableHash::from(agent_info()?.agent_initial_pubkey);
     let mut my_vote_links: Vec<Link> = vote_links
         .into_iter()
         .filter(|link| link.target == my_pubkey)

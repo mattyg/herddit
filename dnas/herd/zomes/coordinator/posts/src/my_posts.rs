@@ -11,7 +11,7 @@ pub fn get_my_posts(author: AgentPubKey) -> ExternResult<Vec<ActionHash>> {
     let records = HDK.with(|hdk| hdk.borrow().get(get_input))?;
     let hashes: Vec<ActionHash> = records
         .into_iter()
-        .filter_map(|r| r)
+        .flatten()
         .map(|r| r.action_address().clone())
         .collect();
     Ok(hashes)

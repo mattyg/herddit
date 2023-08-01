@@ -43,8 +43,8 @@ pub fn validate_agent_joining(
 //
 #[hdk_extern]
 pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
-    match op.to_type::<(), ()>()? {
-        OpType::StoreEntry(store_entry) => match store_entry {
+    match op.flattened::<(), ()>()? {
+        FlatOp::StoreEntry(store_entry) => match store_entry {
             OpEntry::CreateEntry {
                 app_entry: _,
                 action: _,
@@ -56,7 +56,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             } => Ok(ValidateCallbackResult::Valid),
             _ => Ok(ValidateCallbackResult::Valid),
         },
-        OpType::RegisterUpdate(update_entry) => match update_entry {
+        FlatOp::RegisterUpdate(update_entry) => match update_entry {
             OpUpdate::Entry {
                 original_action: _,
                 original_app_entry: _,
@@ -67,7 +67,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             )),
             _ => Ok(ValidateCallbackResult::Valid),
         },
-        OpType::RegisterDelete(delete_entry) => match delete_entry {
+        FlatOp::RegisterDelete(delete_entry) => match delete_entry {
             OpDelete::Entry {
                 original_action: _,
                 original_app_entry: _,
@@ -75,7 +75,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             } => Ok(ValidateCallbackResult::Valid),
             _ => Ok(ValidateCallbackResult::Valid),
         },
-        OpType::RegisterCreateLink {
+        FlatOp::RegisterCreateLink {
             link_type: _,
             base_address: _,
             target_address: _,
@@ -84,7 +84,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
         } => Ok(ValidateCallbackResult::Invalid(String::from(
             "There are no link types in this integrity zome",
         ))),
-        OpType::RegisterDeleteLink {
+        FlatOp::RegisterDeleteLink {
             link_type: _,
             base_address: _,
             target_address: _,
@@ -92,7 +92,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             original_action: _,
             action: _,
         } => Ok(ValidateCallbackResult::Valid),
-        OpType::StoreRecord(store_record) => match store_record {
+        FlatOp::StoreRecord(store_record) => match store_record {
             // Complementary validation to the `StoreEntry` Op, in which the record itself is validated
             // If you want to optimize performance, you can remove the validation for an entry type here and keep it in `StoreEntry`
             // Notice that doing so will cause `must_get_valid_record` for this record to return a valid record even if the `StoreEntry` validation failed
@@ -180,7 +180,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             OpRecord::InitZomesComplete { action: _ } => Ok(ValidateCallbackResult::Valid),
             _ => Ok(ValidateCallbackResult::Valid),
         },
-        OpType::RegisterAgentActivity(agent_activity) => match agent_activity {
+        FlatOp::RegisterAgentActivity(agent_activity) => match agent_activity {
             OpActivity::CreateAgent { agent, action } => {
                 let previous_action = must_get_action(action.prev_action)?;
                 match previous_action.action() {

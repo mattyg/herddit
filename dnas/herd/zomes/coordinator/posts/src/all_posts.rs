@@ -16,7 +16,7 @@ pub fn get_all_posts(_: ()) -> ExternResult<Vec<ActionHash>> {
     let records = HDK.with(|hdk| hdk.borrow().get(get_input))?;
     let hashes: Vec<ActionHash> = records
         .into_iter()
-        .filter_map(|r| r)
+        .flatten()
         .map(|r| r.action_address().clone())
         .collect();
     Ok(hashes)
@@ -46,7 +46,7 @@ pub fn get_all_posts_sorted_by_votes(_: ()) -> ExternResult<Vec<ActionHash>> {
                 .cmp(&b.record.action().timestamp());
         } else {
             // Order by highest value, desc
-            return b_value.cmp(&a_value);
+            b_value.cmp(&a_value)
         }
     });
 

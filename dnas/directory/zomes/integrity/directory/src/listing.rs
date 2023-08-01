@@ -29,7 +29,7 @@ pub fn validate_create_listing(
     }
 
     // Listing title contains no whitespace, is alphanumeric
-    if !listing.title.chars().all(|c| char::is_alphanumeric(c)) {
+    if !listing.title.chars().all(char::is_alphanumeric) {
         return Ok(ValidateCallbackResult::Invalid(
             "Title can only contain alphanumeric characters, and no spaces".into(),
         ));
